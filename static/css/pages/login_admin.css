@@ -1,0 +1,335 @@
+/* =============================================================
+   login_admin.css — Pantalla de login para administradores
+   FairBet Lab — diseño corporativo/serio
+   ============================================================= */
+
+/* ── Layout centrado full screen ── */
+.admin-auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--admin-bg);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Patrón de fondo */
+.admin-auth-page::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse at 30% 20%, rgba(79, 70, 229, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(99, 102, 241, 0.06) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+/* Grid de puntos sutil */
+.admin-auth-bg-grid {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(99,102,241,0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Banner disclaimer (dark version) ── */
+.admin-disclaimer-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: rgba(217, 119, 6, 0.08);
+  border-bottom: 1px solid rgba(217, 119, 6, 0.2);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #fbbf24;
+  letter-spacing: 0.015em;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.admin-disclaimer-banner svg { flex-shrink: 0; color: #f59e0b; }
+
+/* ── Contenedor centrado ── */
+.admin-auth-center {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Card admin ── */
+.admin-auth-card {
+  background: #1e293b;
+  border: 1px solid #2d3f55;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255,255,255,0.04);
+  overflow: hidden;
+  width: 100%;
+  max-width: 440px;
+  animation: cardIn var(--dur-lg) var(--ease) both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Franja superior del card */
+.admin-card-top {
+  background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+  padding: 28px 32px 24px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.admin-card-top::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(99,102,241,0.4), transparent);
+}
+
+/* Icono de candado */
+.admin-lock-icon {
+  width: 52px;
+  height: 52px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1.5px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  color: #a5b4fc;
+}
+
+/* Título del card */
+.admin-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #f1f5f9;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+}
+
+/* Badge acceso restringido */
+.admin-restricted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #fca5a5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* ── Body del card ── */
+.admin-card-body {
+  padding: 28px 32px 32px;
+}
+
+/* Logo en body */
+.admin-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #e2e8f0;
+  text-decoration: none !important;
+  margin-bottom: 24px;
+}
+
+.admin-logo-mark {
+  width: 34px;
+  height: 34px;
+  background: rgba(99, 102, 241, 0.2);
+  border: 1.5px solid rgba(99, 102, 241, 0.3);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #a5b4fc;
+}
+
+.admin-logo-accent { color: #a5b4fc; }
+
+/* ── Formulario admin ── */
+.admin-form { display: flex; flex-direction: column; gap: 18px; }
+
+/* Label admin */
+.admin-form-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #94a3b8;
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+/* Input admin */
+.admin-form-input {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  background: rgba(255,255,255,0.04);
+  border: 1.5px solid #334155;
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  color: #e2e8f0;
+  outline: none;
+  transition: border-color var(--dur), background var(--dur), box-shadow var(--dur);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.admin-form-input::placeholder { color: #475569; }
+
+.admin-form-input:hover { border-color: #475569; }
+
+.admin-form-input:focus {
+  border-color: #6366f1;
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.admin-form-input--error {
+  border-color: rgba(220, 38, 38, 0.6);
+  background: rgba(220, 38, 38, 0.05);
+}
+
+/* Icono dentro del input admin */
+.admin-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.admin-input-icon {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #475569;
+  pointer-events: none;
+  transition: color var(--dur);
+  flex-shrink: 0;
+}
+
+.admin-input-wrapper .admin-form-input:focus ~ .admin-input-icon,
+.admin-input-icon--right {
+  right: 13px;
+  left: auto;
+}
+
+/* Botón toggle password (admin) */
+.admin-pwd-toggle {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #475569;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  transition: color var(--dur);
+}
+
+.admin-pwd-toggle:hover { color: #94a3b8; }
+
+/* Botón submit admin */
+.admin-submit-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--indigo) 0%, #6366f1 100%);
+  color: #fff;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  letter-spacing: 0.01em;
+  transition: opacity var(--dur), transform var(--dur), box-shadow var(--dur);
+  box-shadow: 0 4px 16px rgba(79, 70, 229, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.admin-submit-btn:hover {
+  opacity: 0.92;
+  box-shadow: 0 6px 24px rgba(79, 70, 229, 0.45);
+}
+
+.admin-submit-btn:active { transform: scale(0.98); }
+
+/* ── Footer del card ── */
+.admin-card-footer {
+  padding: 16px 32px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  text-align: center;
+  font-size: 0.8125rem;
+  color: #475569;
+}
+
+.admin-card-footer a {
+  color: #6366f1;
+  font-weight: 500;
+}
+
+.admin-card-footer a:hover { text-decoration: underline; }
+
+/* Alerta de error (dark) */
+.admin-alert-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  background: rgba(220, 38, 38, 0.1);
+  border: 1.5px solid rgba(220, 38, 38, 0.25);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  color: #fca5a5;
+  font-weight: 500;
+}
+
+/* ── Footer de página (dark) ── */
+.admin-page-footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 16px 20px;
+  font-size: 0.75rem;
+  color: #334155;
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .admin-auth-center { padding: 24px 16px; }
+  .admin-card-top { padding: 24px 20px 20px; }
+  .admin-card-body { padding: 24px 20px 24px; }
+  .admin-card-footer { padding: 14px 20px; }
+}

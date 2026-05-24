@@ -1,0 +1,217 @@
+{% extends "layouts/base_auth.html" %}
+{% load static %}
+
+{% block title %}Ingresar — FairBet Lab{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/login_cliente.css' %}" />
+{% endblock %}
+
+{% block body %}
+<div class="auth-page">
+
+  {# Banner educativo obligatorio #}
+  {% include "components/auth_message.html" %}
+
+  <div class="auth-split">
+
+    <!-- ── Panel izquierdo: Branding ── -->
+    <aside class="auth-brand-panel" aria-hidden="true">
+
+      {# Círculos decorativos — puramente visuales #}
+      <div class="auth-brand-circle auth-brand-circle--lg"></div>
+      <div class="auth-brand-circle auth-brand-circle--md"></div>
+      <div class="auth-brand-circle auth-brand-circle--sm"></div>
+
+      {# Logo #}
+      <a href="/" class="auth-brand-logo">
+        <div class="auth-brand-logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               width="18" height="18" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        FairBet <span class="auth-brand-logo-accent">Lab</span>
+      </a>
+
+      {# Tagline #}
+      <div class="auth-brand-content">
+        <h1 class="auth-brand-tagline">
+          Aprende a <em>analizar</em><br>apuestas deportivas
+        </h1>
+        <p class="auth-brand-desc">
+          Simulador educativo con mercados reales, cuotas virtuales
+          y herramientas para comprender la probabilidad en el deporte.
+        </p>
+
+        {# Stats decorativos — valores de ejemplo ilustrativos #}
+        <div class="auth-brand-stats">
+          <div class="auth-brand-stat">
+            <span class="auth-brand-stat-value">100%</span>
+            <span class="auth-brand-stat-label">Virtual</span>
+          </div>
+          <div class="auth-brand-stat">
+            <span class="auth-brand-stat-value">0 S/</span>
+            <span class="auth-brand-stat-label">Dinero real</span>
+          </div>
+          <div class="auth-brand-stat">
+            <span class="auth-brand-stat-value">Edu</span>
+            <span class="auth-brand-stat-label">Solo educativo</span>
+          </div>
+        </div>
+      </div>
+
+      {# Disclaimer al pie del panel #}
+      <div class="auth-brand-disclaimer">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13" aria-hidden="true">
+          <path fill-rule="evenodd"
+                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516
+                   2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75
+                   0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+                clip-rule="evenodd"/>
+        </svg>
+        Solo fichas virtuales — sin dinero real
+      </div>
+
+    </aside>
+
+    <!-- ── Panel derecho: Formulario ── -->
+    <main class="auth-form-panel">
+      <div class="auth-form-container">
+
+        <div class="auth-form-header">
+          <h2 class="auth-form-title">Bienvenido de vuelta</h2>
+          <p class="auth-form-subtitle">Ingresa a tu cuenta para continuar</p>
+        </div>
+
+        {# Errores generales del formulario #}
+        {% include "components/form_errors.html" with form=form %}
+
+        {# Formulario de autenticación Django #}
+        <form class="auth-form" method="post" novalidate id="loginClienteForm">
+          {% csrf_token %}
+
+          {# Campo usuario #}
+          <div class="form-group">
+            <label for="{{ form.username.id_for_label }}" class="form-label">
+              Usuario
+            </label>
+            <div class="input-wrapper">
+              <span class="input-icon-left" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     width="16" height="16">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </span>
+              <input
+                type="text"
+                name="{{ form.username.html_name }}"
+                id="{{ form.username.id_for_label }}"
+                class="form-input{% if form.username.errors %} form-input--error{% endif %}"
+                placeholder="Tu nombre de usuario"
+                autocomplete="username"
+                autofocus
+                value="{{ form.username.value|default:'' }}"
+              />
+            </div>
+            {% for error in form.username.errors %}
+            <p class="form-hint form-hint--error">
+              <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12" aria-hidden="true">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0-9a.75.75 0 0 0-.75.75v3a.75.75 0 0 0 1.5 0v-3A.75.75 0 0 0 8 6zm0 6.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5z"/>
+              </svg>
+              {{ error }}
+            </p>
+            {% endfor %}
+          </div>
+
+          {# Campo contraseña #}
+          <div class="form-group">
+            <label for="{{ form.password.id_for_label }}" class="form-label">
+              Contraseña
+            </label>
+            <div class="input-wrapper has-right-icon">
+              <span class="input-icon-left" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     width="16" height="16">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <input
+                type="password"
+                name="{{ form.password.html_name }}"
+                id="{{ form.password.id_for_label }}"
+                class="form-input{% if form.password.errors %} form-input--error{% endif %}"
+                placeholder="••••••••"
+                autocomplete="current-password"
+                data-pwd-toggle-target
+              />
+              <button type="button"
+                      class="input-icon-right btn-icon-ghost"
+                      data-pwd-toggle
+                      aria-label="Mostrar contraseña"
+                      aria-pressed="false"
+                      tabindex="-1">
+                <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" width="16" height="16" aria-hidden="true">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                  <circle cx="12" cy="12" r="3"/>
+                </svg>
+                <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                     stroke-width="2" width="16" height="16" aria-hidden="true" hidden>
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                  <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            {% for error in form.password.errors %}
+            <p class="form-hint form-hint--error">
+              <svg viewBox="0 0 16 16" fill="currentColor" width="12" height="12" aria-hidden="true">
+                <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0-9a.75.75 0 0 0-.75.75v3a.75.75 0 0 0 1.5 0v-3A.75.75 0 0 0 8 6zm0 6.5a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5z"/>
+              </svg>
+              {{ error }}
+            </p>
+            {% endfor %}
+          </div>
+
+          {# Botón submit #}
+          <button type="submit" class="btn btn-primary btn-full auth-submit-btn" id="loginClienteSubmit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 width="16" height="16" aria-hidden="true">
+              <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
+              <polyline points="10 17 15 12 10 7"/>
+              <line x1="15" y1="12" x2="3" y2="12"/>
+            </svg>
+            <span class="btn-text">Ingresar</span>
+            <span class="btn-spinner" hidden aria-hidden="true"></span>
+          </button>
+
+        </form>
+
+        {# Links secundarios #}
+        <div class="auth-links">
+          <p class="auth-link">
+            ¿No tienes cuenta?
+            <a href="/registro/">Crear cuenta</a>
+          </p>
+          <p class="auth-link-forgot">
+            <a href="/recuperar-password/">¿Olvidaste tu contraseña?</a>
+          </p>
+          <p class="auth-link-forgot" style="margin-top: 6px">
+            ¿Eres administrador?
+            <a href="/admin-login/">Acceso admin</a>
+          </p>
+        </div>
+
+      </div>
+    </main>
+
+  </div><!-- /auth-split -->
+</div><!-- /auth-page -->
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'js/pages/login_cliente.js' %}"></script>
+{% endblock %}

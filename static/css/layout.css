@@ -1,0 +1,211 @@
+/* =============================================================
+   layout.css — Disclaimer, Header, Nav, Footer
+   FairBet Lab
+   ============================================================= */
+
+/* ── DISCLAIMER BANNER ── */
+.disclaimer-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: #fffbeb;
+  border-bottom: 1px solid #fde68a;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #92400e;
+  letter-spacing: 0.015em;
+  text-align: center;
+}
+
+.disclaimer-icon { flex-shrink: 0; color: #d97706; }
+
+/* ── HEADER ── */
+.header {
+  background: rgba(255,255,255,0.96);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: var(--shadow-xs);
+}
+
+.header-inner {
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* ── LOGO ── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.125rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.logo-mark {
+  width: 34px;
+  height: 34px;
+  background: var(--indigo-dim);
+  border: 1.5px solid rgba(79,70,229,0.25);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--indigo);
+  transition: background var(--dur) var(--ease);
+}
+
+.logo:hover .logo-mark { background: rgba(79,70,229,0.15); }
+
+.logo-mark-sm { width: 26px; height: 26px; }
+.logo-accent  { color: var(--indigo); }
+
+/* ── NAV ── */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.nav-link {
+  padding: 7px 13px;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: color var(--dur), background var(--dur);
+  white-space: nowrap;
+}
+
+.nav-link:hover       { color: var(--text-primary); background: var(--bg-raised); }
+.nav-link.active      { color: var(--indigo); background: var(--indigo-dim); font-weight: 600; }
+
+.api-pill {
+  display: inline-block;
+  padding: 3px 11px;
+  background: var(--indigo);
+  color: #fff;
+  border-radius: 20px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ── NAV TOGGLE (mobile) ── */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--text-secondary);
+  border-radius: 2px;
+  transition: transform var(--dur), opacity var(--dur);
+}
+
+.nav-toggle.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+.nav-toggle.open span:nth-child(2) { opacity: 0; }
+.nav-toggle.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── MAIN CONTENT ── */
+.main-content {
+  flex: 1;
+  max-width: 1280px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 28px 24px 48px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  background: #f8fafc;
+  border-top: 1px solid var(--border);
+  padding: 20px 0;
+  margin-top: auto;
+}
+
+.footer-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.footer-disclaimer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
+  min-width: 200px;
+}
+
+.footer-disclaimer svg { color: #d97706; flex-shrink: 0; }
+
+.footer-disclaimer p {
+  font-size: 0.75rem;
+  color: #92400e;
+  font-weight: 500;
+  text-align: center;
+}
+
+.footer-links { display: flex; gap: 16px; }
+
+.footer-link {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  transition: color var(--dur);
+}
+
+.footer-link:hover { color: var(--text-secondary); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .nav {
+    display: none;
+    position: absolute;
+    top: 65px; left: 0; right: 0;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border);
+    padding: 8px 16px 16px;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 99;
+    box-shadow: var(--shadow-md);
+  }
+
+  .nav.open { display: flex; }
+  .header   { position: relative; }
+  .nav-link { padding: 10px 14px; font-size: 0.9375rem; }
+  .nav-toggle { display: flex; }
+  .main-content { padding: 20px 16px 40px; }
+  .footer-inner { flex-direction: column; text-align: center; }
+  .footer-links { justify-content: center; }
+}
+
+@media (max-width: 480px) {
+  .container { padding: 0 16px; }
+}

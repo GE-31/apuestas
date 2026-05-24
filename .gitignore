@@ -7,3 +7,5 @@ env/
 .pytest_cache/
 staticfiles/
 media/
+# Claude / IA local
+.claude/

@@ -1,0 +1,97 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}FairBet Lab — Simulador Educativo{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/components.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/events.css' %}" />
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Banner educativo obligatorio -->
+  <div class="disclaimer-banner" role="alert">
+    <svg class="disclaimer-icon" viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
+      <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+    </svg>
+    Plataforma educativa con moneda virtual. No constituye una casa de apuestas.
+  </div>
+
+  <!-- Header principal -->
+  <header class="header" role="banner">
+    <div class="container header-inner">
+
+      <a href="/" class="logo" aria-label="FairBet Lab — Ir al inicio">
+        <div class="logo-mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <span class="logo-text">FairBet <span class="logo-accent">Lab</span></span>
+      </a>
+
+      <nav class="nav" id="mainNav" role="navigation" aria-label="Menú principal">
+        <a href="/" class="nav-link {% block nav_inicio %}{% endblock %}">Inicio</a>
+        <a href="/eventos/" class="nav-link {% block nav_eventos %}{% endblock %}">Eventos</a>
+        <a href="/api/apuestas/" class="nav-link {% block nav_apuestas %}{% endblock %}">Mis apuestas</a>
+        <a href="/api/billetera/" class="nav-link {% block nav_billetera %}{% endblock %}">Billetera</a>
+        <a href="/admin/" class="nav-link {% block nav_admin %}{% endblock %}">Admin</a>
+        <a href="/api/" class="nav-link" aria-label="Documentación API">
+          <span class="api-pill">API</span>
+        </a>
+      </nav>
+
+      <button class="nav-toggle" id="navToggle"
+              aria-label="Abrir menú" aria-expanded="false" aria-controls="mainNav">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+    </div>
+  </header>
+
+  <!-- Contenido principal -->
+  <main class="main-content" id="main" tabindex="-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer" role="contentinfo">
+    <div class="container footer-inner">
+
+      <a href="/" class="logo" aria-label="FairBet Lab">
+        <div class="logo-mark logo-mark-sm">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <span class="logo-text">FairBet <span class="logo-accent">Lab</span></span>
+      </a>
+
+      <div class="footer-disclaimer">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
+          <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+        </svg>
+        <p>Plataforma educativa con moneda virtual. No constituye una casa de apuestas.</p>
+      </div>
+
+      <div class="footer-links">
+        <a href="/api/" class="footer-link">Docs API</a>
+        <a href="/admin/" class="footer-link">Admin</a>
+      </div>
+
+    </div>
+  </footer>
+
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

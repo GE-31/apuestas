@@ -1,0 +1,186 @@
+/* =============================================================
+   forms.css — Campos de formulario y labels
+   FairBet Lab
+   ============================================================= */
+
+/* ── Grupo de campo ── */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Label ── */
+.form-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.01em;
+  user-select: none;
+}
+
+.form-label-required::after {
+  content: ' *';
+  color: var(--red);
+}
+
+/* ── Wrapper con icono ── */
+.input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon-left {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+  transition: color var(--dur);
+  flex-shrink: 0;
+}
+
+.input-icon-right {
+  position: absolute;
+  right: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  transition: color var(--dur);
+  flex-shrink: 0;
+}
+
+.input-wrapper .form-input { padding-left: 40px; }
+.input-wrapper.has-right-icon .form-input { padding-right: 40px; }
+
+/* ── Input ── */
+.form-input {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  transition:
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease),
+    background var(--dur);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.form-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.form-input:hover {
+  border-color: #c7d2e0;
+}
+
+.form-input:focus {
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+  background: var(--bg-card);
+}
+
+/* Cuando hay icono izquierdo */
+.input-wrapper .form-input:focus ~ .input-icon-left,
+.input-wrapper .form-input:focus + .input-icon-left {
+  color: var(--indigo);
+}
+
+/* ── Estados ── */
+.form-input--error {
+  border-color: var(--red);
+  background: rgba(220, 38, 38, 0.02);
+}
+
+.form-input--error:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+}
+
+.form-input--success {
+  border-color: var(--green);
+}
+
+.form-input--success:focus {
+  border-color: var(--green);
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
+}
+
+/* ── Hint / helper text ── */
+.form-hint {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+.form-hint--error {
+  color: var(--red);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── Fieldset / separador ── */
+.form-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-muted);
+  font-size: 0.8125rem;
+  font-weight: 500;
+}
+
+.form-divider::before,
+.form-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Checkbox ── */
+.form-checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-checkbox {
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  accent-color: var(--indigo);
+  flex-shrink: 0;
+}
+
+/* ── Admin variant (dark inputs) ── */
+.form-input--admin {
+  background: rgba(255,255,255,0.05);
+  border-color: var(--admin-border);
+  color: #f1f5f9;
+}
+
+.form-input--admin::placeholder {
+  color: #475569;
+}
+
+.form-input--admin:focus {
+  border-color: #6366f1;
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.form-label--admin {
+  color: #94a3b8;
+}

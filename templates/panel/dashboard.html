@@ -1,0 +1,638 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard — FairBet Lab{% endblock %}
+{% block nav_inicio %}active{% endblock %}
+
+{% block content %}
+
+<!-- ============================================================
+     MÉTRICAS RÁPIDAS
+     ============================================================ -->
+<section class="metrics-grid" aria-label="Métricas del sistema">
+
+  <article class="metric-card metric-green">
+    <div class="metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+      </svg>
+    </div>
+    <p class="metric-label">Apuestas activas</p>
+    <p class="metric-value metric-color-green">{{ active_bets_count }}</p>
+    <p class="metric-unit">en curso</p>
+  </article>
+
+  <article class="metric-card metric-blue">
+    <div class="metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+    </div>
+    <p class="metric-label">Eventos disponibles</p>
+    <p class="metric-value metric-color-blue">{{ total_count }}</p>
+    <p class="metric-unit">programados</p>
+  </article>
+
+  <article class="metric-card metric-gold">
+    <div class="metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </div>
+    <p class="metric-label">Saldo virtual</p>
+    <p class="metric-value metric-color-gold">{{ saldo_virtual|default:"—" }}</p>
+    <p class="metric-unit">fichas disponibles</p>
+  </article>
+
+  <article class="metric-card metric-purple">
+    <div class="metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+      </svg>
+    </div>
+    <p class="metric-label">Pago potencial</p>
+    <p class="metric-value metric-color-purple">{{ ultima_apuesta.payout_potencial|default:"—" }}</p>
+    <p class="metric-unit">fichas estimadas</p>
+  </article>
+
+</section>
+
+
+<!-- ============================================================
+     GRID PRINCIPAL
+     ============================================================ -->
+<div class="dashboard-grid">
+
+  <!-- ── COLUMNA PRINCIPAL ── -->
+  <div class="dashboard-col-main">
+
+    <!-- Bienvenida -->
+    <div class="card welcome-card">
+      <div class="welcome-body">
+        <div>
+          <h1 class="welcome-title">Bienvenido, <span class="welcome-name">{{ request.user.username|default:"usuario" }}</span></h1>
+          <p class="welcome-sub">Panel educativo de simulación de apuestas deportivas</p>
+        </div>
+        <div class="welcome-badges">
+          <span class="badge badge-green"><span class="badge-dot"></span>Verificado</span>
+          <span class="badge badge-blue">Cuenta activa</span>
+        </div>
+      </div>
+      <div class="welcome-glow" aria-hidden="true"></div>
+    </div>
+
+    <!-- Evento destacado + mercados -->
+    {% if evento_destacado %}
+    <div class="card event-card">
+
+      <div class="card-header">
+        <div>
+          <p class="event-sport-tag">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>
+            </svg>
+            {{ evento_destacado.deporte.nombre }} · Evento destacado
+          </p>
+          <h2 class="card-title">{{ evento_destacado.equipo_local.nombre }} vs {{ evento_destacado.equipo_visitante.nombre }}</h2>
+        </div>
+        <span class="badge
+          {% if evento_destacado.estado == 'en_vivo' %}badge-red
+          {% elif evento_destacado.estado == 'finalizado' %}badge-gray
+          {% elif evento_destacado.estado == 'suspendido' %}badge-gold
+          {% elif evento_destacado.estado == 'anulado' %}badge-red
+          {% else %}badge-blue
+          {% endif %}">
+          {% if evento_destacado.estado == 'programado' or evento_destacado.estado == 'en_vivo' %}
+            <span class="badge-dot"></span>
+          {% endif %}
+          {{ evento_destacado.get_estado_display }}
+        </span>
+      </div>
+
+      <!-- Equipos -->
+      <div class="teams-row">
+        <div class="team">
+          <div class="team-flag" aria-hidden="true">
+            {% with p=evento_destacado.equipo_local.pais|lower %}
+              {% if 'per' in p %}🇵🇪
+              {% elif 'arg' in p %}🇦🇷
+              {% elif 'bra' in p %}🇧🇷
+              {% elif 'col' in p %}🇨🇴
+              {% elif 'esp' in p or 'spain' in p %}🇪🇸
+              {% elif 'ita' in p or 'italy' in p %}🇮🇹
+              {% elif 'fra' in p or 'fran' in p %}🇫🇷
+              {% elif 'ale' in p or 'germ' in p %}🇩🇪
+              {% elif 'uru' in p %}🇺🇾
+              {% elif 'chi' in p %}🇨🇱
+              {% elif 'bol' in p %}🇧🇴
+              {% elif 'ecu' in p %}🇪🇨
+              {% elif 'par' in p %}🇵🇾
+              {% elif 'ven' in p %}🇻🇪
+              {% else %}🏟️
+              {% endif %}
+            {% endwith %}
+          </div>
+          <span class="team-name">{{ evento_destacado.equipo_local.nombre }}</span>
+          <span class="team-abbr">{{ evento_destacado.equipo_local.abreviatura|default:evento_destacado.equipo_local.nombre }}</span>
+        </div>
+        <div class="vs-block">
+          <span class="vs-text">VS</span>
+          <span class="vs-time">{{ evento_destacado.fecha_inicio|date:"H:i" }} PE</span>
+        </div>
+        <div class="team">
+          <div class="team-flag" aria-hidden="true">
+            {% with p=evento_destacado.equipo_visitante.pais|lower %}
+              {% if 'per' in p %}🇵🇪
+              {% elif 'arg' in p %}🇦🇷
+              {% elif 'bra' in p %}🇧🇷
+              {% elif 'col' in p %}🇨🇴
+              {% elif 'esp' in p or 'spain' in p %}🇪🇸
+              {% elif 'ita' in p or 'italy' in p %}🇮🇹
+              {% elif 'fra' in p or 'fran' in p %}🇫🇷
+              {% elif 'ale' in p or 'germ' in p %}🇩🇪
+              {% elif 'uru' in p %}🇺🇾
+              {% elif 'chi' in p %}🇨🇱
+              {% elif 'bol' in p %}🇧🇴
+              {% elif 'ecu' in p %}🇪🇨
+              {% elif 'par' in p %}🇵🇾
+              {% elif 'ven' in p %}🇻🇪
+              {% else %}🔵
+              {% endif %}
+            {% endwith %}
+          </div>
+          <span class="team-name">{{ evento_destacado.equipo_visitante.nombre }}</span>
+          <span class="team-abbr">{{ evento_destacado.equipo_visitante.abreviatura|default:evento_destacado.equipo_visitante.nombre }}</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Primer mercado activo -->
+      {% for mercado in evento_destacado.mercados.all %}
+        {% if mercado.activo and not mercado.suspendido %}
+        <div class="odds-section">
+          <p class="odds-market-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Mercado: {{ mercado.nombre }}
+          </p>
+          <div class="odds-grid" role="group" aria-label="Selecciona una cuota">
+            {% for seleccion in mercado.selecciones.all %}
+            <button class="odds-btn"
+                    data-odd="{{ seleccion.odd.valor|default:'0' }}"
+                    data-label="{{ seleccion.nombre }}"
+                    aria-pressed="false"
+                    type="button">
+              <span class="odds-btn-label">{{ seleccion.nombre }}</span>
+              <span class="odds-btn-value">{{ seleccion.odd.valor|default:"—" }}</span>
+            </button>
+            {% empty %}
+            <p class="text-muted" style="font-size:.75rem;grid-column:1/-1">Sin selecciones disponibles</p>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="divider"></div>
+        {% endif %}
+      {% endfor %}
+
+      <!-- Formulario de apuesta (demo educativo) -->
+      <form class="bet-form" id="betForm" aria-label="Formulario de apuesta" onsubmit="return false;">
+
+        <div class="bet-form-header">
+          <div class="bet-selected-display">
+            <span class="bet-selected-icon">→</span>
+            <span id="selectedLabel" class="bet-selected-text">Selecciona una cuota arriba</span>
+          </div>
+          <span class="badge badge-gold badge-hidden" id="selectedOddBadge">
+            × <span id="selectedOddValue">—</span>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="stakeInput" class="form-label">Monto de apuesta (fichas)</label>
+          <div class="input-wrapper">
+            <span class="input-prefix">◈</span>
+            <input
+              type="number"
+              id="stakeInput"
+              class="form-input"
+              placeholder="0.00"
+              min="1"
+              step="0.01"
+              aria-describedby="stakeHint"
+            />
+          </div>
+          <p class="form-hint" id="stakeHint">Saldo disponible: <strong class="hint-green">{{ saldo_virtual|default:"—" }} fichas</strong></p>
+        </div>
+
+        <div class="bet-payout-preview">
+          <div class="payout-row">
+            <span class="payout-label">Cuota seleccionada</span>
+            <span class="payout-value" id="previewOdd">—</span>
+          </div>
+          <div class="payout-row">
+            <span class="payout-label">Stake</span>
+            <span class="payout-value" id="previewStake">0.00 fichas</span>
+          </div>
+          <div class="payout-divider"></div>
+          <div class="payout-row payout-row-total">
+            <span class="payout-label-total">Pago potencial</span>
+            <span class="payout-value-total" id="previewPayout">0.00 fichas</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="submitBet" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          Realizar apuesta
+        </button>
+
+        <p class="form-disclaimer">Esta es una simulación educativa. No se usa dinero real.</p>
+      </form>
+
+    </div><!-- /event-card -->
+
+    {% else %}
+    <div class="card event-card" style="text-align:center;padding:2rem">
+      <p style="color:var(--text-muted)">No hay eventos disponibles. Crea uno desde el
+        <a href="/admin/" style="color:var(--indigo)">panel de administración</a>.
+      </p>
+    </div>
+    {% endif %}
+
+  </div><!-- /col-main -->
+
+
+  <!-- ── COLUMNA LATERAL ── -->
+  <div class="dashboard-col-side">
+
+    <!-- Billetera -->
+    <div class="card wallet-card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Billetera</h2>
+          <p class="card-subtitle">Partida doble · fichas virtuales</p>
+        </div>
+        <div class="wallet-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+            <path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/>
+            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="wallet-rows">
+        <div class="wallet-row">
+          <div class="wallet-row-left">
+            <div class="wallet-icon wallet-icon-green">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true">
+                <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+              </svg>
+            </div>
+            <div>
+              <p class="wallet-row-label">Saldo disponible</p>
+              <p class="wallet-row-sub">{{ request.user.username|default:"usuario" }}</p>
+            </div>
+          </div>
+          <span class="wallet-row-value text-green">{{ saldo_virtual|default:"—" }} <small>fic.</small></span>
+        </div>
+
+        <div class="wallet-row">
+          <div class="wallet-row-left">
+            <div class="wallet-icon wallet-icon-gold">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+            </div>
+            <div>
+              <p class="wallet-row-label">Apuestas pendientes</p>
+              <p class="wallet-row-sub">En juego</p>
+            </div>
+          </div>
+          <span class="wallet-row-value text-gold">{{ saldo_en_juego|default:"—" }} <small>fic.</small></span>
+        </div>
+      </div>
+
+      <div class="wallet-total-row">
+        <span class="wallet-total-label">Total en sistema</span>
+        <span class="wallet-total-value">{{ saldo_total|default:"—" }} fichas</span>
+      </div>
+    </div>
+
+    <!-- Última apuesta -->
+    <div class="card lastbet-card">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Última apuesta</h2>
+          {% if ultima_apuesta %}
+          <p class="card-subtitle">Apuesta #{{ ultima_apuesta.id }} · {{ ultima_apuesta.get_tipo_display }}</p>
+          {% else %}
+          <p class="card-subtitle">Sin apuestas registradas</p>
+          {% endif %}
+        </div>
+        {% if ultima_apuesta %}
+        <span class="badge
+          {% if ultima_apuesta.estado == 'accepted' %}badge-green
+          {% elif ultima_apuesta.estado == 'won' %}badge-green
+          {% elif ultima_apuesta.estado == 'lost' %}badge-red
+          {% elif ultima_apuesta.estado == 'cancelled' or ultima_apuesta.estado == 'void' %}badge-gray
+          {% else %}badge-gold
+          {% endif %}">
+          {% if ultima_apuesta.estado == 'accepted' %}<span class="badge-dot"></span>{% endif %}
+          {{ ultima_apuesta.get_estado_display }}
+        </span>
+        {% endif %}
+      </div>
+
+      {% if ultima_apuesta %}
+      <div class="bet-details-list">
+        {% for sel in ultima_apuesta.selecciones.all %}
+        <div class="bet-detail-row">
+          <span class="bet-detail-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true">
+              <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            Selección
+          </span>
+          <span class="bet-detail-value">{{ sel.seleccion.nombre }}</span>
+        </div>
+        <div class="bet-detail-row">
+          <span class="bet-detail-label">Evento</span>
+          <span class="bet-detail-value bet-detail-muted">
+            {{ sel.seleccion.mercado.evento.equipo_local.nombre }} vs {{ sel.seleccion.mercado.evento.equipo_visitante.nombre }}
+          </span>
+        </div>
+        <div class="bet-detail-row">
+          <span class="bet-detail-label">Cuota tomada</span>
+          <span class="bet-detail-value odd-value">× {{ sel.odd_valor_tomado }}</span>
+        </div>
+        {% endfor %}
+        <div class="bet-detail-row">
+          <span class="bet-detail-label">Stake apostado</span>
+          <span class="bet-detail-value text-gold">{{ ultima_apuesta.stake }} fic.</span>
+        </div>
+        <div class="bet-detail-row bet-detail-highlight">
+          <span class="bet-detail-label">Pago potencial</span>
+          <span class="bet-detail-value text-green">{{ ultima_apuesta.payout_potencial }} fic.</span>
+        </div>
+      </div>
+      {% else %}
+      <p class="text-muted" style="font-size:.85rem;padding:.5rem 0">No hay apuestas registradas aún.</p>
+      {% endif %}
+    </div>
+
+  </div><!-- /col-side -->
+
+</div><!-- /dashboard-grid -->
+
+
+<!-- ============================================================
+     EVENTOS DISPONIBLES
+     ============================================================ -->
+<section class="events-section" aria-label="Eventos deportivos disponibles">
+
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Eventos disponibles</h2>
+      <p class="section-subtitle">Mercados abiertos para apostar con fichas virtuales</p>
+    </div>
+    <a href="/eventos/" class="btn btn-outline btn-sm">
+      Ver todos
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12" aria-hidden="true">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </a>
+  </div>
+
+  {% if eventos %}
+  <div class="events-grid">
+    {% for evento in eventos %}
+    <article class="event-item{% if evento.estado == 'en_vivo' %} live{% elif evento.estado == 'finalizado' %} finished{% endif %}">
+
+      <div class="event-item-header">
+        <div class="event-item-sport">
+          <div class="event-item-sport-icon">
+            {% with s=evento.deporte.nombre|lower %}
+              {% if 'futbol' in s or 'fútbol' in s %}⚽
+              {% elif 'basket' in s or 'básquet' in s or 'basquetbol' in s %}🏀
+              {% elif 'tenis' in s %}🎾
+              {% elif 'beisbol' in s or 'béisbol' in s %}⚾
+              {% elif 'voley' in s or 'volei' in s %}🏐
+              {% else %}🏅
+              {% endif %}
+            {% endwith %}
+          </div>
+          {{ evento.deporte.nombre }}
+        </div>
+        <span class="badge
+          {% if evento.estado == 'en_vivo' %}badge-red
+          {% elif evento.estado == 'finalizado' %}badge-gray
+          {% elif evento.estado == 'suspendido' %}badge-gold
+          {% elif evento.estado == 'anulado' %}badge-red
+          {% else %}badge-blue
+          {% endif %}">
+          {% if evento.estado == 'programado' or evento.estado == 'en_vivo' %}
+            <span class="badge-dot"></span>
+          {% endif %}
+          {{ evento.get_estado_display }}
+        </span>
+      </div>
+
+      <div class="event-item-teams">
+        <div class="event-item-team">
+          <span class="event-item-flag">
+            {% with p=evento.equipo_local.pais|lower %}
+              {% if 'per' in p %}🇵🇪
+              {% elif 'arg' in p %}🇦🇷
+              {% elif 'bra' in p %}🇧🇷
+              {% elif 'col' in p %}🇨🇴
+              {% elif 'esp' in p or 'spain' in p %}🇪🇸
+              {% elif 'ita' in p or 'italy' in p %}🇮🇹
+              {% elif 'fra' in p or 'fran' in p %}🇫🇷
+              {% elif 'ale' in p or 'germ' in p %}🇩🇪
+              {% elif 'uru' in p %}🇺🇾
+              {% elif 'chi' in p %}🇨🇱
+              {% elif 'bol' in p %}🇧🇴
+              {% elif 'ecu' in p %}🇪🇨
+              {% elif 'par' in p %}🇵🇾
+              {% elif 'ven' in p %}🇻🇪
+              {% else %}🏟️
+              {% endif %}
+            {% endwith %}
+          </span>
+          <span class="event-item-name">{{ evento.equipo_local.nombre }}</span>
+        </div>
+        <span class="event-item-vs">VS</span>
+        <div class="event-item-team">
+          <span class="event-item-flag">
+            {% with p=evento.equipo_visitante.pais|lower %}
+              {% if 'per' in p %}🇵🇪
+              {% elif 'arg' in p %}🇦🇷
+              {% elif 'bra' in p %}🇧🇷
+              {% elif 'col' in p %}🇨🇴
+              {% elif 'esp' in p or 'spain' in p %}🇪🇸
+              {% elif 'ita' in p or 'italy' in p %}🇮🇹
+              {% elif 'fra' in p or 'fran' in p %}🇫🇷
+              {% elif 'ale' in p or 'germ' in p %}🇩🇪
+              {% elif 'uru' in p %}🇺🇾
+              {% elif 'chi' in p %}🇨🇱
+              {% elif 'bol' in p %}🇧🇴
+              {% elif 'ecu' in p %}🇪🇨
+              {% elif 'par' in p %}🇵🇾
+              {% elif 'ven' in p %}🇻🇪
+              {% else %}🔵
+              {% endif %}
+            {% endwith %}
+          </span>
+          <span class="event-item-name">{{ evento.equipo_visitante.nombre }}</span>
+        </div>
+      </div>
+
+      <div class="event-item-time">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true">
+          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+        </svg>
+        {{ evento.fecha_inicio|date:"D d M Y · H:i" }} PE
+      </div>
+
+      {% for mercado in evento.mercados.all %}
+        {% if mercado.activo and not mercado.suspendido %}
+        <div class="event-item-odds" role="group" aria-label="{{ mercado.nombre }}">
+          {% for seleccion in mercado.selecciones.all %}
+          <div class="event-item-odd">
+            <span class="event-item-odd-label">{{ seleccion.nombre }}</span>
+            <span class="event-item-odd-val">{{ seleccion.odd.valor|default:"—" }}</span>
+          </div>
+          {% empty %}
+          <p class="text-muted" style="font-size:.75rem;grid-column:1/-1">Sin selecciones</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+      {% endfor %}
+
+      <div class="event-item-footer">
+        <a href="/api/mercados/?evento={{ evento.id }}" class="btn-event">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+          </svg>
+          Ver mercados
+        </a>
+      </div>
+
+    </article>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="events-empty" role="status">
+    <div class="events-empty-icon">📭</div>
+    <h3>No hay eventos disponibles</h3>
+    <p>Crea eventos desde el <a href="/admin/" style="color:var(--indigo)">panel de administración</a>.</p>
+  </div>
+  {% endif %}
+
+</section>
+
+
+<!-- ============================================================
+     JUEGO RESPONSABLE
+     ============================================================ -->
+<div class="responsible-card" role="note" aria-label="Mensaje de juego responsable">
+  <div class="responsible-icon" aria-hidden="true">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </svg>
+  </div>
+  <div class="responsible-body">
+    <h3 class="responsible-title">Juego Responsable</h3>
+    <p class="responsible-text">
+      Apuesta con responsabilidad. Esta plataforma es educativa y usa fichas virtuales.
+      No se involucra dinero real y no equivale a asesoramiento financiero.
+    </p>
+    <a href="/api/juego-responsable/" class="responsible-link">Ver límites y autoexclusión →</a>
+  </div>
+</div>
+
+
+<!-- ============================================================
+     HISTORIAL DE APUESTAS
+     ============================================================ -->
+<div class="card history-card">
+
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Historial de apuestas</h2>
+      <p class="section-subtitle">Registro de actividad simulada</p>
+    </div>
+    <a href="/api/apuestas/" class="btn btn-outline btn-sm">
+      Ver todo
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12" aria-hidden="true">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+    </a>
+  </div>
+
+  <div class="table-scroll" role="region" aria-label="Historial de apuestas" tabindex="0">
+    <table class="history-table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Evento</th>
+          <th scope="col">Selección</th>
+          <th scope="col">Cuota</th>
+          <th scope="col">Stake</th>
+          <th scope="col">Pago potencial</th>
+          <th scope="col">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for apuesta in apuestas_recientes %}
+        {% with primera_sel=apuesta.selecciones.all.0 %}
+        <tr>
+          <td class="col-id">{{ apuesta.id }}</td>
+          <td class="col-event">
+            {% if primera_sel %}
+            <span class="event-name">
+              {{ primera_sel.seleccion.mercado.evento.equipo_local.nombre }}
+              vs
+              {{ primera_sel.seleccion.mercado.evento.equipo_visitante.nombre }}
+            </span>
+            {% else %}
+            <span class="event-name">—</span>
+            {% endif %}
+            <span class="event-date">{{ apuesta.fecha_creacion|date:"d M Y" }}</span>
+          </td>
+          <td><strong>{{ primera_sel.seleccion.nombre|default:"—" }}</strong></td>
+          <td><span class="odd-value">× {{ primera_sel.odd_valor_tomado|default:"—" }}</span></td>
+          <td class="text-gold">{{ apuesta.stake }} fic.</td>
+          <td class="text-green">{{ apuesta.payout_potencial }} fic.</td>
+          <td>
+            <span class="badge
+              {% if apuesta.estado == 'accepted' %}badge-green
+              {% elif apuesta.estado == 'won' %}badge-green
+              {% elif apuesta.estado == 'lost' %}badge-red
+              {% elif apuesta.estado == 'cancelled' or apuesta.estado == 'void' %}badge-gray
+              {% else %}badge-gold
+              {% endif %}">
+              {% if apuesta.estado == 'accepted' %}<span class="badge-dot"></span>{% endif %}
+              {{ apuesta.get_estado_display }}
+            </span>
+          </td>
+        </tr>
+        {% endwith %}
+        {% empty %}
+        <tr>
+          <td class="col-id">—</td>
+          <td colspan="6" class="col-empty">No hay apuestas en el historial.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+{% endblock %}

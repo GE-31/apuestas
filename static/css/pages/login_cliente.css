@@ -1,0 +1,303 @@
+/* =============================================================
+   login_cliente.css — Pantalla de login para clientes
+   FairBet Lab
+   ============================================================= */
+
+/* ── Layout full screen split ── */
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-base);
+}
+
+.auth-split {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: calc(100vh - 38px); /* descontar disclaimer banner */
+}
+
+/* ── Panel izquierdo (branding) ── */
+.auth-brand-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 48px;
+  background: linear-gradient(145deg, var(--indigo-darker) 0%, var(--indigo) 55%, #0ea5e9 100%);
+  overflow: hidden;
+}
+
+/* Patrón de fondo sutil */
+.auth-brand-panel::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.12) 0%, transparent 40%);
+  pointer-events: none;
+}
+
+/* Círculos decorativos */
+.auth-brand-circle {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+
+.auth-brand-circle--lg {
+  width: 380px;
+  height: 380px;
+  bottom: -100px;
+  right: -80px;
+}
+
+.auth-brand-circle--md {
+  width: 220px;
+  height: 220px;
+  top: 20%;
+  left: -60px;
+}
+
+.auth-brand-circle--sm {
+  width: 120px;
+  height: 120px;
+  top: 10%;
+  right: 15%;
+}
+
+/* Logo en panel izquierdo */
+.auth-brand-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.25rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+  text-decoration: none !important;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-brand-logo-mark {
+  width: 38px;
+  height: 38px;
+  background: rgba(255,255,255,0.15);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.auth-brand-logo-accent { color: #93c5fd; }
+
+/* Texto central del panel */
+.auth-brand-content {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-brand-tagline {
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 800;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: -0.03em;
+  margin-bottom: 14px;
+}
+
+.auth-brand-tagline em {
+  font-style: normal;
+  color: #93c5fd;
+}
+
+.auth-brand-desc {
+  font-size: 0.9375rem;
+  color: rgba(255,255,255,0.75);
+  line-height: 1.6;
+  max-width: 320px;
+  margin-bottom: 32px;
+}
+
+/* Stats decorativos */
+.auth-brand-stats {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.auth-brand-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.auth-brand-stat-value {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+
+.auth-brand-stat-label {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.6);
+  font-weight: 500;
+  margin-top: 3px;
+  letter-spacing: 0.02em;
+}
+
+/* Disclaimer dentro del panel izquierdo */
+.auth-brand-disclaimer {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: var(--radius-md);
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+
+/* ── Panel derecho (formulario) ── */
+.auth-form-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 40px;
+  background: var(--bg-card);
+  border-left: 1px solid var(--border);
+}
+
+.auth-form-container {
+  width: 100%;
+  max-width: 380px;
+}
+
+/* Header del formulario */
+.auth-form-header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.auth-form-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.03em;
+  margin-bottom: 6px;
+}
+
+.auth-form-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+}
+
+/* Formulario */
+.auth-form { display: flex; flex-direction: column; gap: 18px; }
+
+/* Botón submit */
+.auth-submit-btn {
+  margin-top: 4px;
+  padding: 13px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+/* Links secundarios */
+.auth-links {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.auth-link {
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  transition: color var(--dur);
+}
+
+.auth-link a {
+  color: var(--indigo);
+  font-weight: 600;
+}
+
+.auth-link a:hover {
+  color: var(--indigo-dark);
+  text-decoration: underline;
+}
+
+.auth-link-forgot {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.auth-link-forgot a {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.auth-link-forgot a:hover {
+  color: var(--indigo);
+  text-decoration: underline;
+}
+
+/* Divisor */
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .auth-split {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .auth-brand-panel {
+    padding: 32px 28px;
+    min-height: 260px;
+  }
+
+  .auth-brand-tagline { font-size: 1.5rem; }
+  .auth-brand-desc { display: none; }
+  .auth-brand-circle--lg, .auth-brand-circle--md { display: none; }
+
+  .auth-form-panel {
+    border-left: none;
+    border-top: 1px solid var(--border);
+    padding: 36px 24px 48px;
+  }
+}
+
+@media (max-width: 480px) {
+  .auth-brand-panel { padding: 24px 20px; min-height: 200px; }
+  .auth-form-panel { padding: 28px 20px 40px; }
+  .auth-brand-stats { gap: 16px; }
+}

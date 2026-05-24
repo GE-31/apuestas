@@ -1,0 +1,229 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eventos — FairBet Lab{% endblock %}
+{% block nav_eventos %}active{% endblock %}
+
+{% block content %}
+
+<!-- Cabecera -->
+<div class="events-page-header">
+  <h1 class="events-page-title">Eventos deportivos</h1>
+  <p class="events-page-sub">Mercados abiertos para simular apuestas con fichas virtuales</p>
+</div>
+
+<!-- ── FILTROS ── -->
+<div class="events-filters">
+  <span class="filter-label">Filtrar:</span>
+
+  <div class="filter-tabs" role="tablist" aria-label="Filtro por deporte">
+    <button class="filter-tab active" data-filter="all" role="tab" aria-selected="true" type="button">
+      Todos <span class="filter-count">{{ total_count }}</span>
+    </button>
+    {% for dep in deportes %}
+    <button class="filter-tab" data-filter="{{ dep.key }}" role="tab" aria-selected="false" type="button">
+      {{ dep.nombre }} <span class="filter-count">{{ dep.count }}</span>
+    </button>
+    {% endfor %}
+    {% if live_count %}
+    <button class="filter-tab" data-filter="live" role="tab" aria-selected="false" type="button">
+      🔴 En vivo <span class="filter-count">{{ live_count }}</span>
+    </button>
+    {% endif %}
+  </div>
+
+  <div class="events-search-wrapper">
+    <svg class="events-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" width="14" height="14" aria-hidden="true">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="search" class="events-search" id="eventSearch"
+           placeholder="Buscar evento..." aria-label="Buscar evento" />
+  </div>
+</div>
+
+
+<!-- ── GRILLA ── -->
+{% if eventos %}
+<div class="events-grid" id="eventsGrid" role="list">
+
+  {% for evento in eventos %}
+  <article
+    class="event-card-full{% if evento.estado == 'en_vivo' %} live{% elif evento.estado == 'finalizado' %} finished{% endif %}"
+    data-sport="{{ evento.deporte.nombre|slugify }}"
+    data-status="{{ evento.estado }}"
+    role="listitem"
+  >
+
+    <!-- Deporte + Estado -->
+    <div class="event-item-header">
+      <div class="event-item-sport">
+        <div class="event-item-sport-icon">
+          {% with s=evento.deporte.nombre|lower %}
+            {% if 'futbol' in s or 'fútbol' in s %}⚽
+            {% elif 'basket' in s or 'básquet' in s or 'basquetbol' in s %}🏀
+            {% elif 'tenis' in s %}🎾
+            {% elif 'beisbol' in s or 'béisbol' in s %}⚾
+            {% elif 'voley' in s or 'volei' in s %}🏐
+            {% else %}🏅
+            {% endif %}
+          {% endwith %}
+        </div>
+        {{ evento.deporte.nombre }}
+      </div>
+
+      <span class="badge
+        {% if evento.estado == 'en_vivo' %}badge-red
+        {% elif evento.estado == 'finalizado' %}badge-gray
+        {% elif evento.estado == 'suspendido' %}badge-gold
+        {% elif evento.estado == 'anulado' %}badge-red
+        {% else %}badge-blue
+        {% endif %}">
+        {% if evento.estado == 'programado' or evento.estado == 'en_vivo' %}
+          <span class="badge-dot"></span>
+        {% endif %}
+        {{ evento.get_estado_display }}
+      </span>
+    </div>
+
+    <!-- Equipos -->
+    <div class="event-item-teams">
+      <div class="event-item-team">
+        <span class="event-item-flag">
+          {% with p=evento.equipo_local.pais|lower %}
+            {% if 'per' in p %}🇵🇪
+            {% elif 'arg' in p %}🇦🇷
+            {% elif 'bra' in p %}🇧🇷
+            {% elif 'col' in p %}🇨🇴
+            {% elif 'esp' in p or 'spain' in p %}🇪🇸
+            {% elif 'ita' in p or 'italy' in p %}🇮🇹
+            {% elif 'fra' in p or 'fran' in p %}🇫🇷
+            {% elif 'ale' in p or 'germ' in p %}🇩🇪
+            {% elif 'uru' in p %}🇺🇾
+            {% elif 'chi' in p %}🇨🇱
+            {% elif 'bol' in p %}🇧🇴
+            {% elif 'ecu' in p %}🇪🇨
+            {% elif 'par' in p %}🇵🇾
+            {% elif 'ven' in p %}🇻🇪
+            {% else %}🏟️
+            {% endif %}
+          {% endwith %}
+        </span>
+        <span class="event-item-name">{{ evento.equipo_local.nombre }}</span>
+      </div>
+
+      <span class="event-item-vs">VS</span>
+
+      <div class="event-item-team">
+        <span class="event-item-flag">
+          {% with p=evento.equipo_visitante.pais|lower %}
+            {% if 'per' in p %}🇵🇪
+            {% elif 'arg' in p %}🇦🇷
+            {% elif 'bra' in p %}🇧🇷
+            {% elif 'col' in p %}🇨🇴
+            {% elif 'esp' in p or 'spain' in p %}🇪🇸
+            {% elif 'ita' in p or 'italy' in p %}🇮🇹
+            {% elif 'fra' in p or 'fran' in p %}🇫🇷
+            {% elif 'ale' in p or 'germ' in p %}🇩🇪
+            {% elif 'uru' in p %}🇺🇾
+            {% elif 'chi' in p %}🇨🇱
+            {% elif 'bol' in p %}🇧🇴
+            {% elif 'ecu' in p %}🇪🇨
+            {% elif 'par' in p %}🇵🇾
+            {% elif 'ven' in p %}🇻🇪
+            {% else %}🔵
+            {% endif %}
+          {% endwith %}
+        </span>
+        <span class="event-item-name">{{ evento.equipo_visitante.nombre }}</span>
+      </div>
+    </div>
+
+    <!-- Marcador (solo si en vivo con datos) -->
+    {% if evento.estado == 'en_vivo' and evento.marcador_local != None and evento.marcador_visitante != None %}
+    <div class="event-score" role="status" aria-label="Marcador actual">
+      <div style="text-align:center">
+        <div class="score-value">{{ evento.marcador_local }}</div>
+        <div class="score-label">{{ evento.equipo_local.abreviatura|default:evento.equipo_local.nombre }}</div>
+      </div>
+      <div class="score-dash">—</div>
+      <div style="text-align:center">
+        <div class="score-value">{{ evento.marcador_visitante }}</div>
+        <div class="score-label">{{ evento.equipo_visitante.abreviatura|default:evento.equipo_visitante.nombre }}</div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Fecha -->
+    <div class="event-item-time">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           width="13" height="13" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+      {{ evento.fecha_inicio|date:"D d M Y · H:i" }} PE
+    </div>
+
+    <!-- Cuotas — iterar mercados y selecciones desde la BD -->
+    {% for mercado in evento.mercados.all %}
+      {% if mercado.activo and not mercado.suspendido %}
+      <div class="event-item-odds" role="group" aria-label="{{ mercado.nombre }}">
+        {% for seleccion in mercado.selecciones.all %}
+        <div class="event-item-odd">
+          <span class="event-item-odd-label">{{ seleccion.nombre }}</span>
+          <span class="event-item-odd-val">{{ seleccion.odd.valor|default:"—" }}</span>
+        </div>
+        {% empty %}
+        <p class="text-muted" style="font-size:.75rem;grid-column:1/-1">Sin selecciones</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+    {% empty %}
+    <p class="text-muted" style="font-size:.75rem">Sin mercados activos</p>
+    {% endfor %}
+
+    <!-- Acciones -->
+    {% if evento.estado != 'finalizado' and evento.estado != 'anulado' %}
+    <div class="event-actions">
+      <a href="/" class="btn-bet">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+             width="14" height="14" aria-hidden="true">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+        {% if evento.estado == 'en_vivo' %}Apostar en vivo{% else %}Apostar ahora{% endif %}
+      </a>
+      <a href="/api/mercados/?evento={{ evento.id }}" class="btn-detail">Ver mercados</a>
+    </div>
+    {% else %}
+    <div class="event-actions">
+      <a href="/api/mercados/?evento={{ evento.id }}" class="btn-detail" style="flex:1;text-align:center">
+        Ver resultado
+      </a>
+    </div>
+    {% endif %}
+
+  </article>
+  {% endfor %}
+
+</div><!-- /events-grid -->
+
+{% else %}
+<!-- BD sin eventos aún -->
+<div class="events-empty" role="status">
+  <div class="events-empty-icon">📭</div>
+  <h3>No hay eventos disponibles</h3>
+  <p>Crea eventos desde el <a href="/admin/" style="color:var(--indigo)">panel de administración</a>.</p>
+</div>
+{% endif %}
+
+<!-- Sin resultados por filtro/búsqueda -->
+<div class="events-empty" id="eventsEmpty" aria-live="polite" hidden>
+  <div class="events-empty-icon">🔍</div>
+  <h3>Sin eventos encontrados</h3>
+  <p>Prueba con otro filtro o término de búsqueda.</p>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/events.js' %}"></script>
+{% endblock %}

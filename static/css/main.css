@@ -1,0 +1,13 @@
+/* =============================================================
+   main.css — Punto de entrada CSS para templates de auth
+   Importa los tokens y componentes compartidos.
+   FairBet Lab
+   ============================================================= */
+
+@import url('base/variables.css');
+@import url('base/reset.css');
+@import url('base/typography.css');
+@import url('components/buttons.css');
+@import url('components/forms.css');
+@import url('components/alerts.css');
+@import url('components/cards.css');

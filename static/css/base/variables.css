@@ -1,0 +1,88 @@
+/* =============================================================
+   variables.css — Design tokens compartidos (FairBet Lab)
+   Deben ser consistentes con static/css/base.css del panel.
+   ============================================================= */
+
+:root {
+  /* ── Fondos ── */
+  --bg-deep:    #e8eef6;
+  --bg-base:    #f0f4fa;
+  --bg-card:    #ffffff;
+  --bg-raised:  #f8fafd;
+  --bg-hover:   #f1f5fb;
+
+  /* ── Bordes ── */
+  --border:       #e2e8f2;
+  --border-light: #edf2f9;
+
+  /* ── Texto ── */
+  --text-primary:   #111827;
+  --text-secondary: #4b5563;
+  --text-muted:     #9ca3af;
+  --text-inverse:   #ffffff;
+
+  /* ── Verde ── */
+  --green:     #16a34a;
+  --green-dim: rgba(22, 163, 74, 0.09);
+  --green-mid: rgba(22, 163, 74, 0.18);
+
+  /* ── Dorado ── */
+  --gold:     #d97706;
+  --gold-dim: rgba(217, 119, 6, 0.09);
+
+  /* ── Azul ── */
+  --blue:     #2563eb;
+  --blue-dim: rgba(37, 99, 235, 0.09);
+
+  /* ── Rojo ── */
+  --red:     #dc2626;
+  --red-dim: rgba(220, 38, 38, 0.09);
+  --red-mid: rgba(220, 38, 38, 0.15);
+
+  /* ── Índigo ── */
+  --indigo:         #4f46e5;
+  --indigo-dark:    #3730a3;
+  --indigo-darker:  #1e1b4b;
+  --indigo-dim:     rgba(79, 70, 229, 0.09);
+  --indigo-mid:     rgba(79, 70, 229, 0.18);
+
+  /* ── Admin (slate dark) ── */
+  --admin-bg:       #0f172a;
+  --admin-surface:  #1e293b;
+  --admin-border:   #334155;
+  --admin-muted:    #64748b;
+
+  /* ── Radios ── */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── Sombras ── */
+  --shadow-xs: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-sm: 0 2px 8px rgba(15,23,42,0.08);
+  --shadow-md: 0 4px 20px rgba(15,23,42,0.10);
+  --shadow-lg: 0 8px 32px rgba(15,23,42,0.12);
+  --shadow-xl: 0 16px 48px rgba(15,23,42,0.16);
+  --shadow-auth: 0 24px 64px rgba(15,23,42,0.20);
+
+  /* ── Transiciones ── */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --dur: 0.18s;
+  --dur-md: 0.25s;
+  --dur-lg: 0.35s;
+
+  /* ── Tipografía ── */
+  --font:      'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+
+  /* ── Disclaimer ── */
+  --disclaimer-bg:     #fffbeb;
+  --disclaimer-border: #fde68a;
+  --disclaimer-text:   #92400e;
+  --disclaimer-icon:   #d97706;
+}

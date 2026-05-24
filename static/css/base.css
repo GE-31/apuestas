@@ -1,0 +1,126 @@
+/* =============================================================
+   base.css — Tokens, Reset y Utilidades
+   FairBet Lab
+   ============================================================= */
+
+/* ── DESIGN TOKENS ── */
+:root {
+  /* Fondos */
+  --bg-deep:    #e8eef6;
+  --bg-base:    #f0f4fa;
+  --bg-card:    #ffffff;
+  --bg-raised:  #f8fafd;
+  --bg-hover:   #f1f5fb;
+
+  /* Bordes */
+  --border:       #e2e8f2;
+  --border-light: #edf2f9;
+
+  /* Texto */
+  --text-primary:   #111827;
+  --text-secondary: #4b5563;
+  --text-muted:     #9ca3af;
+
+  /* Verde */
+  --green:     #16a34a;
+  --green-dim: rgba(22, 163, 74, 0.09);
+
+  /* Dorado */
+  --gold:     #d97706;
+  --gold-dim: rgba(217, 119, 6, 0.09);
+
+  /* Azul */
+  --blue:     #2563eb;
+  --blue-dim: rgba(37, 99, 235, 0.09);
+
+  /* Rojo */
+  --red:     #dc2626;
+  --red-dim: rgba(220, 38, 38, 0.09);
+
+  /* Índigo */
+  --indigo:     #4f46e5;
+  --indigo-dim: rgba(79, 70, 229, 0.09);
+
+  /* Morado */
+  --purple:     #7c3aed;
+  --purple-dim: rgba(124, 58, 237, 0.09);
+
+  /* Radios */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  /* Sombras */
+  --shadow-xs: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
+  --shadow-sm: 0 2px 8px rgba(15,23,42,0.08);
+  --shadow-md: 0 4px 20px rgba(15,23,42,0.10);
+  --shadow-lg: 0 8px 32px rgba(15,23,42,0.12);
+
+  /* Timing */
+  --ease: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur: 0.18s;
+
+  /* Tipografía */
+  --font:      'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+}
+
+/* ── RESET ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html {
+  font-size: 16px;
+  scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  font-family: var(--font);
+  background: var(--bg-base);
+  color: var(--text-primary);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+a    { color: inherit; text-decoration: none; }
+img, svg { display: block; max-width: 100%; }
+button, input { font-family: var(--font); }
+button { cursor: pointer; border: none; background: none; }
+ul, ol { list-style: none; }
+table  { border-collapse: collapse; }
+
+/* ── UTILIDADES ── */
+.container {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.text-green  { color: var(--green);  }
+.text-gold   { color: var(--gold);   }
+.text-blue   { color: var(--blue);   }
+.text-red    { color: var(--red);    }
+.text-purple { color: var(--purple); }
+.text-muted  { color: var(--text-muted); }
+
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 20px 0;
+}
+
+/* ── ANIMACIONES ── */
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.4; transform: scale(0.75); }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

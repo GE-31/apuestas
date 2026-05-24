@@ -1,0 +1,15 @@
+django
+djangorestframework
+djangorestframework-simplejwt
+django-filter
+drf-spectacular
+django-cors-headers
+psycopg2-binary
+python-decouple
+channels
+channels-redis
+celery
+redis
+pytest
+pytest-django
+hypothesis

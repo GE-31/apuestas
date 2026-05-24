@@ -87,3 +87,25 @@ class MovimientoSimpleSerializer(serializers.Serializer):
     referencia = serializers.CharField(required=False, allow_blank=True)
     idempotency_key = serializers.CharField(required=False, allow_blank=True)
     descripcion = serializers.CharField(required=False, allow_blank=True)
+
+    
+class MovimientoSimpleSerializer(serializers.Serializer):
+    cuenta_debito = serializers.IntegerField()
+    cuenta_credito = serializers.IntegerField()
+    amount = serializers.DecimalField(max_digits=18, decimal_places=4)
+    tipo = serializers.CharField(required=False)
+    referencia = serializers.CharField(required=False, allow_blank=True)
+    idempotency_key = serializers.CharField(required=False, allow_blank=True)
+    descripcion = serializers.CharField(required=False, allow_blank=True)
+
+
+class RecargaFichasSerializer(serializers.Serializer):
+    usuario_id = serializers.IntegerField()
+    amount = serializers.DecimalField(max_digits=18, decimal_places=4)
+    idempotency_key = serializers.CharField(required=False, allow_blank=True)
+
+
+class RetiroFichasSerializer(serializers.Serializer):
+    usuario_id = serializers.IntegerField()
+    amount = serializers.DecimalField(max_digits=18, decimal_places=4)
+    idempotency_key = serializers.CharField(required=False, allow_blank=True)

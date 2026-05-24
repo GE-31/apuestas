@@ -1,3 +1,9 @@
+from django.contrib.auth import get_user_model
+
+from billetera.serializers import RecargaFichasSerializer, RetiroFichasSerializer
+from billetera.services.deposito_service import recargar_fichas_usuario
+from billetera.services.retiro_service import retirar_fichas_usuario
+
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
@@ -102,3 +108,45 @@ class MovimientoSimpleViewSet(viewsets.ViewSet):
             response_serializer.data,
             status=status.HTTP_201_CREATED
         )
+    
+User = get_user_model()
+class OperacionesWalletViewSet(viewsets.ViewSet):
+    """
+    Operaciones de wallet:
+    - recarga simulada
+    - retiro simulado
+    """
+
+    @action(detail=False, methods=['post'])
+    def recargar(self, request):
+        serializer = RecargaFichasSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+
+        transaccion = recargar_fichas_usuario(
+            usuario=usuario,
+            amount=serializer.validated_data['amount'],
+            idempotency_key=serializer.validated_data.get('idempotency_key'),
+            creado_por=request.user if request.user.is_authenticated else None,
+        )
+
+        response_serializer = LedgerTransactionSerializer(transaccion)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['post'])
+    def retirar(self, request):
+        serializer = RetiroFichasSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+
+        transaccion = retirar_fichas_usuario(
+            usuario=usuario,
+            amount=serializer.validated_data['amount'],
+            idempotency_key=serializer.validated_data.get('idempotency_key'),
+            creado_por=request.user if request.user.is_authenticated else None,
+        )
+
+        response_serializer = LedgerTransactionSerializer(transaccion)
+        return Response(response_serializer.data, status=status.HTTP_201_CREATED)

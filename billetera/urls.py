@@ -1,5 +1,6 @@
 from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+from billetera.viewsets import OperacionesWalletViewSet
 
 from billetera.viewsets import (
     AccountViewSet,
@@ -13,6 +14,7 @@ router.register(r'cuentas', AccountViewSet, basename='cuentas')
 router.register(r'transacciones', LedgerTransactionViewSet, basename='transacciones-ledger')
 router.register(r'entradas', LedgerEntryViewSet, basename='entradas-ledger')
 router.register(r'movimiento-simple', MovimientoSimpleViewSet, basename='movimiento-simple')
+router.register(r'operaciones', OperacionesWalletViewSet, basename='operaciones-wallet')
 
 urlpatterns = [
     path('', include(router.urls)),

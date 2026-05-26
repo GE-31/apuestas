@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from apuestas_core.models import Bet, BetSelection
 from apuestas_core.state_machine import cambiar_estado_apuesta
+from auditoria.services.audit_service import auditar_apuesta_liquidada
 from billetera.models import Account
 from billetera.services.ledger_service import (
     crear_movimiento_simple,
@@ -83,8 +84,6 @@ def liquidar_apuesta_ganada(*, bet_id, idempotency_key=None, liquidado_por=None)
     DEBIT  10  apuestas_pendientes
     DEBIT  15  casa
     CREDIT 25  wallet_usuario
-
-    Así la cuenta apuestas_pendientes no queda negativa.
     """
 
     bet = (
@@ -140,6 +139,12 @@ def liquidar_apuesta_ganada(*, bet_id, idempotency_key=None, liquidado_por=None)
 
     BetSelection.objects.filter(bet=bet).update(resultado="ganada")
 
+    auditar_apuesta_liquidada(
+        bet=bet,
+        accion="won",
+        creado_por=liquidado_por,
+    )
+
     return bet, movimiento
 
 
@@ -186,6 +191,12 @@ def liquidar_apuesta_perdida(*, bet_id, idempotency_key=None, liquidado_por=None
 
     BetSelection.objects.filter(bet=bet).update(resultado="perdida")
 
+    auditar_apuesta_liquidada(
+        bet=bet,
+        accion="lost",
+        creado_por=liquidado_por,
+    )
+
     return bet, movimiento
 
 
@@ -231,5 +242,11 @@ def anular_apuesta(*, bet_id, idempotency_key=None, anulado_por=None):
     cambiar_estado_apuesta(bet, EstadoApuesta.VOID)
 
     BetSelection.objects.filter(bet=bet).update(resultado="anulada")
+
+    auditar_apuesta_liquidada(
+        bet=bet,
+        accion="void",
+        creado_por=anulado_por,
+    )
 
     return bet, movimiento

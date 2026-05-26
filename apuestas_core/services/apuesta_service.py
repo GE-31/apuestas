@@ -17,7 +17,7 @@ from config.choices import (
 )
 from cuotas.models import Odd
 from juego_responsable.services.autoexclusion_service import validar_usuario_no_autoexcluido
-
+from auditoria.services.audit_service import auditar_apuesta_creada
 
 class ApuestaError(Exception):
     pass
@@ -214,5 +214,11 @@ def crear_apuesta_simple(
 
     movimiento.referencia = f"apuesta_{apuesta.id}"
     movimiento.save(update_fields=["referencia"])
+
+    auditar_apuesta_creada(
+        bet=apuesta,
+        creado_por=usuario,
+        ip_origen=ip_origen,
+    )
 
     return apuesta

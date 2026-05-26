@@ -4,6 +4,9 @@ from django.db import transaction
 from django.utils import timezone
 
 from apuestas_core.models import Bet, BetSelection
+from billetera.models import Account
+from billetera.services.ledger_service import crear_movimiento_simple, normalizar_decimal
+from billetera.services.saldo_service import validar_saldo_suficiente
 from config.choices import (
     EstadoApuesta,
     EstadoCuenta,
@@ -13,9 +16,7 @@ from config.choices import (
     TipoTransaccionLedger,
 )
 from cuotas.models import Odd
-from billetera.models import Account
-from billetera.services.ledger_service import crear_movimiento_simple, normalizar_decimal
-from billetera.services.saldo_service import validar_saldo_suficiente
+from juego_responsable.services.autoexclusion_service import validar_usuario_no_autoexcluido
 
 
 class ApuestaError(Exception):
@@ -27,6 +28,10 @@ MONTO_MAXIMO_APUESTA = Decimal("1000.0000")
 
 
 def obtener_wallet_usuario(usuario):
+    """
+    Obtiene la wallet activa del usuario con bloqueo pesimista.
+    """
+
     wallet = Account.objects.select_for_update().filter(
         usuario=usuario,
         tipo=TipoCuentaLedger.WALLET_USUARIO,
@@ -40,6 +45,10 @@ def obtener_wallet_usuario(usuario):
 
 
 def obtener_cuenta_apuestas_pendientes():
+    """
+    Obtiene la cuenta del sistema donde se bloquean los fondos apostados.
+    """
+
     cuenta = Account.objects.select_for_update().filter(
         usuario__isnull=True,
         tipo=TipoCuentaLedger.APUESTAS_PENDIENTES,
@@ -54,10 +63,13 @@ def obtener_cuenta_apuestas_pendientes():
 
 def validar_usuario_puede_apostar(usuario):
     """
-    Valida KYC y estado de cuenta.
+    Valida que el usuario pueda apostar.
 
-    La lógica de KYC se hizo en usuarios.
-    Aquí solo consumimos el estado resultante.
+    Reglas:
+    - Debe tener perfil de apuestas.
+    - Debe estar verificado.
+    - No debe estar bloqueado.
+    - No debe estar autoexcluido.
     """
 
     perfil = getattr(usuario, "perfil_apuestas", None)
@@ -68,10 +80,16 @@ def validar_usuario_puede_apostar(usuario):
     if perfil.estado_cuenta != EstadoCuenta.VERIFICADO:
         raise ApuestaError("El usuario no está verificado o está bloqueado.")
 
+    validar_usuario_no_autoexcluido(usuario)
+
     return True
 
 
 def validar_monto_apuesta(stake):
+    """
+    Valida monto mínimo y máximo de apuesta.
+    """
+
     stake = normalizar_decimal(stake)
 
     if stake < MONTO_MINIMO_APUESTA:
@@ -84,6 +102,10 @@ def validar_monto_apuesta(stake):
 
 
 def validar_odd_apostable(odd):
+    """
+    Valida que la cuota, selección, mercado y evento estén disponibles.
+    """
+
     seleccion = odd.seleccion
     mercado = seleccion.mercado
     evento = mercado.evento
@@ -116,12 +138,14 @@ def crear_apuesta_simple(
     Crea una apuesta simple.
 
     Flujo:
-    1. Valida usuario verificado.
-    2. Valida odd, mercado y evento.
-    3. Valida saldo suficiente.
-    4. Bloquea fondos: wallet_usuario -> apuestas_pendientes.
-    5. Crea Bet en estado accepted.
-    6. Crea BetSelection con la cuota tomada.
+    1. Evita duplicados con idempotency_key.
+    2. Valida usuario verificado y no autoexcluido.
+    3. Valida monto.
+    4. Valida odd, mercado y evento.
+    5. Valida saldo suficiente.
+    6. Bloquea fondos: wallet_usuario -> apuestas_pendientes.
+    7. Crea Bet en estado accepted.
+    8. Crea BetSelection con la cuota tomada.
     """
 
     if idempotency_key:
@@ -188,7 +212,6 @@ def crear_apuesta_simple(
         resultado="pendiente",
     )
 
-    # Se deja la referencia del movimiento con el ID real de la apuesta.
     movimiento.referencia = f"apuesta_{apuesta.id}"
     movimiento.save(update_fields=["referencia"])
 

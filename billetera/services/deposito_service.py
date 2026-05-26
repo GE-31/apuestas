@@ -3,6 +3,7 @@ from decimal import Decimal
 from billetera.models import Account
 from billetera.services.ledger_service import crear_movimiento_simple
 from config.choices import TipoCuentaLedger, TipoTransaccionLedger
+from juego_responsable.services.limites_service import validar_limite_deposito
 
 
 class CuentaSistemaNoEncontradaError(Exception):
@@ -49,11 +50,14 @@ def recargar_fichas_usuario(
     """
     Recarga simulada de fichas virtuales.
 
-    Importante:
+    Reglas:
     - No hay pasarela real.
     - No hay dinero real.
+    - Se validan límites de juego responsable.
     - La casa debita y la wallet del usuario acredita.
     """
+
+    validar_limite_deposito(usuario, amount)
 
     cuenta_casa = obtener_cuenta_casa()
     wallet_usuario = obtener_wallet_usuario(usuario)

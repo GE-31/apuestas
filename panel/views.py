@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.text import slugify
 from django.views.generic import TemplateView
 
@@ -6,7 +7,7 @@ from config.choices import EstadoApuesta, EstadoEvento
 from eventos.models import Evento
 
 
-class DashboardView(TemplateView):
+class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'panel/dashboard.html'
 
     def get_context_data(self, **kwargs):
@@ -45,7 +46,7 @@ class DashboardView(TemplateView):
         return context
 
 
-class EventosView(TemplateView):
+class EventosView(LoginRequiredMixin, TemplateView):
     template_name = 'panel/eventos.html'
 
     def get_context_data(self, **kwargs):

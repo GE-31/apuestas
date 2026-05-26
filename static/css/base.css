@@ -44,6 +44,7 @@
   /* Morado */
   --purple:     #7c3aed;
   --purple-dim: rgba(124, 58, 237, 0.09);
+  --purple-mid: rgba(124, 58, 237, 0.18);
 
   /* Radios */
   --radius-xs: 4px;

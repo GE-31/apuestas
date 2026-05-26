@@ -8,20 +8,26 @@
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--admin-bg);
+  background-color: var(--admin-bg);
+  background-size: cover;
+  background-position: center;
   position: relative;
   overflow: hidden;
 }
 
-/* Patrón de fondo */
+/* Overlay ligero — deja pasar los colores y luces de la foto */
 .admin-auth-page::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image:
-    radial-gradient(ellipse at 30% 20%, rgba(79, 70, 229, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, rgba(99, 102, 241, 0.06) 0%, transparent 50%);
+  background: linear-gradient(
+    160deg,
+    rgba(4, 6, 18, 0.45) 0%,
+    rgba(8, 12, 32, 0.35) 50%,
+    rgba(3, 8, 20, 0.50) 100%
+  );
   pointer-events: none;
+  z-index: 0;
 }
 
 /* Grid de puntos sutil */
@@ -54,13 +60,13 @@
 
 .admin-disclaimer-banner svg { flex-shrink: 0; color: #f59e0b; }
 
-/* ── Contenedor centrado ── */
+/* ── Contenedor — card a la izquierda ── */
 .admin-auth-center {
   flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 40px 20px;
+  justify-content: flex-start;
+  padding: 40px 20px 40px clamp(32px, 6vw, 96px);
   position: relative;
   z-index: 1;
 }
@@ -327,8 +333,14 @@
 }
 
 /* ── Responsive ── */
+@media (max-width: 768px) {
+  .admin-auth-center {
+    justify-content: center;
+    padding: 24px 16px;
+  }
+}
+
 @media (max-width: 480px) {
-  .admin-auth-center { padding: 24px 16px; }
   .admin-card-top { padding: 24px 20px 20px; }
   .admin-card-body { padding: 24px 20px 24px; }
   .admin-card-footer { padding: 14px 20px; }

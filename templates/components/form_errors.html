@@ -1,8 +1,4 @@
-{# ─────────────────────────────────────────────────────────────
-   components/form_errors.html
-   Errores no ligados a un campo específico (form.non_field_errors).
-   Uso: {% include "components/form_errors.html" with form=form %}
-   ───────────────────────────────────────────────────────────── #}
+{# components/form_errors.html — Errores non_field del formulario #}
 {% if form.non_field_errors %}
 <div class="alert alert-error" role="alert" aria-live="polite">
   <span class="alert-icon" aria-hidden="true">

@@ -25,19 +25,25 @@
   flex-direction: column;
   justify-content: space-between;
   padding: 48px;
-  background: linear-gradient(145deg, var(--indigo-darker) 0%, var(--indigo) 55%, #0ea5e9 100%);
+  background-color: #0f1c3a;
+  background-size: cover;
+  background-position: center;
   overflow: hidden;
 }
 
-/* Patrón de fondo sutil */
+/* Overlay oscuro sobre la foto para que el texto sea legible */
 .auth-brand-panel::before {
   content: '';
   position: absolute;
   inset: 0;
-  background-image:
-    radial-gradient(circle at 20% 20%, rgba(255,255,255,0.05) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.12) 0%, transparent 40%);
+  background: linear-gradient(
+    160deg,
+    rgba(8, 12, 40, 0.82) 0%,
+    rgba(15, 28, 58, 0.75) 50%,
+    rgba(5, 10, 30, 0.88) 100%
+  );
   pointer-events: none;
+  z-index: 0;
 }
 
 /* Círculos decorativos */
@@ -45,7 +51,8 @@
   position: absolute;
   border-radius: 50%;
   background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  z-index: 1;
 }
 
 .auth-brand-circle--lg {

@@ -1,0 +1,641 @@
+/* =============================================================
+   dashboard.css — Estilos exclusivos del panel principal
+   FairBet Lab
+   Requiere: base.css, components.css, events.css
+   ============================================================= */
+
+/* ── MÉTRICAS ── */
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 22px;
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  position: relative;
+  overflow: hidden;
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur);
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Borde de color por tipo */
+.metric-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
+.metric-green::before { background: var(--green); }
+.metric-blue::before  { background: var(--blue); }
+.metric-gold::before  { background: var(--gold); }
+.metric-purple::before { background: var(--purple); }
+
+.metric-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.metric-green .metric-icon { background: var(--green-dim); color: var(--green); }
+.metric-blue  .metric-icon { background: var(--blue-dim);  color: var(--blue);  }
+.metric-gold  .metric-icon { background: var(--gold-dim);  color: var(--gold);  }
+.metric-purple .metric-icon { background: var(--purple-dim); color: var(--purple); }
+
+.metric-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.metric-color-green  { color: var(--green); }
+.metric-color-blue   { color: var(--blue); }
+.metric-color-gold   { color: var(--gold); }
+.metric-color-purple { color: var(--purple); }
+
+.metric-unit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+
+/* ── GRID PRINCIPAL (2 columnas) ── */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 20px;
+  margin-bottom: 32px;
+  align-items: start;
+}
+
+.dashboard-col-main { display: flex; flex-direction: column; gap: 20px; }
+.dashboard-col-side  { display: flex; flex-direction: column; gap: 20px; }
+
+
+/* ── WELCOME CARD ── */
+.welcome-card {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--indigo-darker) 0%, var(--indigo) 100%);
+  border: none;
+  padding: 24px;
+}
+
+.welcome-body {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.welcome-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.03em;
+  margin-bottom: 4px;
+}
+
+.welcome-name { color: #93c5fd; }
+
+.welcome-sub {
+  font-size: 0.8125rem;
+  color: rgba(255,255,255,0.65);
+  font-weight: 400;
+}
+
+.welcome-badges {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.welcome-card .badge-green {
+  background: rgba(22,163,74,0.2);
+  color: #86efac;
+  border: 1px solid rgba(22,163,74,0.3);
+}
+
+.welcome-card .badge-blue {
+  background: rgba(255,255,255,0.12);
+  color: rgba(255,255,255,0.8);
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.welcome-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: rgba(99,102,241,0.25);
+  filter: blur(60px);
+  bottom: -80px;
+  right: -60px;
+  pointer-events: none;
+}
+
+
+/* ── EVENT CARD (evento destacado) ── */
+.event-card { padding: 22px; }
+
+.event-sport-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+
+/* ── EQUIPOS ── */
+.teams-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 16px 0;
+}
+
+.team {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.team-flag {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.team-name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: center;
+}
+
+.team-abbr {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  background: var(--bg-raised);
+  padding: 2px 8px;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border);
+}
+
+.vs-block {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.vs-text {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+.vs-time {
+  font-size: 0.6875rem;
+  color: var(--indigo);
+  font-weight: 700;
+  background: var(--indigo-dim);
+  padding: 3px 8px;
+  border-radius: var(--radius-xs);
+}
+
+
+/* ── SECCIÓN DE CUOTAS ── */
+.odds-section { margin-bottom: 4px; }
+
+.odds-market-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 12px;
+}
+
+.odds-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.odds-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 12px 8px;
+  background: var(--bg-raised);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--dur) var(--ease);
+  font-family: var(--font);
+}
+
+.odds-btn:hover {
+  background: var(--indigo-dim);
+  border-color: #c7d2fe;
+}
+
+.odds-btn[aria-pressed="true"] {
+  background: var(--indigo-dim);
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.12);
+}
+
+.odds-btn-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.odds-btn-value {
+  font-size: 1.125rem;
+  font-weight: 800;
+  color: var(--gold);
+  letter-spacing: -0.02em;
+}
+
+.odds-btn-sub {
+  font-size: 0.5625rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+
+/* ── FORMULARIO DE APUESTA ── */
+.bet-form { display: flex; flex-direction: column; gap: 14px; }
+
+.bet-form-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--bg-raised);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.bet-selected-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bet-selected-icon {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.bet-selected-text {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+
+/* ── PREVIEW DE PAGO ── */
+.bet-payout-preview {
+  background: var(--bg-raised);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.payout-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.payout-label {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.payout-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.payout-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 2px 0;
+}
+
+.payout-row-total { margin-top: 2px; }
+
+.payout-label-total {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.payout-value-total {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  color: var(--green);
+  font-family: var(--font-mono);
+}
+
+
+/* ── BILLETERA ── */
+.wallet-header-icon {
+  width: 36px;
+  height: 36px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.wallet-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+
+.wallet-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 16px;
+  background: var(--bg-card);
+  border-bottom: 1px solid var(--border);
+  transition: background var(--dur);
+}
+
+.wallet-row:last-child { border-bottom: none; }
+.wallet-row:hover { background: var(--bg-hover); }
+
+.wallet-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wallet-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.wallet-icon-green { background: var(--green-dim); color: var(--green); }
+.wallet-icon-gold  { background: var(--gold-dim);  color: var(--gold); }
+
+.wallet-row-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  line-height: 1.3;
+}
+
+.wallet-row-sub {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.wallet-row-value {
+  font-size: 0.9375rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  white-space: nowrap;
+}
+
+.wallet-row-value small { font-size: 0.6875rem; font-weight: 500; }
+
+.wallet-total-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.wallet-total-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.wallet-total-value {
+  font-size: 0.875rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+
+/* ── ÚLTIMA APUESTA ── */
+.bet-details-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.bet-detail-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+  transition: background var(--dur);
+}
+
+.bet-detail-row:last-child { border-bottom: none; }
+.bet-detail-row:hover { background: var(--bg-hover); }
+
+.bet-detail-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.bet-detail-value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.bet-detail-muted { color: var(--text-secondary); font-weight: 500; }
+
+.bet-detail-highlight {
+  background: var(--green-dim);
+}
+
+.bet-detail-highlight:hover {
+  background: rgba(22,163,74,0.12);
+}
+
+
+/* ── JUEGO RESPONSABLE ── */
+.responsible-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid rgba(22,163,74,0.2);
+  border-radius: var(--radius-lg);
+  margin-bottom: 24px;
+}
+
+.responsible-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(22,163,74,0.12);
+  border: 1.5px solid rgba(22,163,74,0.2);
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+.responsible-body { flex: 1; }
+
+.responsible-title {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #14532d;
+  margin-bottom: 4px;
+}
+
+.responsible-text {
+  font-size: 0.8125rem;
+  color: #166534;
+  line-height: 1.6;
+  margin-bottom: 8px;
+}
+
+.responsible-link {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--green);
+  transition: color var(--dur);
+}
+
+.responsible-link:hover {
+  color: #15803d;
+  text-decoration: underline;
+}
+
+
+/* ── HISTORY CARD ── */
+.history-card { margin-bottom: 0; }
+
+
+/* ── RESPONSIVE ── */
+@media (max-width: 1200px) {
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); }
+  .dashboard-grid { grid-template-columns: 1fr; }
+  .dashboard-col-side { display: grid; grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .metrics-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .dashboard-col-side { grid-template-columns: 1fr; }
+  .welcome-body { flex-direction: column; }
+  .welcome-badges { flex-wrap: wrap; }
+  .odds-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .teams-row { padding: 12px 0; }
+  .team-flag { font-size: 1.5rem; }
+}
+
+@media (max-width: 480px) {
+  .metrics-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .metric-value { font-size: 1.375rem; }
+  .responsible-card { flex-direction: column; gap: 12px; }
+  .responsible-icon { width: 36px; height: 36px; }
+}

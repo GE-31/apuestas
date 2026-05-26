@@ -6,7 +6,11 @@ from django.utils import timezone
 from apuestas_core.models import Bet, BetSelection
 from apuestas_core.state_machine import cambiar_estado_apuesta
 from billetera.models import Account
-from billetera.services.ledger_service import crear_movimiento_simple, normalizar_decimal
+from billetera.services.ledger_service import (
+    crear_movimiento_simple,
+    crear_transaccion_ledger,
+    normalizar_decimal,
+)
 from config.choices import (
     EstadoApuesta,
     TipoCuentaLedger,
@@ -69,12 +73,18 @@ def liquidar_apuesta_ganada(*, bet_id, idempotency_key=None, liquidado_por=None)
     """
     Liquida una apuesta ganadora.
 
-    Movimiento contable:
-    apuestas_pendientes -> wallet_usuario
+    Ejemplo:
+    stake = 10
+    odds = 2.5
+    payout_final = 25
+    ganancia_extra = 15
 
-    Nota:
-    - payout_final = stake * odds_total
-    - La cuenta apuestas_pendientes entrega el pago final a la wallet.
+    Movimiento contable correcto:
+    DEBIT  10  apuestas_pendientes
+    DEBIT  15  casa
+    CREDIT 25  wallet_usuario
+
+    Así la cuenta apuestas_pendientes no queda negativa.
     """
 
     bet = (
@@ -88,14 +98,34 @@ def liquidar_apuesta_ganada(*, bet_id, idempotency_key=None, liquidado_por=None)
 
     wallet_usuario = obtener_wallet_usuario(bet.usuario)
     cuenta_pendientes = obtener_cuenta_apuestas_pendientes()
+    cuenta_casa = obtener_cuenta_casa()
 
+    stake = normalizar_decimal(bet.stake)
     payout_final = normalizar_decimal(bet.stake * bet.odds_total)
+    ganancia_extra = normalizar_decimal(payout_final - stake)
 
-    movimiento = crear_movimiento_simple(
-        cuenta_debito=cuenta_pendientes,
-        cuenta_credito=wallet_usuario,
-        amount=payout_final,
+    movimiento = crear_transaccion_ledger(
         tipo=TipoTransaccionLedger.LIQUIDACION_APUESTA,
+        entries_data=[
+            {
+                "account": cuenta_pendientes,
+                "amount": stake,
+                "direction": "DEBIT",
+                "descripcion": "Devolución del stake bloqueado por apuesta ganadora",
+            },
+            {
+                "account": cuenta_casa,
+                "amount": ganancia_extra,
+                "direction": "DEBIT",
+                "descripcion": "Pago de ganancia de apuesta ganadora",
+            },
+            {
+                "account": wallet_usuario,
+                "amount": payout_final,
+                "direction": "CREDIT",
+                "descripcion": "Liquidación de apuesta ganadora",
+            },
+        ],
         referencia=f"liquidacion_apuesta_{bet.id}",
         idempotency_key=idempotency_key,
         descripcion="Liquidación de apuesta ganadora",
@@ -119,11 +149,8 @@ def liquidar_apuesta_perdida(*, bet_id, idempotency_key=None, liquidado_por=None
     Liquida una apuesta perdedora.
 
     Movimiento contable:
-    apuestas_pendientes -> casa
-
-    Nota:
-    - payout_final = 0
-    - La casa recibe el stake bloqueado.
+    DEBIT  apuestas_pendientes
+    CREDIT casa
     """
 
     bet = (
@@ -165,10 +192,11 @@ def liquidar_apuesta_perdida(*, bet_id, idempotency_key=None, liquidado_por=None
 @transaction.atomic
 def anular_apuesta(*, bet_id, idempotency_key=None, anulado_por=None):
     """
-    Anula una apuesta aceptada y devuelve el stake al usuario.
+    Anula una apuesta aceptada.
 
     Movimiento contable:
-    apuestas_pendientes -> wallet_usuario
+    DEBIT  apuestas_pendientes
+    CREDIT wallet_usuario
     """
 
     bet = (

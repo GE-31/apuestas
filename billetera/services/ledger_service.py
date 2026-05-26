@@ -1,63 +1,72 @@
-from decimal import Decimal
+from decimal import Decimal, ROUND_HALF_UP
 
 from django.db import transaction
-from django.db.models import Sum
 
-from billetera.models import Account, LedgerEntry, LedgerTransaction
-from config.choices import DireccionLedger, TipoTransaccionLedger
+from billetera.models import LedgerEntry, LedgerTransaction
 
 
 class LedgerError(Exception):
     pass
 
 
+DECIMAL_PLACES = Decimal("0.0001")
+
+
 def normalizar_decimal(valor):
     """
-    Convierte un valor a Decimal con 4 decimales.
+    Normaliza montos a 4 decimales.
     No usar float para montos.
     """
-    return Decimal(str(valor)).quantize(Decimal("0.0001"))
+
+    if not isinstance(valor, Decimal):
+        valor = Decimal(str(valor))
+
+    return valor.quantize(DECIMAL_PLACES, rounding=ROUND_HALF_UP)
 
 
-def calcular_total_entries(entries_data):
-    """
-    Calcula la suma contable:
-    CREDIT suma positivo.
-    DEBIT suma negativo.
+def validar_amount(amount):
+    amount = normalizar_decimal(amount)
 
-    Para que la transacción esté balanceada, el resultado debe ser 0.
-    """
-    total = Decimal("0.0000")
+    if amount <= 0:
+        raise LedgerError("El monto debe ser mayor que cero.")
 
-    for entry in entries_data:
-        amount = normalizar_decimal(entry["amount"])
-        direction = entry["direction"]
-
-        if amount <= 0:
-            raise LedgerError("El monto debe ser mayor a cero.")
-
-        if direction == DireccionLedger.CREDIT:
-            total += amount
-        elif direction == DireccionLedger.DEBIT:
-            total -= amount
-        else:
-            raise LedgerError("Dirección ledger inválida.")
-
-    return total.quantize(Decimal("0.0001"))
+    return amount
 
 
 def validar_entries_balanceadas(entries_data):
     """
-    Valida que una operación tenga mínimo dos entradas
-    y que la suma global sea cero.
+    Valida partida doble.
+
+    Reglas:
+    - Mínimo 2 entradas.
+    - Todo amount debe ser positivo.
+    - La suma de DEBIT debe ser igual a la suma de CREDIT.
     """
+
     if len(entries_data) < 2:
-        raise LedgerError("Una transacción ledger debe tener al menos dos entradas.")
+        raise LedgerError("Una transacción ledger requiere mínimo dos entradas.")
 
-    total = calcular_total_entries(entries_data)
+    total_debit = Decimal("0.0000")
+    total_credit = Decimal("0.0000")
 
-    if total != Decimal("0.0000"):
-        raise LedgerError("La transacción ledger no está balanceada.")
+    for entry in entries_data:
+        amount = validar_amount(entry["amount"])
+        direction = entry["direction"]
+
+        if direction == "DEBIT":
+            total_debit += amount
+        elif direction == "CREDIT":
+            total_credit += amount
+        else:
+            raise LedgerError("Dirección inválida. Use DEBIT o CREDIT.")
+
+    total_debit = normalizar_decimal(total_debit)
+    total_credit = normalizar_decimal(total_credit)
+
+    if total_debit != total_credit:
+        raise LedgerError(
+            f"Transacción no balanceada. DEBIT={total_debit}, CREDIT={total_credit}"
+        )
 
     return True
 
@@ -73,29 +82,25 @@ def crear_transaccion_ledger(
     creado_por=None,
 ):
     """
-    Crea una transacción ledger con sus entradas.
+    Crea una transacción ledger con partida doble.
+
+    También registra auditoría inmutable del movimiento.
 
     entries_data ejemplo:
     [
         {
             "account": cuenta_origen,
-            "amount": Decimal("100.0000"),
-            "direction": DireccionLedger.DEBIT,
-            "descripcion": "Salida de fichas"
+            "amount": Decimal("10.0000"),
+            "direction": "DEBIT",
+            "descripcion": "..."
         },
         {
             "account": cuenta_destino,
-            "amount": Decimal("100.0000"),
-            "direction": DireccionLedger.CREDIT,
-            "descripcion": "Ingreso de fichas"
+            "amount": Decimal("10.0000"),
+            "direction": "CREDIT",
+            "descripcion": "..."
         }
     ]
-
-    Importante:
-    - Aquí sí va lógica de negocio.
-    - Usa transaction.atomic().
-    - Valida partida doble.
-    - Usa idempotency_key para evitar duplicados.
     """
 
     if idempotency_key:
@@ -108,7 +113,7 @@ def crear_transaccion_ledger(
 
     validar_entries_balanceadas(entries_data)
 
-    transaccion_ledger = LedgerTransaction.objects.create(
+    ledger_transaction = LedgerTransaction.objects.create(
         tipo=tipo,
         referencia=referencia,
         idempotency_key=idempotency_key,
@@ -117,45 +122,23 @@ def crear_transaccion_ledger(
     )
 
     for entry in entries_data:
-        account = Account.objects.select_for_update().get(pk=entry["account"].pk)
-
         LedgerEntry.objects.create(
-            transaction=transaccion_ledger,
-            account=account,
+            transaction=ledger_transaction,
+            account=entry["account"],
             amount=normalizar_decimal(entry["amount"]),
             direction=entry["direction"],
-            descripcion=entry.get("descripcion", ""),
+            descripcion=entry.get("descripcion") or descripcion,
         )
 
-    return transaccion_ledger
+    # Import aquí para evitar problemas de import circular.
+    from auditoria.services.audit_service import auditar_movimiento_wallet
 
-
-def verificar_transaccion_balanceada(transaccion_ledger):
-    """
-    Verifica si una transacción ya creada está balanceada.
-    Sirve para auditoría o tests.
-    """
-    total_credit = (
-        LedgerEntry.objects
-        .filter(
-            transaction=transaccion_ledger,
-            direction=DireccionLedger.CREDIT,
-        )
-        .aggregate(total=Sum("amount"))["total"]
-        or Decimal("0.0000")
+    auditar_movimiento_wallet(
+        transaction=ledger_transaction,
+        creado_por=creado_por,
     )
 
-    total_debit = (
-        LedgerEntry.objects
-        .filter(
-            transaction=transaccion_ledger,
-            direction=DireccionLedger.DEBIT,
-        )
-        .aggregate(total=Sum("amount"))["total"]
-        or Decimal("0.0000")
-    )
-
-    return normalizar_decimal(total_credit) == normalizar_decimal(total_debit)
+    return ledger_transaction
 
 
 def crear_movimiento_simple(
@@ -163,31 +146,33 @@ def crear_movimiento_simple(
     cuenta_debito,
     cuenta_credito,
     amount,
-    tipo=TipoTransaccionLedger.TRANSFERENCIA,
+    tipo,
     referencia=None,
     idempotency_key=None,
     descripcion=None,
     creado_por=None,
 ):
     """
-    Crea un movimiento simple de partida doble:
-    una cuenta se debita y otra se acredita.
+    Crea un movimiento simple de dos entradas:
+
+    DEBIT  cuenta_debito
+    CREDIT cuenta_credito
     """
 
-    amount = normalizar_decimal(amount)
+    amount = validar_amount(amount)
 
     entries_data = [
         {
             "account": cuenta_debito,
             "amount": amount,
-            "direction": DireccionLedger.DEBIT,
-            "descripcion": descripcion or "Débito de fichas virtuales",
+            "direction": "DEBIT",
+            "descripcion": descripcion,
         },
         {
             "account": cuenta_credito,
             "amount": amount,
-            "direction": DireccionLedger.CREDIT,
-            "descripcion": descripcion or "Crédito de fichas virtuales",
+            "direction": "CREDIT",
+            "descripcion": descripcion,
         },
     ]
 

@@ -1,16 +1,16 @@
-# FairBet Lab - Sistema de Apuestas Deportivas Educativo
+# Apuesta24/7 - Sistema de Apuestas Deportivas
 
 Proyecto web desarrollado con **Django**, **Django REST Framework**, **PostgreSQL**, **Redis**, **Celery** y **Django Channels**.
 
-El sistema simula una plataforma de apuestas deportivas usando **moneda virtual**, sin dinero real y sin pasarelas de pago.
+El sistema simula una plataforma de apuestas deportivas usando **moneda virtual**, 
 
-> Plataforma educativa con moneda virtual. No constituye una casa de apuestas.
+> Plataforma con moneda virtual.
 
 ---
 
 ## Objetivo del proyecto
 
-Construir un simulador educativo de apuestas deportivas con enfoque en:
+Construir un simulador de apuestas deportivas con enfoque en:
 
 - Registro de usuarios y KYC simulado.
 - Wallet con contabilidad de partida doble.

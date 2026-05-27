@@ -1,6 +1,6 @@
 /* =============================================================
    password-toggle.js — Mostrar / ocultar contraseña
-   FairBet Lab
+   Apuesta24/7
 
    Uso en HTML:
      <input type="password" data-pwd-toggle-target />

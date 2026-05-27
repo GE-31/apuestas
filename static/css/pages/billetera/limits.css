@@ -1,0 +1,116 @@
+.limits-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-xs);
+  overflow: hidden;
+}
+
+.limits-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  background: #f0fdf4;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.limits-header-icon {
+  width: 30px;
+  height: 30px;
+  background: rgba(22, 163, 74, 0.15);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  flex: 0 0 auto;
+}
+
+.limits-header-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #14532d;
+}
+
+.limits-rows {
+  display: flex;
+  flex-direction: column;
+}
+
+.limits-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 20px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.limits-row:last-child { border-bottom: none; }
+.limits-row:hover { background: var(--bg-hover); }
+
+.limits-row-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.limits-row-label {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.limits-row-used {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.limits-row-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.limits-row-limit {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-mono);
+}
+
+.limits-status {
+  font-size: 0.625rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.limits-status-ok {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.limits-progress {
+  height: 4px;
+  background: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 4px;
+  width: 80px;
+}
+
+.limits-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: var(--green);
+  transition: width 0.4s var(--ease);
+}
+
+.limits-progress-fill-warn { background: var(--gold); }

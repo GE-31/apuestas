@@ -1,18 +1,18 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Billetera virtual - FairBet Lab{% endblock %}
+{% block title %}Billetera virtual - Apuesta24/7{% endblock %}
 {% block nav_billetera %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/billetera.css' %}" />
+<link rel="stylesheet" href="{% static 'css/pages/billetera.css' %}?v=20260527d" />
 {% endblock %}
 
 {% block content %}
 
 <div class="wallet-page-header">
   <h1 class="wallet-page-title">Billetera virtual</h1>
-  <p class="wallet-page-sub">Administra tus fichas disponibles dentro de FairBet Lab.</p>
+  <p class="wallet-page-sub">Administra tus fichas disponibles dentro de Apuesta24/7.</p>
 </div>
 
 <div class="wallet-layout">
@@ -31,8 +31,8 @@
 
       <div class="wallet-hero-balance">
         <div class="wallet-hero-balance-label">Saldo actual</div>
-        <div class="wallet-hero-amount" data-wallet-balance="100.0000">
-          100.0000
+        <div class="wallet-hero-amount" data-wallet-balance="{{ saldo_virtual|default:'0.0000' }}">
+          {{ saldo_virtual|default:"0.0000" }}
           <span class="wallet-hero-amount-unit">FV</span>
         </div>
       </div>
@@ -46,22 +46,10 @@
           </svg>
           Cargar fichas
         </button>
-        <button class="wallet-action-btn wallet-action-btn-outline" id="btnMovimientos" type="button">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-               width="15" height="15" aria-hidden="true">
-            <line x1="8" y1="6" x2="21" y2="6"/>
-            <line x1="8" y1="12" x2="21" y2="12"/>
-            <line x1="8" y1="18" x2="21" y2="18"/>
-            <line x1="3" y1="6" x2="3.01" y2="6"/>
-            <line x1="3" y1="12" x2="3.01" y2="12"/>
-            <line x1="3" y1="18" x2="3.01" y2="18"/>
-          </svg>
-          Ver movimientos
-        </button>
       </div>
 
       <p class="wallet-hero-note">
-        Las fichas son de uso interno dentro de la plataforma educativa.
+        Las fichas son de uso interno dentro de la plataforma.
       </p>
     </section>
 
@@ -75,7 +63,7 @@
           </svg>
         </div>
         <div class="wallet-account-label">Wallet usuario</div>
-        <div class="wallet-account-value">100.0000</div>
+        <div class="wallet-account-value">{{ saldo_virtual|default:"0.0000" }}</div>
         <div class="wallet-account-desc">Fichas disponibles</div>
       </div>
 
@@ -88,7 +76,7 @@
           </svg>
         </div>
         <div class="wallet-account-label">Cuenta casa</div>
-        <div class="wallet-account-value">5,420.0000</div>
+        <div class="wallet-account-value">0.0000</div>
         <div class="wallet-account-desc">Reserva de la plataforma</div>
       </div>
 
@@ -101,7 +89,7 @@
           </svg>
         </div>
         <div class="wallet-account-label">Fichas bloqueadas</div>
-        <div class="wallet-account-value">31.0000</div>
+        <div class="wallet-account-value">{{ saldo_en_juego|default:"0.0000" }}</div>
         <div class="wallet-account-desc">En movimientos activos</div>
       </div>
 
@@ -114,106 +102,10 @@
         </div>
         <div class="wallet-account-label">Bonos</div>
         <div class="wallet-account-value">0.0000</div>
-        <div class="wallet-account-desc">Bonos educativos disponibles</div>
+        <div class="wallet-account-desc">Bonos disponibles</div>
       </div>
     </section>
 
-    <section class="movements-card" id="movementsCard" aria-labelledby="movementsTitle">
-      <div class="movements-header">
-        <span class="movements-title" id="movementsTitle">Movimientos recientes</span>
-        <span class="movements-count">12 registros</span>
-      </div>
-
-      <div class="movements-tabs" role="tablist" aria-label="Filtrar movimientos">
-        <button class="movements-tab active" data-filter="all"
-                role="tab" aria-selected="true" type="button">Todos</button>
-        <button class="movements-tab" data-filter="recarga"
-                role="tab" aria-selected="false" type="button">Recargas</button>
-        <button class="movements-tab" data-filter="bloqueo"
-                role="tab" aria-selected="false" type="button">Bloqueos</button>
-        <button class="movements-tab" data-filter="liquidacion"
-                role="tab" aria-selected="false" type="button">Liquidaciones</button>
-      </div>
-
-      <div class="movements-table-wrap">
-        <table class="movements-table" aria-label="Tabla de movimientos">
-          <thead>
-            <tr>
-              <th scope="col">Tipo</th>
-              <th scope="col">Referencia</th>
-              <th scope="col">Monto</th>
-              <th scope="col">Direcci&oacute;n</th>
-              <th scope="col">Saldo post.</th>
-              <th scope="col">Fecha</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr class="movement-row" data-type="liquidacion">
-              <td><span class="mov-type mov-type-liquidacion">Liquidaci&oacute;n</span></td>
-              <td><span class="mov-ref">LIQ-0013</span></td>
-              <td><span class="mov-amount wallet-positive">+35.0000 FV</span></td>
-              <td><span class="mov-dir mov-dir-credit">CREDIT</span></td>
-              <td><span class="mov-amount wallet-neutral">100.0000 FV</span></td>
-              <td><span class="mov-date">25 may &middot; 20:10</span></td>
-            </tr>
-
-            <tr class="movement-row" data-type="bloqueo">
-              <td><span class="mov-type mov-type-bloqueo">Bloqueo</span></td>
-              <td><span class="mov-ref">BET-0014</span></td>
-              <td><span class="mov-amount wallet-negative">-10.0000 FV</span></td>
-              <td><span class="mov-dir mov-dir-debit">DEBIT</span></td>
-              <td><span class="mov-amount wallet-neutral">65.0000 FV</span></td>
-              <td><span class="mov-date">26 may &middot; 14:32</span></td>
-            </tr>
-
-            <tr class="movement-row" data-type="bloqueo">
-              <td><span class="mov-type mov-type-bloqueo">Bloqueo</span></td>
-              <td><span class="mov-ref">BET-0011</span></td>
-              <td><span class="mov-amount wallet-negative">-15.0000 FV</span></td>
-              <td><span class="mov-dir mov-dir-debit">DEBIT</span></td>
-              <td><span class="mov-amount wallet-neutral">75.0000 FV</span></td>
-              <td><span class="mov-date">26 may &middot; 10:02</span></td>
-            </tr>
-
-            <tr class="movement-row" data-type="bloqueo">
-              <td><span class="mov-type mov-type-bloqueo">Bloqueo</span></td>
-              <td><span class="mov-ref">BET-0008</span></td>
-              <td><span class="mov-amount wallet-negative">-6.0000 FV</span></td>
-              <td><span class="mov-dir mov-dir-debit">DEBIT</span></td>
-              <td><span class="mov-amount wallet-neutral">90.0000 FV</span></td>
-              <td><span class="mov-date">26 may &middot; 08:52</span></td>
-            </tr>
-
-            <tr class="movement-row" data-type="recarga">
-              <td><span class="mov-type mov-type-recarga">Recarga</span></td>
-              <td><span class="mov-ref">REC-0006</span></td>
-              <td><span class="mov-amount wallet-positive">+50.0000 FV</span></td>
-              <td><span class="mov-dir mov-dir-credit">CREDIT</span></td>
-              <td><span class="mov-amount wallet-neutral">96.0000 FV</span></td>
-              <td><span class="mov-date">25 may &middot; 09:00</span></td>
-            </tr>
-
-            <tr class="movement-row" data-type="liquidacion">
-              <td><span class="mov-type mov-type-liquidacion">Liquidaci&oacute;n</span></td>
-              <td><span class="mov-ref">LIQ-0010</span></td>
-              <td><span class="mov-amount wallet-positive">+16.8000 FV</span></td>
-              <td><span class="mov-dir mov-dir-credit">CREDIT</span></td>
-              <td><span class="mov-amount wallet-neutral">46.0000 FV</span></td>
-              <td><span class="mov-date">23 may &middot; 22:35</span></td>
-            </tr>
-
-            <tr class="movement-row" data-type="recarga">
-              <td><span class="mov-type mov-type-recarga">Recarga</span></td>
-              <td><span class="mov-ref">REC-0001</span></td>
-              <td><span class="mov-amount wallet-positive">+100.0000 FV</span></td>
-              <td><span class="mov-dir mov-dir-credit">CREDIT</span></td>
-              <td><span class="mov-amount wallet-neutral">100.0000 FV</span></td>
-              <td><span class="mov-date">20 may &middot; 08:00</span></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
   </div>
 
   <aside class="wallet-aside">
@@ -278,9 +170,7 @@
   </aside>
 </div>
 
-<p class="wallet-page-disclaimer">
-  Plataforma educativa con moneda virtual. No constituye una casa de apuestas.
-</p>
+<div id="apuesta247Meta" data-user-id="{{ request.user.id }}" hidden></div>
 
 <div class="wallet-modal-backdrop" id="walletRechargeModal" aria-hidden="true">
   <div class="wallet-modal" role="dialog" aria-modal="true" aria-labelledby="walletModalTitle">
@@ -295,117 +185,106 @@
 
     <header class="wallet-modal-head">
       <div>
-        <p class="wallet-modal-eyebrow">FairBet Lab</p>
+        <p class="wallet-modal-eyebrow">Apuesta24/7</p>
         <h2 class="wallet-modal-title" id="walletModalTitle">Cargar fichas</h2>
       </div>
 
-      <div class="wallet-modal-summary" aria-label="Resumen de billetera">
-        <div class="wallet-modal-summary-item">
-          <span>Saldo actual</span>
-          <strong>100.0000 FV</strong>
+      <div class="wm-stat-bar" aria-label="Resumen de cuenta">
+        <div class="wm-stat-item">
+          <span class="wm-stat-label">Saldo Actual</span>
+          <strong class="wm-stat-val" id="modalSaldoActual">0.00 <em>FV</em></strong>
         </div>
-        <div class="wallet-modal-summary-item">
-          <span>Fichas disponibles</span>
-          <strong>100.0000 FV</strong>
+        <div class="wm-stat-sep"></div>
+        <div class="wm-stat-item">
+          <span class="wm-stat-label">Bono Te Apuesto</span>
+          <strong class="wm-stat-val wm-stat-bonus">S/ 0.00</strong>
         </div>
-        <div class="wallet-modal-summary-item">
-          <span>Estado</span>
-          <strong>Cuenta activa</strong>
+        <div class="wm-stat-sep"></div>
+        <div class="wm-stat-item">
+          <span class="wm-stat-label">Jugadas gratis</span>
+          <strong class="wm-stat-val wm-stat-free">0</strong>
         </div>
       </div>
     </header>
 
     <div class="wallet-modal-body">
+
+      {# ── Vista: métodos ── #}
       <section class="wallet-recharge-view is-active" data-wallet-view="methods">
         <div class="wallet-step-head">
-          <span class="wallet-step-badge">Paso 1</span>
+          <span class="wallet-step-badge">M&eacute;todos de carga</span>
           <div>
-            <h3>Elegir m&eacute;todo de carga</h3>
-            <p>Selecciona un flujo demostrativo para cargar fichas virtuales.</p>
+            <h3>Elige c&oacute;mo cargar</h3>
+            <p>Selecciona tu m&eacute;todo de pago preferido.</p>
           </div>
         </div>
 
-        <div class="wallet-method-grid">
-          <button class="wallet-method-card" type="button" data-method="Yape">
-            <span class="wallet-method-mark wallet-method-yape">Y</span>
+        <div class="wallet-method-grid wm-method-grid">
+          <button class="wallet-method-card wm-method-card" type="button"
+                  data-method="Yape"
+                  data-logo="{% static 'img/yape-logo.png' %}">
+            <img src="{% static 'img/yape-logo.png' %}" alt="Yape" class="wm-method-logo" />
             <span class="wallet-method-name">Yape</span>
-            <span class="wallet-method-desc">QR demostrativo y confirmaci&oacute;n manual</span>
+            <span class="wallet-method-desc">Recarga con QR desde S/ 5</span>
           </button>
 
-          <button class="wallet-method-card" type="button" data-method="Plin">
-            <span class="wallet-method-mark wallet-method-plin">P</span>
+          <button class="wallet-method-card wm-method-card" type="button"
+                  data-method="Plin"
+                  data-logo="{% static 'img/plin-logo.png' %}">
+            <img src="{% static 'img/plin-logo.png' %}" alt="Plin" class="wm-method-logo" />
             <span class="wallet-method-name">Plin</span>
-            <span class="wallet-method-desc">Carga visual con fichas virtuales</span>
-          </button>
-
-          <button class="wallet-method-card" type="button" data-method="QR demostrativo" data-direct-qr="true">
-            <span class="wallet-method-mark wallet-method-qr">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                   width="20" height="20" aria-hidden="true">
-                <rect x="3" y="3" width="6" height="6"/>
-                <rect x="15" y="3" width="6" height="6"/>
-                <rect x="3" y="15" width="6" height="6"/>
-                <path d="M15 15h2v2h-2zM19 19h2v2h-2zM15 21h2M21 15v2"/>
-              </svg>
-            </span>
-            <span class="wallet-method-name">QR demostrativo</span>
-            <span class="wallet-method-desc">Genera una vista QR sin conexi&oacute;n externa</span>
-          </button>
-
-          <button class="wallet-method-card" type="button" data-method="C&oacute;digo manual">
-            <span class="wallet-method-mark wallet-method-code">#</span>
-            <span class="wallet-method-name">C&oacute;digo manual</span>
-            <span class="wallet-method-desc">Usa un c&oacute;digo opcional para demo</span>
+            <span class="wallet-method-desc">Recarga con QR desde S/ 5</span>
           </button>
         </div>
-
-        <p class="wallet-demo-note">
-          Estos m&eacute;todos son solo visuales y demostrativos. No abren enlaces externos ni conectan con servicios financieros.
-        </p>
       </section>
 
+      {# ── Vista: monto ── #}
       <section class="wallet-recharge-view" data-wallet-view="amount">
         <button class="wallet-back-btn" type="button" data-wallet-back>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                width="16" height="16" aria-hidden="true">
             <polyline points="15 18 9 12 15 6"/>
           </svg>
-          Volver a m&eacute;todos
+          Volver
         </button>
 
-        <div class="wallet-step-head">
-          <span class="wallet-step-badge">Paso 2</span>
+        <div class="wm-amount-head">
+          <img id="walletAmountLogo" src="{% static 'img/yape-logo.png' %}" alt=""
+               class="wm-amount-logo" aria-hidden="true" />
           <div>
-            <h3 id="walletAmountTitle">Carga con Yape</h3>
-            <p id="walletAmountText">Elige la cantidad de fichas y genera un QR demostrativo.</p>
+            <h3 class="wm-amount-title" id="walletAmountTitle">Recarga en YAPE desde S/ 5 hasta S/ 500.</h3>
+            <p class="wm-amount-text" id="walletAmountText">Ingresa el monto a recargar. Si tienes un c&oacute;digo promocional, escr&iacute;belo y presiona &ldquo;APLICAR&rdquo; para hacerlo efectivo. Luego genera tu c&oacute;digo QR.</p>
           </div>
         </div>
 
-        <div class="wallet-quick-amounts" aria-label="Cantidades rapidas">
-          <button type="button" data-amount="10.0000">10 FV</button>
-          <button type="button" data-amount="20.0000">20 FV</button>
-          <button type="button" data-amount="50.0000">50 FV</button>
-          <button type="button" data-amount="100.0000">100 FV</button>
-          <button type="button" data-amount="200.0000">200 FV</button>
-        </div>
-
-        <div class="wallet-form-grid">
+        <div class="wm-fields">
           <label class="wallet-field">
-            <span>Cantidad de fichas</span>
-            <input id="walletAmountInput" type="number" min="0.0001" step="0.0001" inputmode="decimal" placeholder="100.0000" value="100.0000" />
+            <span>Monto</span>
+            <div class="wm-amount-wrap">
+              <span class="wm-prefix">S/</span>
+              <input id="walletAmountInput" type="number" min="5" max="500" step="0.01"
+                     inputmode="decimal" placeholder="0.00" />
+            </div>
           </label>
 
-          <label class="wallet-field">
-            <span>C&oacute;digo de operaci&oacute;n</span>
-            <input id="walletOperationInput" type="text" placeholder="Opcional para demo" autocomplete="off" />
-          </label>
+          <div class="wallet-field">
+            <span>C&oacute;digo promocional</span>
+            <div class="wm-promo-row">
+              <input id="walletOperationInput" type="text"
+                     placeholder="Ingresa tu c&oacute;digo" autocomplete="off" />
+              <button class="wm-apply-btn" id="walletApplyPromo" type="button">APLICAR</button>
+            </div>
+          </div>
         </div>
 
         <div class="wallet-form-actions">
-          <button class="wallet-primary-btn" id="walletGenerateQr" type="button">Generar QR</button>
+          <button class="wallet-primary-btn wm-generate-btn" id="walletGenerateQr" type="button">
+            GENERAR QR
+          </button>
         </div>
       </section>
 
+      {# ── Vista: QR ── #}
       <section class="wallet-recharge-view" data-wallet-view="qr">
         <button class="wallet-back-btn" type="button" data-wallet-back>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -415,23 +294,29 @@
           Volver
         </button>
 
-        <div class="wallet-step-head">
-          <span class="wallet-step-badge wallet-step-pending">QR demo</span>
+        <div class="wm-qr-head">
+          <img id="walletQrLogo" src="{% static 'img/yape-logo.png' %}" alt=""
+               class="wm-qr-logo" aria-hidden="true" />
           <div>
-            <h3 id="walletQrTitle">QR demostrativo</h3>
-            <p>Escanea visualmente esta referencia de demo y confirma la carga.</p>
+            <h3 id="walletQrTitle">Carga con Yape</h3>
+            <span class="wm-pending-badge">
+              <svg viewBox="0 0 16 16" fill="currentColor" width="11" height="11" aria-hidden="true">
+                <path d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm.75 4a.75.75 0 0 0-1.5 0v3.25l2.1 1.4a.75.75 0 0 0 .83-1.25L8.75 7.5V5z"/>
+              </svg>
+              Pago pendiente
+            </span>
           </div>
         </div>
 
         <div class="wallet-qr-panel">
-          <div class="wallet-fake-qr" aria-label="QR DEMO">
-            <span>QR DEMO</span>
+          <div class="wallet-fake-qr" aria-label="C&oacute;digo QR">
+            <span id="walletQrMethodLabel">YAPE</span>
           </div>
 
           <div class="wallet-qr-details">
             <div>
               <span>Monto</span>
-              <strong id="walletQrAmount">100.0000 FV</strong>
+              <strong id="walletQrAmount">S/ 0.00</strong>
             </div>
             <div>
               <span>M&eacute;todo</span>
@@ -439,7 +324,7 @@
             </div>
             <div>
               <span>Estado</span>
-              <strong class="wallet-status-pending">pendiente de confirmaci&oacute;n</strong>
+              <strong class="wallet-status-pending">Pago pendiente</strong>
             </div>
           </div>
         </div>
@@ -447,10 +332,13 @@
         <div class="wallet-message" id="walletRechargeMessage" aria-live="polite"></div>
 
         <div class="wallet-form-actions">
-          <button class="wallet-primary-btn" id="walletConfirmRecharge" type="button">Confirmar carga</button>
+          <button class="wallet-primary-btn wm-simulate-btn" id="walletConfirmRecharge" type="button">
+            Simular recarga exitosa
+          </button>
         </div>
       </section>
 
+      {# ── Vista: resultado ── #}
       <section class="wallet-recharge-view" data-wallet-view="result">
         <div class="wallet-result-card" id="walletResultCard">
           <div class="wallet-result-icon" aria-hidden="true">
@@ -459,15 +347,15 @@
               <path d="M20 6L9 17l-5-5"/>
             </svg>
           </div>
-          <h3 id="walletResultTitle">Fichas agregadas correctamente.</h3>
+          <h3 id="walletResultTitle">Carga realizada correctamente.</h3>
           <div class="wallet-result-summary">
             <div>
               <span>M&eacute;todo</span>
               <strong id="walletResultMethod">Yape</strong>
             </div>
             <div>
-              <span>Cantidad</span>
-              <strong id="walletResultAmount">100.0000 FV</strong>
+              <span>Monto</span>
+              <strong id="walletResultAmount">S/ 0.00</strong>
             </div>
             <div>
               <span>Estado</span>
@@ -478,6 +366,7 @@
           <button class="wallet-primary-btn" id="walletResultClose" type="button">Cerrar</button>
         </div>
       </section>
+
     </div>
   </div>
 </div>
@@ -485,5 +374,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/pages/billetera.js' %}"></script>
+<script src="{% static 'js/pages/billetera.js' %}?v=20260527d"></script>
 {% endblock %}

@@ -1,4 +1,4 @@
-/* FairBet Lab — events.js */
+/* Apuesta24/7 — events.js */
 (function () {
   'use strict';
 
@@ -62,7 +62,7 @@
      ================================================================ */
 
   function getCsrf() {
-    var meta = document.getElementById('fairbetMeta');
+    var meta = document.getElementById('apuesta247Meta');
     if (meta && meta.dataset.csrf) return meta.dataset.csrf;
     /* fallback: leer cookie csrftoken */
     var m = document.cookie.match(/(?:^|;\s*)csrftoken=([^;]+)/);
@@ -70,7 +70,7 @@
   }
 
   function getUserId() {
-    var meta = document.getElementById('fairbetMeta');
+    var meta = document.getElementById('apuesta247Meta');
     return meta ? (parseInt(meta.dataset.userId, 10) || 1) : 1;
   }
 
@@ -344,7 +344,7 @@
     .catch(function (err) {
       setLoading(eventId, false);
       showMsg(eventId, 'Error de red. Verifica tu conexión e intenta de nuevo.', 'error');
-      console.error('[FairBet] Error al enviar apuesta:', err);
+      console.error('[Apuesta24/7] Error al enviar apuesta:', err);
     });
   }
 

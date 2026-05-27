@@ -1,4 +1,4 @@
-/* FairBet Lab — main.js */
+/* Apuesta24/7 — main.js */
 
 (function () {
   'use strict';
@@ -30,6 +30,147 @@
       }
     });
   }
+
+  /* Cuenta lateral y recarga de fichas */
+  const profileButton = document.getElementById('navProfileButton');
+  const rechargeButton = document.getElementById('navRechargeButton');
+  const accountDrawer = document.getElementById('accountDrawer');
+  const accountBackdrop = document.getElementById('accountDrawerBackdrop');
+  const accountClose = document.getElementById('accountDrawerClose');
+  const accountForm = document.getElementById('accountRechargeForm');
+  const accountAmount = document.getElementById('accountRechargeAmount');
+  const accountMessage = document.getElementById('accountRechargeMessage');
+  const accountQuickAmounts = document.querySelectorAll('[data-account-amount]');
+
+  function openAccountDrawer() {
+    if (!accountDrawer || !accountBackdrop) return;
+    accountDrawer.classList.add('is-open');
+    accountBackdrop.classList.add('is-open');
+    accountDrawer.setAttribute('aria-hidden', 'false');
+    accountBackdrop.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('account-drawer-open');
+  }
+
+  function closeAccountDrawer() {
+    if (!accountDrawer || !accountBackdrop) return;
+    accountDrawer.classList.remove('is-open');
+    accountBackdrop.classList.remove('is-open');
+    accountDrawer.setAttribute('aria-hidden', 'true');
+    accountBackdrop.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('account-drawer-open');
+  }
+
+  function getCookie(name) {
+    const cookies = document.cookie ? document.cookie.split(';') : [];
+    for (let i = 0; i < cookies.length; i += 1) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === name + '=') {
+        return decodeURIComponent(cookie.substring(name.length + 1));
+      }
+    }
+    return '';
+  }
+
+  function getCsrfToken() {
+    const tokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
+    return (tokenInput && tokenInput.value) || getCookie('csrftoken');
+  }
+
+  function normalizeFichas(value) {
+    const number = Number.parseFloat(String(value || '').replace(',', '.'));
+    if (!Number.isFinite(number) || number <= 0) return null;
+    return number.toFixed(4);
+  }
+
+  function setAccountMessage(text, type) {
+    if (!accountMessage) return;
+    accountMessage.textContent = text || '';
+    accountMessage.className = 'account-message';
+    if (type) accountMessage.classList.add('is-' + type);
+  }
+
+  async function submitAccountRecharge(event) {
+    event.preventDefault();
+    if (!accountDrawer || !accountAmount) return;
+
+    const amount = normalizeFichas(accountAmount.value);
+    const userId = accountDrawer.querySelector('.account-card') ? accountDrawer.querySelector('.account-card').dataset.userId : '';
+    const submitButton = accountForm ? accountForm.querySelector('button[type="submit"]') : null;
+
+    if (!amount) {
+      setAccountMessage('Ingresa una cantidad valida de fichas.', 'error');
+      return;
+    }
+
+    if (!userId) {
+      setAccountMessage('No se encontro el usuario de la cuenta.', 'error');
+      return;
+    }
+
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.textContent = 'Recargando...';
+    }
+
+    try {
+      const response = await fetch('/api/billetera/operaciones/recargar/', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCsrfToken()
+        },
+        body: JSON.stringify({
+          usuario_id: Number(userId),
+          amount: amount,
+          idempotency_key: 'recarga-header-' + Date.now()
+        })
+      });
+
+      let detail = '';
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.indexOf('application/json') !== -1) {
+        const data = await response.json();
+        detail = data.detail || data.error || JSON.stringify(data);
+      } else {
+        detail = await response.text();
+      }
+
+      if (!response.ok) throw new Error(detail || 'Respuesta ' + response.status);
+
+      setAccountMessage('Fichas agregadas correctamente. La recarga quedo guardada.', 'success');
+    } catch (err) {
+      setAccountMessage('No se pudo recargar fichas. ' + (err.message || ''), 'error');
+    } finally {
+      if (submitButton) {
+        submitButton.disabled = false;
+        submitButton.textContent = 'Recargar fichas';
+      }
+    }
+  }
+
+  if (profileButton) profileButton.addEventListener('click', openAccountDrawer);
+  if (rechargeButton) {
+    rechargeButton.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      closeAccountDrawer();
+      const walletOpenButton = document.getElementById('btnRecarga');
+      if (walletOpenButton) {
+        walletOpenButton.click();
+        return;
+      }
+      window.location.href = '/billetera/?recargar=1';
+    });
+  }
+  if (accountClose) accountClose.addEventListener('click', closeAccountDrawer);
+  if (accountBackdrop) accountBackdrop.addEventListener('click', closeAccountDrawer);
+  if (accountForm) accountForm.addEventListener('submit', submitAccountRecharge);
+  accountQuickAmounts.forEach(function (button) {
+    button.addEventListener('click', function () {
+      if (accountAmount) accountAmount.value = button.dataset.accountAmount || '100.0000';
+    });
+  });
 
   /* ── Calculadora de apuesta en vivo ── */
   const oddsBtns       = document.querySelectorAll('.odds-btn');
@@ -117,7 +258,7 @@
         submitBtn.style.background = 'var(--green)';
       }
 
-      console.info('[FairBet Lab] Apuesta simulada:', {
+      console.info('[Apuesta24/7] Apuesta simulada:', {
         seleccion: currentLabel,
         cuota:     currentOdd,
         stake:     stake,

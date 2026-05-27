@@ -1,23 +1,23 @@
 {% extends "layouts/base_auth.html" %}
 {% load static %}
 
-{% block title %}Ingresar — FairBet Lab{% endblock %}
+{% block title %}Ingresar — Apuesta24/7{% endblock %}
 
 {% block page_css %}
-<link rel="stylesheet" href="{% static 'css/pages/login_cliente.css' %}" />
+<link rel="stylesheet" href="{% static 'css/pages/login/cliente.css' %}" />
 {% endblock %}
 
 {% block body %}
 <div class="auth-page">
 
-  {# Banner educativo obligatorio #}
+  {# Banner informativo obligatorio #}
   {% include "components/auth_message.html" %}
 
   <div class="auth-split">
 
     <!-- ── Panel izquierdo: Branding ── -->
     <aside class="auth-brand-panel" aria-hidden="true"
-           style="background-image: url('{% static 'img/logo_cliente.png' %}');">
+           style="background-image: url('{% static 'img/portada-login.png' %}');">
 
       {# Círculos decorativos — puramente visuales #}
       <div class="auth-brand-circle auth-brand-circle--lg"></div>
@@ -32,7 +32,7 @@
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
         </div>
-        FairBet <span class="auth-brand-logo-accent">Lab</span>
+        Apuesta24<span class="auth-brand-logo-accent">/7</span>
       </a>
 
       {# Tagline #}
@@ -41,38 +41,29 @@
           Aprende a <em>analizar</em><br>apuestas deportivas
         </h1>
         <p class="auth-brand-desc">
-          Simulador educativo con mercados reales, cuotas virtuales
+          Simulador con mercados reales, cuotas virtuales
           y herramientas para comprender la probabilidad en el deporte.
         </p>
 
         {# Stats decorativos — valores de ejemplo ilustrativos #}
         <div class="auth-brand-stats">
           <div class="auth-brand-stat">
-            <span class="auth-brand-stat-value">100%</span>
-            <span class="auth-brand-stat-label">Virtual</span>
+            <span class="auth-brand-stat-value">Juega</span>
+            <span class="auth-brand-stat-label">con fichas virtuales</span>
           </div>
           <div class="auth-brand-stat">
-            <span class="auth-brand-stat-value">0 S/</span>
-            <span class="auth-brand-stat-label">Dinero real</span>
+            <span class="auth-brand-stat-value">Analiza</span>
+            <span class="auth-brand-stat-label">cuotas y mercados</span>
           </div>
           <div class="auth-brand-stat">
-            <span class="auth-brand-stat-value">Edu</span>
-            <span class="auth-brand-stat-label">Solo educativo</span>
+            <span class="auth-brand-stat-value">Mejora</span>
+            <span class="auth-brand-stat-label">tu estrategia</span>
           </div>
         </div>
       </div>
 
       {# Disclaimer al pie del panel #}
-      <div class="auth-brand-disclaimer">
-        <svg viewBox="0 0 20 20" fill="currentColor" width="13" height="13" aria-hidden="true">
-          <path fill-rule="evenodd"
-                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516
-                   2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75
-                   0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
-                clip-rule="evenodd"/>
-        </svg>
-        Solo fichas virtuales — sin dinero real
-      </div>
+      
 
     </aside>
 

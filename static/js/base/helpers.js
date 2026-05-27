@@ -1,13 +1,13 @@
 /* =============================================================
    helpers.js — Utilidades DOM compartidas
-   FairBet Lab
+   Apuesta24/7
    ============================================================= */
 
 'use strict';
 
-var FairBet = window.FairBet || {};
+var Apuesta247 = window.Apuesta247 || {};
 
-FairBet.helpers = {
+Apuesta247.helpers = {
 
   /* Selector único con fallback null */
   qs: function (selector, root) {
@@ -42,4 +42,4 @@ FairBet.helpers = {
 
 };
 
-window.FairBet = FairBet;
+window.Apuesta247 = Apuesta247;

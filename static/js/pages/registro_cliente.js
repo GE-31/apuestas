@@ -1,4 +1,4 @@
-/* registro_cliente.js — FairBet Lab */
+/* registro_cliente.js — Apuesta24/7 */
 (function () {
   'use strict';
 

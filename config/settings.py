@@ -177,8 +177,8 @@ REST_FRAMEWORK = {
 
 # OpenAPI / Swagger
 SPECTACULAR_SETTINGS = {
-    "TITLE": "API FairBet Lab - Simulador de Apuestas",
-    "DESCRIPTION": "API educativa de apuestas deportivas con moneda virtual.",
+    "TITLE": "API Apuesta24/7 - Simulador de Apuestas",
+    "DESCRIPTION": "API de apuestas deportivas con moneda virtual.",
     "VERSION": "1.0.0",
     "SERVE_INCLUDE_SCHEMA": False,
 }

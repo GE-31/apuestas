@@ -1,6 +1,6 @@
 /* =============================================================
    login_admin.js — Comportamiento específico del login admin
-   FairBet Lab
+   Apuesta24/7
 
    - Animación de entrada del card
    - Foco en el primer input

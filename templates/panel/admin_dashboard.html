@@ -1,0 +1,221 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Panel administrativo - Apuesta24/7{% endblock %}
+{% block nav_admin %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/admin_dashboard.css' %}" />
+{% endblock %}
+
+{% block content %}
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <div class="admin-sidebar-brand">
+      <img src="{% static 'img/logo.png' %}" alt="" />
+      <div>
+        <strong>Apuesta24/7</strong>
+        <span>Panel interno</span>
+      </div>
+    </div>
+    <nav class="admin-side-nav" aria-label="Panel admin">
+      <a href="#resumen" class="active">Resumen</a>
+      <a href="#equipos">Equipos</a>
+      <a href="#eventos">Eventos y cuotas</a>
+      <a href="#montos">Montos</a>
+      <a href="#apuestas">Apuestas</a>
+      <a href="/admin/">Admin Django</a>
+    </nav>
+  </aside>
+
+  <section class="admin-workspace">
+    <header class="admin-hero" id="resumen">
+      <div>
+        <p>Centro de control</p>
+        <h1>Panel Administrativo</h1>
+        <span>Gestiona equipos, eventos, cuotas, apuestas y fichas virtuales.</span>
+      </div>
+      <a href="/logout/" class="admin-hero-action">Cerrar sesi&oacute;n</a>
+    </header>
+
+    {% if messages %}
+    <div class="admin-messages">
+      {% for message in messages %}
+      <div class="admin-message admin-message-{{ message.tags }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="admin-metrics">
+      <article>
+        <span>Deportes</span>
+        <strong>{{ deportes_count }}</strong>
+      </article>
+      <article>
+        <span>Equipos</span>
+        <strong>{{ equipos_count }}</strong>
+      </article>
+      <article>
+        <span>Eventos</span>
+        <strong>{{ eventos_count }}</strong>
+      </article>
+      <article>
+        <span>Apuestas</span>
+        <strong>{{ apuestas_count }}</strong>
+      </article>
+      <article>
+        <span>Usuarios</span>
+        <strong>{{ usuarios_count }}</strong>
+      </article>
+    </div>
+
+    <div class="admin-grid">
+      <form class="admin-card" id="equipos" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="equipo" />
+        <div class="admin-card-head">
+          <h2>Crear equipo</h2>
+          <span>Alta rapida</span>
+        </div>
+        {{ equipo_form.non_field_errors }}
+        <div class="admin-form-grid">
+          {% for field in equipo_form %}
+          <label>
+            <span>{{ field.label }}</span>
+            {{ field }}
+            {{ field.errors }}
+          </label>
+          {% endfor %}
+        </div>
+        <button type="submit">Guardar equipo</button>
+      </form>
+
+      <form class="admin-card admin-card-wide" id="eventos" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="evento" />
+        <div class="admin-card-head">
+          <h2>Crear evento y cuotas</h2>
+          <span>Mercado 1X2 automatico</span>
+        </div>
+        {{ evento_form.non_field_errors }}
+        <div class="admin-form-grid admin-form-grid-3">
+          {% for field in evento_form %}
+          <label>
+            <span>{{ field.label }}</span>
+            {{ field }}
+            {{ field.errors }}
+          </label>
+          {% endfor %}
+        </div>
+        <button type="submit">Generar evento</button>
+      </form>
+
+      <form class="admin-card" id="montos" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="recarga" />
+        <div class="admin-card-head">
+          <h2>Recargar fichas</h2>
+          <span>Se guarda en base de datos</span>
+        </div>
+        {{ recarga_form.non_field_errors }}
+        <div class="admin-form-grid">
+          {% for field in recarga_form %}
+          <label>
+            <span>{{ field.label }}</span>
+            {{ field }}
+            {{ field.errors }}
+          </label>
+          {% endfor %}
+        </div>
+        <button type="submit">Recargar monto</button>
+      </form>
+
+      <form class="admin-card" id="apuestas" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="apuesta" />
+        <div class="admin-card-head">
+          <h2>Crear apuesta</h2>
+          <span>Cliente, seleccion y monto</span>
+        </div>
+        {{ apuesta_form.non_field_errors }}
+        <div class="admin-form-grid">
+          {% for field in apuesta_form %}
+          <label>
+            <span>{{ field.label }}</span>
+            {{ field }}
+            {{ field.errors }}
+          </label>
+          {% endfor %}
+        </div>
+        <button type="submit">Registrar apuesta</button>
+      </form>
+    </div>
+
+    <div class="admin-tables">
+      <section class="admin-table-card">
+        <div class="admin-card-head">
+          <h2>Eventos recientes</h2>
+          <span>{{ eventos_count }} total</span>
+        </div>
+        <div class="admin-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Evento</th>
+                <th>Deporte</th>
+                <th>Estado</th>
+                <th>Fecha</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for evento in eventos_recientes_admin %}
+              <tr>
+                <td>{{ evento.nombre }}</td>
+                <td>{{ evento.deporte.nombre }}</td>
+                <td>{{ evento.get_estado_display }}</td>
+                <td>{{ evento.fecha_inicio|date:"d/m/Y H:i" }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4">Aun no hay eventos.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="admin-table-card">
+        <div class="admin-card-head">
+          <h2>Apuestas recientes</h2>
+          <span>{{ apuestas_count }} total</span>
+        </div>
+        <div class="admin-table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Monto</th>
+                <th>Cuota</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for apuesta in apuestas_recientes_admin %}
+              <tr>
+                <td>#{{ apuesta.id }}</td>
+                <td>{{ apuesta.usuario.username }}</td>
+                <td>{{ apuesta.stake }}</td>
+                <td>{{ apuesta.odds_total }}</td>
+                <td>{{ apuesta.get_estado_display }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="5">Aun no hay apuestas.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+  </section>
+</div>
+{% endblock %}

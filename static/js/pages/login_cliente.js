@@ -1,6 +1,6 @@
 /* =============================================================
    login_cliente.js — Comportamiento específico del login cliente
-   FairBet Lab
+   Apuesta24/7
 
    - Animación de entrada del panel de formulario
    - Prefill limpio (evita autorellenar usuario de sesiones previas)

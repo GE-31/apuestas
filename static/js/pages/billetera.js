@@ -1,65 +1,63 @@
-/* FairBet Lab - Billetera */
+/* Apuesta24/7 - Billetera */
 (function () {
   'use strict';
 
-  const tabs = document.querySelectorAll('.movements-tab');
-  const rows = document.querySelectorAll('.movement-row');
+  /* ── Modal ── */
+  var modal          = document.getElementById('walletRechargeModal');
+  var openBtn        = document.getElementById('btnRecarga');
+  var closeBtn       = document.getElementById('walletModalClose');
+  var resultCloseBtn = document.getElementById('walletResultClose');
+  var methodButtons  = document.querySelectorAll('.wallet-method-card');
+  var views          = document.querySelectorAll('[data-wallet-view]');
+  var backButtons    = document.querySelectorAll('[data-wallet-back]');
 
-  function applyMovFilter(filter) {
-    rows.forEach(function (row) {
-      const type = row.dataset.type || '';
-      row.style.display = (filter === 'all' || type === filter) ? '' : 'none';
-    });
+  /* Amount view */
+  var amountLogo     = document.getElementById('walletAmountLogo');
+  var amountTitle    = document.getElementById('walletAmountTitle');
+  var amountText     = document.getElementById('walletAmountText');
+  var amountInput    = document.getElementById('walletAmountInput');
+  var operationInput = document.getElementById('walletOperationInput');
+  var applyPromoBtn  = document.getElementById('walletApplyPromo');
+  var generateQrBtn  = document.getElementById('walletGenerateQr');
+
+  /* QR view */
+  var qrLogo         = document.getElementById('walletQrLogo');
+  var qrTitle        = document.getElementById('walletQrTitle');
+  var qrMethodLabel  = document.getElementById('walletQrMethodLabel');
+  var qrAmount       = document.getElementById('walletQrAmount');
+  var qrMethod       = document.getElementById('walletQrMethod');
+  var messageBox     = document.getElementById('walletRechargeMessage');
+  var confirmBtn     = document.getElementById('walletConfirmRecharge');
+
+  /* Result view */
+  var resultCard   = document.getElementById('walletResultCard');
+  var resultTitle  = document.getElementById('walletResultTitle');
+  var resultMethod = document.getElementById('walletResultMethod');
+  var resultAmount = document.getElementById('walletResultAmount');
+  var resultStatus = document.getElementById('walletResultStatus');
+  var errorDetail  = document.getElementById('walletErrorDetail');
+
+  /* Header balance */
+  var modalSaldo = document.getElementById('modalSaldoActual');
+
+  var selectedMethod = 'Yape';
+  var selectedLogo   = '';
+  var selectedAmount = '';
+  var lastFocused    = null;
+
+  function getUserId() {
+    var meta = document.getElementById('apuesta247Meta') || document.getElementById('fairbetMeta');
+    return parseInt((meta && meta.dataset.userId) || '0', 10);
   }
 
-  tabs.forEach(function (tab) {
-    tab.addEventListener('click', function () {
-      tabs.forEach(function (item) {
-        item.classList.remove('active');
-        item.setAttribute('aria-selected', 'false');
-      });
-      tab.classList.add('active');
-      tab.setAttribute('aria-selected', 'true');
-      applyMovFilter(tab.dataset.filter || 'all');
-    });
-  });
-
-  const btnMovs = document.getElementById('btnMovimientos');
-  if (btnMovs) {
-    btnMovs.addEventListener('click', function () {
-      const card = document.getElementById('movementsCard');
-      if (card) card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+  function syncBalance() {
+    if (!modalSaldo) return;
+    var balEl = document.querySelector('[data-wallet-balance]');
+    if (balEl) {
+      var val = parseFloat(balEl.dataset.walletBalance || '0').toFixed(2);
+      modalSaldo.innerHTML = val + ' <em>FV</em>';
+    }
   }
-
-  const modal = document.getElementById('walletRechargeModal');
-  const openBtn = document.getElementById('btnRecarga');
-  const closeBtn = document.getElementById('walletModalClose');
-  const resultCloseBtn = document.getElementById('walletResultClose');
-  const methodButtons = document.querySelectorAll('.wallet-method-card');
-  const views = document.querySelectorAll('[data-wallet-view]');
-  const backButtons = document.querySelectorAll('[data-wallet-back]');
-  const amountTitle = document.getElementById('walletAmountTitle');
-  const amountText = document.getElementById('walletAmountText');
-  const amountInput = document.getElementById('walletAmountInput');
-  const operationInput = document.getElementById('walletOperationInput');
-  const quickAmounts = document.querySelectorAll('[data-amount]');
-  const generateQrBtn = document.getElementById('walletGenerateQr');
-  const confirmBtn = document.getElementById('walletConfirmRecharge');
-  const qrTitle = document.getElementById('walletQrTitle');
-  const qrAmount = document.getElementById('walletQrAmount');
-  const qrMethod = document.getElementById('walletQrMethod');
-  const messageBox = document.getElementById('walletRechargeMessage');
-  const resultCard = document.getElementById('walletResultCard');
-  const resultTitle = document.getElementById('walletResultTitle');
-  const resultMethod = document.getElementById('walletResultMethod');
-  const resultAmount = document.getElementById('walletResultAmount');
-  const resultStatus = document.getElementById('walletResultStatus');
-  const errorDetail = document.getElementById('walletErrorDetail');
-
-  let selectedMethod = 'Yape';
-  let selectedAmount = '100.0000';
-  let lastFocused = null;
 
   function setView(name) {
     views.forEach(function (view) {
@@ -72,6 +70,7 @@
     if (!modal) return;
     lastFocused = document.activeElement;
     resetFlow();
+    syncBalance();
     modal.classList.add('is-open');
     modal.setAttribute('aria-hidden', 'false');
     document.body.classList.add('wallet-modal-open');
@@ -88,48 +87,61 @@
 
   function resetFlow() {
     selectedMethod = 'Yape';
-    selectedAmount = '100.0000';
-    if (amountInput) amountInput.value = selectedAmount;
+    selectedLogo   = '';
+    selectedAmount = '';
+    if (amountInput) amountInput.value = '';
     if (operationInput) operationInput.value = '';
-    quickAmounts.forEach(function (button) {
-      button.classList.toggle('is-selected', button.dataset.amount === selectedAmount);
-    });
+    if (applyPromoBtn) {
+      applyPromoBtn.textContent = 'APLICAR';
+      applyPromoBtn.removeAttribute('style');
+    }
     if (confirmBtn) {
       confirmBtn.disabled = false;
-      confirmBtn.textContent = 'Confirmar carga';
+      confirmBtn.textContent = 'Simular recarga exitosa';
     }
     clearMessage();
-    setResultState(false, '', selectedMethod, selectedAmount);
+    setResultState(false, '', 'Yape', '');
     setView('methods');
   }
 
   function normalizeAmount(value) {
-    const raw = String(value || '').trim().replace(',', '.');
-    const number = Number.parseFloat(raw);
+    var raw = String(value || '').trim().replace(',', '.');
+    var number = Number.parseFloat(raw);
     if (!Number.isFinite(number) || number <= 0) return null;
-    return number.toFixed(4);
+    return number.toFixed(2);
   }
 
-  function updateAmountView(method) {
+  function updateAmountView(method, logo) {
     selectedMethod = method;
-    if (amountTitle) amountTitle.textContent = 'Carga con ' + method;
-    if (amountText) {
-      amountText.textContent = method === 'C\u00f3digo manual'
-        ? 'Ingresa la cantidad de fichas y registra un c\u00f3digo opcional para demo.'
-        : 'Elige la cantidad de fichas y genera un QR demostrativo.';
+    selectedLogo   = logo || '';
+    if (amountLogo) {
+      amountLogo.src = logo || '';
+      amountLogo.alt = method;
     }
-    if (amountInput) amountInput.focus();
+    if (amountTitle) {
+      amountTitle.textContent = 'Recarga en ' + method.toUpperCase() + ' desde S/ 5 hasta S/ 500.';
+    }
+    if (amountText) {
+      amountText.textContent = 'Ingresa el monto a recargar. Si tienes un código promocional, escríbelo y presiona "APLICAR" para hacerlo efectivo. Luego genera tu código QR.';
+    }
+    if (amountInput) {
+      amountInput.value = '';
+      amountInput.focus();
+    }
   }
 
-  function updateQrView(method, amount) {
+  function updateQrView(method, logo, amount) {
     selectedMethod = method;
+    selectedLogo   = logo || '';
     selectedAmount = amount;
-    if (qrTitle) qrTitle.textContent = method === 'QR demostrativo' ? 'QR demostrativo' : 'Carga con ' + method;
-    if (qrAmount) qrAmount.textContent = amount + ' FV';
-    if (qrMethod) qrMethod.textContent = method;
+    if (qrLogo)        { qrLogo.src = logo || ''; qrLogo.alt = method; }
+    if (qrTitle)       qrTitle.textContent = 'Carga con ' + method;
+    if (qrMethodLabel) qrMethodLabel.textContent = method.toUpperCase();
+    if (qrAmount)      qrAmount.textContent = 'S/ ' + amount;
+    if (qrMethod)      qrMethod.textContent = method;
     if (confirmBtn) {
       confirmBtn.disabled = false;
-      confirmBtn.textContent = 'Confirmar carga';
+      confirmBtn.textContent = 'Simular recarga exitosa';
     }
   }
 
@@ -142,7 +154,9 @@
   function showErrorMessage(detail) {
     if (!messageBox) return;
     messageBox.className = 'wallet-message is-error';
-    messageBox.textContent = detail ? 'No se pudo cargar fichas. ' + detail : 'No se pudo cargar fichas.';
+    messageBox.textContent = detail
+      ? 'No se pudo cargar fichas. ' + detail
+      : 'No se pudo cargar fichas.';
   }
 
   function extractBackendDetail(data) {
@@ -151,170 +165,167 @@
     if (data.detail) return String(data.detail);
     if (data.error) return String(data.error);
     if (data.non_field_errors) return String(data.non_field_errors);
-
-    try {
-      return JSON.stringify(data);
-    } catch (err) {
-      return '';
-    }
+    try { return JSON.stringify(data); } catch (e) { return ''; }
   }
 
   function getCookie(name) {
-    const cookies = document.cookie ? document.cookie.split(';') : [];
-    for (let i = 0; i < cookies.length; i += 1) {
-      const cookie = cookies[i].trim();
-      if (cookie.substring(0, name.length + 1) === name + '=') {
-        return decodeURIComponent(cookie.substring(name.length + 1));
+    var cookies = document.cookie ? document.cookie.split(';') : [];
+    for (var i = 0; i < cookies.length; i++) {
+      var c = cookies[i].trim();
+      if (c.substring(0, name.length + 1) === name + '=') {
+        return decodeURIComponent(c.substring(name.length + 1));
       }
     }
     return '';
   }
 
   function getCsrfToken() {
-    const input = modal ? modal.querySelector('input[name="csrfmiddlewaretoken"]') : null;
+    var input = modal ? modal.querySelector('input[name="csrfmiddlewaretoken"]') : null;
     return (input && input.value) || getCookie('csrftoken');
-  }
-
-  async function confirmRecharge() {
-    const amount = normalizeAmount(selectedAmount);
-    if (!amount) {
-      showErrorMessage('Ingresa una cantidad valida de fichas.');
-      return;
-    }
-
-    if (confirmBtn) {
-      confirmBtn.disabled = true;
-      confirmBtn.textContent = 'Confirmando...';
-    }
-
-    clearMessage();
-
-    const payload = {
-      usuario_id: 1,
-      amount: amount,
-      idempotency_key: 'recarga-web-' + Date.now()
-    };
-
-    try {
-      const response = await fetch('/api/billetera/operaciones/recargar/', {
-        method: 'POST',
-        credentials: 'same-origin',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCsrfToken()
-        },
-        body: JSON.stringify(payload)
-      });
-
-      let data = null;
-      const contentType = response.headers.get('content-type') || '';
-      if (contentType.indexOf('application/json') !== -1) {
-        data = await response.json();
-      } else {
-        data = await response.text();
-      }
-
-      if (!response.ok) {
-        throw new Error(extractBackendDetail(data) || 'Respuesta ' + response.status);
-      }
-
-      setResultState(false, '', selectedMethod, amount);
-      setView('result');
-    } catch (err) {
-      const detail = err && err.message ? err.message : '';
-      showErrorMessage(detail);
-      setResultState(true, detail, selectedMethod, amount);
-    } finally {
-      if (confirmBtn) {
-        confirmBtn.disabled = false;
-        confirmBtn.textContent = 'Confirmar carga';
-      }
-    }
   }
 
   function setResultState(isError, detail, method, amount) {
     if (!resultCard) return;
     resultCard.classList.toggle('is-error', isError);
-
     if (resultTitle) {
       resultTitle.textContent = isError
         ? 'No se pudo cargar fichas.'
-        : 'Fichas agregadas correctamente.';
+        : 'Carga realizada correctamente.';
     }
     if (resultMethod) resultMethod.textContent = method || selectedMethod;
-    if (resultAmount) resultAmount.textContent = (amount || selectedAmount) + ' FV';
+    if (resultAmount) resultAmount.textContent = 'S/ ' + (amount || selectedAmount || '0.00');
     if (resultStatus) resultStatus.textContent = isError ? 'error' : 'completado';
-
     if (errorDetail) {
-      errorDetail.textContent = detail ? 'Detalle del backend: ' + detail : '';
+      errorDetail.textContent = detail ? 'Detalle: ' + detail : '';
       errorDetail.classList.toggle('is-visible', Boolean(isError && detail));
     }
   }
 
-  if (openBtn) openBtn.addEventListener('click', openModal);
-  if (closeBtn) closeBtn.addEventListener('click', closeModal);
-  if (resultCloseBtn) resultCloseBtn.addEventListener('click', closeModal);
+  function confirmRecharge() {
+    var amount = normalizeAmount(selectedAmount);
+    if (!amount) {
+      showErrorMessage('Ingresa un monto válido entre S/ 5 y S/ 500.');
+      return;
+    }
+    var userId = getUserId();
+    if (!userId) {
+      showErrorMessage('No se encontró información de usuario.');
+      return;
+    }
+    if (confirmBtn) {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Procesando...';
+    }
+    clearMessage();
 
-  if (modal) {
-    modal.addEventListener('click', function (event) {
-      if (event.target === modal) closeModal();
+    var payload = {
+      usuario_id: userId,
+      amount: amount,
+      idempotency_key: 'recarga-web-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8)
+    };
+
+    fetch('/api/billetera/operaciones/recargar/', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCsrfToken()
+      },
+      body: JSON.stringify(payload)
+    }).then(function (response) {
+      var ct = response.headers.get('content-type') || '';
+      var bodyPromise = ct.indexOf('application/json') !== -1
+        ? response.json()
+        : response.text();
+      return bodyPromise.then(function (data) {
+        if (!response.ok) {
+          throw new Error(extractBackendDetail(data) || 'Respuesta ' + response.status);
+        }
+        return data;
+      });
+    }).then(function () {
+      setResultState(false, '', selectedMethod, selectedAmount);
+      setView('result');
+    }).catch(function (err) {
+      var detail = err && err.message ? err.message : '';
+      showErrorMessage(detail);
+      setResultState(true, detail, selectedMethod, selectedAmount);
+    }).finally(function () {
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.textContent = 'Simular recarga exitosa';
+      }
     });
   }
 
-  document.addEventListener('keydown', function (event) {
-    if (event.key === 'Escape' && modal && modal.classList.contains('is-open')) {
-      closeModal();
-    }
+  /* ── Event bindings ── */
+  if (openBtn)        openBtn.addEventListener('click', openModal);
+  if (closeBtn)       closeBtn.addEventListener('click', closeModal);
+  if (resultCloseBtn) resultCloseBtn.addEventListener('click', closeModal);
+
+  if (modal) {
+    modal.addEventListener('click', function (e) {
+      if (e.target === modal) closeModal();
+    });
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && modal && modal.classList.contains('is-open')) closeModal();
   });
 
-  methodButtons.forEach(function (button) {
-    button.addEventListener('click', function () {
-      const method = button.dataset.method || 'Yape';
-      if (button.dataset.directQr === 'true') {
-        updateQrView(method, '100.0000');
-        setView('qr');
-        return;
-      }
-
-      updateAmountView(method);
+  methodButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var method = btn.dataset.method || 'Yape';
+      var logo   = btn.dataset.logo   || '';
+      updateAmountView(method, logo);
       setView('amount');
     });
   });
 
-  backButtons.forEach(function (button) {
-    button.addEventListener('click', function () {
+  backButtons.forEach(function (btn) {
+    btn.addEventListener('click', function () {
       setView('methods');
-    });
-  });
-
-  quickAmounts.forEach(function (button) {
-    button.addEventListener('click', function () {
-      selectedAmount = button.dataset.amount || '100.0000';
-      if (amountInput) amountInput.value = selectedAmount;
-      quickAmounts.forEach(function (item) {
-        item.classList.toggle('is-selected', item === button);
-      });
     });
   });
 
   if (amountInput) {
     amountInput.addEventListener('input', function () {
-      const normalized = normalizeAmount(amountInput.value);
+      var normalized = normalizeAmount(amountInput.value);
       if (normalized) selectedAmount = normalized;
-      quickAmounts.forEach(function (button) {
-        button.classList.toggle('is-selected', button.dataset.amount === normalized);
-      });
+    });
+  }
+
+  if (applyPromoBtn) {
+    applyPromoBtn.addEventListener('click', function () {
+      var code = operationInput ? operationInput.value.trim() : '';
+      if (!code) {
+        if (operationInput) operationInput.focus();
+        return;
+      }
+      applyPromoBtn.textContent = 'Aplicado';
+      applyPromoBtn.style.background = '#dcfce7';
+      applyPromoBtn.style.borderColor = '#16a34a';
+      applyPromoBtn.style.color = '#15803d';
+      setTimeout(function () {
+        applyPromoBtn.textContent = 'APLICAR';
+        applyPromoBtn.removeAttribute('style');
+      }, 2500);
     });
   }
 
   if (generateQrBtn) {
     generateQrBtn.addEventListener('click', function () {
-      const amount = normalizeAmount(amountInput ? amountInput.value : selectedAmount);
+      var amount = normalizeAmount(amountInput ? amountInput.value : '');
       if (!amount) {
-        showErrorMessage('Ingresa una cantidad valida de fichas.');
+        if (amountInput) {
+          amountInput.focus();
+          amountInput.style.outline = '3px solid #dc2626';
+          setTimeout(function () { amountInput.style.outline = ''; }, 1800);
+        }
         return;
       }
-      updateQrView(selectedMethod, amount);
+      selectedAmount = amount;
+      updateQrView(selectedMethod, selectedLogo, amount);
       setView('qr');
     });
   }
@@ -322,4 +333,9 @@
   if (confirmBtn) {
     confirmBtn.addEventListener('click', confirmRecharge);
   }
+
+  if (window.location.search.indexOf('recargar=1') !== -1) {
+    openModal();
+  }
+
 })();

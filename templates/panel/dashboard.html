@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Dashboard — FairBet Lab{% endblock %}
+{% block title %}Dashboard — Apuesta24/7{% endblock %}
 {% block nav_inicio %}active{% endblock %}
 
 {% block extra_css %}
@@ -75,7 +75,7 @@
       <div class="welcome-body">
         <div>
           <h1 class="welcome-title">Bienvenido, <span class="welcome-name">{{ request.user.username|default:"usuario" }}</span></h1>
-          <p class="welcome-sub">Panel educativo de simulación de apuestas deportivas</p>
+          <p class="welcome-sub">Panel de simulación de apuestas deportivas</p>
         </div>
         <div class="welcome-badges">
           <span class="badge badge-green"><span class="badge-dot"></span>Verificado</span>
@@ -200,7 +200,7 @@
         {% endif %}
       {% endfor %}
 
-      <!-- Formulario de apuesta (demo educativo) -->
+      <!-- Formulario de apuesta (demo) -->
       <form class="bet-form" id="betForm" aria-label="Formulario de apuesta" onsubmit="return false;">
 
         <div class="bet-form-header">

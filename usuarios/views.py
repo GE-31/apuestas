@@ -1,8 +1,18 @@
 from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.views.generic.edit import FormView
+from django.views import View
 
 from .forms import LoginAdminForm, LoginClienteForm, RegistroClienteForm
+
+
+class HomeRedirectView(View):
+    """Entrada principal: siempre muestra primero el login."""
+
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            logout(request)
+        return redirect('/login/')
 
 
 class LoginClienteView(FormView):
@@ -32,7 +42,7 @@ class LoginClienteView(FormView):
 
     def _success_url(self, user):
         if user.is_staff or user.is_superuser:
-            return '/admin/'
+            return '/admin-panel/'
         return '/eventos/'
 
 
@@ -50,7 +60,7 @@ class LoginAdminView(FormView):
     def dispatch(self, request, *args, **kwargs):
         if request.user.is_authenticated:
             if request.user.is_staff or request.user.is_superuser:
-                return redirect('/admin/')
+                return redirect('/admin-panel/')
             return redirect('/eventos/')
         return super().dispatch(request, *args, **kwargs)
 
@@ -68,7 +78,7 @@ class LoginAdminView(FormView):
             )
             return self.form_invalid(form)
         login(self.request, user)
-        return redirect('/admin/')
+        return redirect('/admin-panel/')
 
 
 class RegistroClienteView(FormView):

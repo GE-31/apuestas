@@ -1,7 +1,7 @@
 {% extends "layouts/base_auth.html" %}
 {% load static %}
 
-{% block title %}Crear cuenta — FairBet Lab{% endblock %}
+{% block title %}Crear cuenta — Apuesta24/7{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/pages/registro_cliente.css' %}" />
@@ -311,7 +311,7 @@
         <input type="checkbox" name="acepta_terminos" id="{{ form.acepta_terminos.id_for_label }}"
                {% if form.acepta_terminos.value %}checked{% endif %} />
         <span class="reg-checkbox-mark"></span>
-        <span class="reg-checkbox-text">Autorizo el uso de mis datos para mejorar mi experiencia en FairBet Lab y recibir información educativa.</span>
+        <span class="reg-checkbox-text">Autorizo el uso de mis datos para mejorar mi experiencia en Apuesta24/7 y recibir información de la plataforma.</span>
       </label>
       {% for e in form.acepta_terminos.errors %}
       <p class="reg-field-error" style="margin-top:-8px;margin-bottom:12px">{{ e }}</p>

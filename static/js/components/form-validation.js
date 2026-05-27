@@ -1,6 +1,6 @@
 /* =============================================================
    form-validation.js — Validación visual client-side
-   FairBet Lab
+   Apuesta24/7
 
    IMPORTANTE: Solo mejora la UX visual.
    La validación de seguridad real ocurre en Django (backend).

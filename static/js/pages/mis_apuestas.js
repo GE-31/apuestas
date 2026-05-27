@@ -1,4 +1,4 @@
-/* mis_apuestas.js — FairBet Lab */
+/* mis_apuestas.js — Apuesta24/7 */
 (function () {
   'use strict';
 

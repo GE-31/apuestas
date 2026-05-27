@@ -4,10 +4,6 @@ from eventos.models import Evento
 
 # Create your models here.
 
-
-
-
-
 class Mercado(models.Model):
     """
     Mercado apostable asociado a un evento deportivo.

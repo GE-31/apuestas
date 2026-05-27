@@ -1,0 +1,383 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis apuestas — FairBet Lab{% endblock %}
+{% block nav_apuestas %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/mis_apuestas.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<!-- ── ENCABEZADO ── -->
+<div class="bets-page-header">
+  <h1 class="bets-page-title">Mis apuestas</h1>
+  <p class="bets-page-sub">Historial y seguimiento de apuestas con fichas virtuales</p>
+</div>
+
+
+<!-- ── MÉTRICAS ── -->
+<div class="bets-metrics">
+
+  <div class="bets-metric bets-metric-blue">
+    <div class="bets-metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+           width="16" height="16" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </div>
+    <div class="bets-metric-label">Apuestas activas</div>
+    <div class="bets-metric-value">3</div>
+    <div class="bets-metric-unit">en curso</div>
+  </div>
+
+  <div class="bets-metric bets-metric-green">
+    <div class="bets-metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+           width="16" height="16" aria-hidden="true">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <div class="bets-metric-label">Apuestas ganadas</div>
+    <div class="bets-metric-value">7</div>
+    <div class="bets-metric-unit">fichas cobradas</div>
+  </div>
+
+  <div class="bets-metric bets-metric-red">
+    <div class="bets-metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+           width="16" height="16" aria-hidden="true">
+        <line x1="18" y1="6" x2="6" y2="18"/>
+        <line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </div>
+    <div class="bets-metric-label">Apuestas perdidas</div>
+    <div class="bets-metric-value">4</div>
+    <div class="bets-metric-unit">fichas apostadas</div>
+  </div>
+
+  <div class="bets-metric bets-metric-purple">
+    <div class="bets-metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+           width="16" height="16" aria-hidden="true">
+        <line x1="12" y1="1" x2="12" y2="23"/>
+        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      </svg>
+    </div>
+    <div class="bets-metric-label">Pago potencial</div>
+    <div class="bets-metric-value">87.50</div>
+    <div class="bets-metric-unit">fichas virtuales</div>
+  </div>
+
+</div>
+
+
+<!-- ── LAYOUT ── -->
+<div class="bets-layout">
+
+  <!-- ── COLUMNA PRINCIPAL ── -->
+  <div class="bets-main">
+
+    <!-- Barra de filtros -->
+    <div class="bets-filter-bar">
+      <span class="bets-filter-label">Filtrar:</span>
+      <div class="bets-filter-tabs" role="tablist" aria-label="Filtrar apuestas por estado">
+        <button class="bets-filter-tab active" data-filter="all"
+                role="tab" aria-selected="true" type="button">
+          Todas <span class="bets-filter-count">14</span>
+        </button>
+        <button class="bets-filter-tab" data-filter="accepted"
+                role="tab" aria-selected="false" type="button">
+          Activas <span class="bets-filter-count">3</span>
+        </button>
+        <button class="bets-filter-tab" data-filter="won"
+                role="tab" aria-selected="false" type="button">
+          Ganadas <span class="bets-filter-count">7</span>
+        </button>
+        <button class="bets-filter-tab" data-filter="lost"
+                role="tab" aria-selected="false" type="button">
+          Perdidas <span class="bets-filter-count">4</span>
+        </button>
+        <button class="bets-filter-tab" data-filter="void"
+                role="tab" aria-selected="false" type="button">
+          Anuladas <span class="bets-filter-count">0</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Tabla de apuestas -->
+    <div class="bets-table-card">
+      <div class="bets-table-header">
+        <span class="bets-table-title">Historial de apuestas</span>
+        <span class="bets-table-count" id="betsVisibleCount">14</span>
+      </div>
+
+      <div class="bets-table-wrap">
+        <table class="bets-table" aria-label="Historial de apuestas">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Evento</th>
+              <th scope="col">Selección</th>
+              <th scope="col">Stake</th>
+              <th scope="col">Cuota</th>
+              <th scope="col">Pago pot.</th>
+              <th scope="col">Estado</th>
+              <th scope="col">Fecha</th>
+            </tr>
+          </thead>
+          <tbody id="betsTableBody">
+
+            <!-- Fila 1: accepted -->
+            <tr class="bet-row" data-status="accepted">
+              <td><span class="bet-id">#BET-0014</span></td>
+              <td>
+                <div class="bet-event-cell">
+                  <span class="bet-event-name">🇵🇪 Perú vs Argentina 🇦🇷</span>
+                  <span class="bet-event-market">Resultado final 1X2</span>
+                </div>
+              </td>
+              <td><span class="bet-selection">Gana Perú</span></td>
+              <td><span class="bet-stake">10.0000</span></td>
+              <td><span class="bet-odd">2.5000</span></td>
+              <td><span class="bet-payout">25.0000</span></td>
+              <td>
+                <span class="bet-badge bet-badge-accepted">
+                  <span class="bet-badge-dot"></span>Activa
+                </span>
+              </td>
+              <td><span class="bet-date">26 may · 14:32</span></td>
+            </tr>
+
+            <!-- Fila 2: won -->
+            <tr class="bet-row" data-status="won">
+              <td><span class="bet-id">#BET-0013</span></td>
+              <td>
+                <div class="bet-event-cell">
+                  <span class="bet-event-name">🇧🇷 Brasil vs Colombia 🇨🇴</span>
+                  <span class="bet-event-market">Resultado final 1X2</span>
+                </div>
+              </td>
+              <td><span class="bet-selection">Gana Brasil</span></td>
+              <td><span class="bet-stake">20.0000</span></td>
+              <td><span class="bet-odd">1.7500</span></td>
+              <td><span class="bet-payout">35.0000</span></td>
+              <td>
+                <span class="bet-badge bet-badge-won">
+                  <span class="bet-badge-dot"></span>Ganada
+                </span>
+              </td>
+              <td><span class="bet-date">25 may · 20:05</span></td>
+            </tr>
+
+            <!-- Fila 3: lost -->
+            <tr class="bet-row" data-status="lost">
+              <td><span class="bet-id">#BET-0012</span></td>
+              <td>
+                <div class="bet-event-cell">
+                  <span class="bet-event-name">🇪🇸 España vs Francia 🇫🇷</span>
+                  <span class="bet-event-market">Resultado final 1X2</span>
+                </div>
+              </td>
+              <td><span class="bet-selection">Empate</span></td>
+              <td><span class="bet-stake">5.0000</span></td>
+              <td><span class="bet-odd">3.2000</span></td>
+              <td><span class="bet-payout">16.0000</span></td>
+              <td>
+                <span class="bet-badge bet-badge-lost">
+                  <span class="bet-badge-dot"></span>Perdida
+                </span>
+              </td>
+              <td><span class="bet-date">24 may · 18:15</span></td>
+            </tr>
+
+            <!-- Fila 4: accepted -->
+            <tr class="bet-row" data-status="accepted">
+              <td><span class="bet-id">#BET-0011</span></td>
+              <td>
+                <div class="bet-event-cell">
+                  <span class="bet-event-name">🇦🇷 Argentina vs Uruguay 🇺🇾</span>
+                  <span class="bet-event-market">Total de goles</span>
+                </div>
+              </td>
+              <td><span class="bet-selection">Más de 2.5</span></td>
+              <td><span class="bet-stake">15.0000</span></td>
+              <td><span class="bet-odd">1.9000</span></td>
+              <td><span class="bet-payout">28.5000</span></td>
+              <td>
+                <span class="bet-badge bet-badge-accepted">
+                  <span class="bet-badge-dot"></span>Activa
+                </span>
+              </td>
+              <td><span class="bet-date">26 may · 10:00</span></td>
+            </tr>
+
+            <!-- Fila 5: won -->
+            <tr class="bet-row" data-status="won">
+              <td><span class="bet-id">#BET-0010</span></td>
+              <td>
+                <div class="bet-event-cell">
+                  <span class="bet-event-name">🏀 Lakers vs Warriors</span>
+                  <span class="bet-event-market">Resultado del partido</span>
+                </div>
+              </td>
+              <td><span class="bet-selection">Gana Lakers</span></td>
+              <td><span class="bet-stake">8.0000</span></td>
+              <td><span class="bet-odd">2.1000</span></td>
+              <td><span class="bet-payout">16.8000</span></td>
+              <td>
+                <span class="bet-badge bet-badge-won">
+                  <span class="bet-badge-dot"></span>Ganada
+                </span>
+              </td>
+              <td><span class="bet-date">23 may · 22:30</span></td>
+            </tr>
+
+            <!-- Fila 6: lost -->
+            <tr class="bet-row" data-status="lost">
+              <td><span class="bet-id">#BET-0009</span></td>
+              <td>
+                <div class="bet-event-cell">
+                  <span class="bet-event-name">🎾 Djokovic vs Alcaraz</span>
+                  <span class="bet-event-market">Ganador del partido</span>
+                </div>
+              </td>
+              <td><span class="bet-selection">Gana Alcaraz</span></td>
+              <td><span class="bet-stake">12.0000</span></td>
+              <td><span class="bet-odd">2.8000</span></td>
+              <td><span class="bet-payout">33.6000</span></td>
+              <td>
+                <span class="bet-badge bet-badge-lost">
+                  <span class="bet-badge-dot"></span>Perdida
+                </span>
+              </td>
+              <td><span class="bet-date">22 may · 16:45</span></td>
+            </tr>
+
+            <!-- Fila 7: accepted -->
+            <tr class="bet-row" data-status="accepted">
+              <td><span class="bet-id">#BET-0008</span></td>
+              <td>
+                <div class="bet-event-cell">
+                  <span class="bet-event-name">🇨🇱 Chile vs Ecuador 🇪🇨</span>
+                  <span class="bet-event-market">Resultado final 1X2</span>
+                </div>
+              </td>
+              <td><span class="bet-selection">Gana Ecuador</span></td>
+              <td><span class="bet-stake">6.0000</span></td>
+              <td><span class="bet-odd">2.2000</span></td>
+              <td><span class="bet-payout">13.2000</span></td>
+              <td>
+                <span class="bet-badge bet-badge-accepted">
+                  <span class="bet-badge-dot"></span>Activa
+                </span>
+              </td>
+              <td><span class="bet-date">26 may · 08:50</span></td>
+            </tr>
+
+            <!-- Fila 8: won -->
+            <tr class="bet-row" data-status="won">
+              <td><span class="bet-id">#BET-0007</span></td>
+              <td>
+                <div class="bet-event-cell">
+                  <span class="bet-event-name">⚽ Boca vs River</span>
+                  <span class="bet-event-market">Resultado final 1X2</span>
+                </div>
+              </td>
+              <td><span class="bet-selection">Gana River</span></td>
+              <td><span class="bet-stake">25.0000</span></td>
+              <td><span class="bet-odd">1.6500</span></td>
+              <td><span class="bet-payout">41.2500</span></td>
+              <td>
+                <span class="bet-badge bet-badge-won">
+                  <span class="bet-badge-dot"></span>Ganada
+                </span>
+              </td>
+              <td><span class="bet-date">21 may · 21:00</span></td>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <!-- Estado vacío por filtro -->
+        <div class="bets-empty" id="betsTableEmpty" hidden aria-live="polite">
+          <div class="bets-empty-icon">🔍</div>
+          <h3>Sin apuestas en esta categoría</h3>
+          <p>Prueba con otro filtro.</p>
+        </div>
+
+      </div><!-- /bets-table-wrap -->
+    </div><!-- /bets-table-card -->
+
+  </div><!-- /bets-main -->
+
+
+  <!-- ── COLUMNA LATERAL ── -->
+  <aside class="bets-aside">
+
+    <!-- Resumen rápido -->
+    <div class="sidebar-summary">
+      <div class="sidebar-summary-header">Resumen estadístico</div>
+      <div class="sidebar-summary-rows">
+        <div class="sidebar-summary-row">
+          <span class="sidebar-summary-key">Total apostado</span>
+          <span class="sidebar-summary-val">101.0000</span>
+        </div>
+        <div class="sidebar-summary-row">
+          <span class="sidebar-summary-key">Total cobrado</span>
+          <span class="sidebar-summary-val sidebar-summary-val-green">93.0000</span>
+        </div>
+        <div class="sidebar-summary-row">
+          <span class="sidebar-summary-key">Fichas perdidas</span>
+          <span class="sidebar-summary-val sidebar-summary-val-red">17.0000</span>
+        </div>
+        <div class="sidebar-summary-row">
+          <span class="sidebar-summary-key">Pago potencial</span>
+          <span class="sidebar-summary-val sidebar-summary-val-gold">87.5000</span>
+        </div>
+        <div class="sidebar-summary-row">
+          <span class="sidebar-summary-key">Cuota promedio</span>
+          <span class="sidebar-summary-val">2.1375</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Juego responsable -->
+    <div class="sidebar-responsible">
+      <div class="sidebar-responsible-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+             width="20" height="20" aria-hidden="true">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div class="sidebar-responsible-title">Juego responsable</div>
+      <div class="sidebar-responsible-text">
+        Apuesta con responsabilidad. Esta plataforma usa fichas virtuales y no dinero real.
+      </div>
+      <div class="sidebar-responsible-rules">
+        <div class="sidebar-responsible-rule">
+          <span class="sidebar-responsible-rule-dot"></span>
+          <span>Las fichas no tienen valor monetario real.</span>
+        </div>
+        <div class="sidebar-responsible-rule">
+          <span class="sidebar-responsible-rule-dot"></span>
+          <span>Solo apuesta con fichas que puedas perder sin estrés.</span>
+        </div>
+        <div class="sidebar-responsible-rule">
+          <span class="sidebar-responsible-rule-dot"></span>
+          <span>Esta plataforma es solo educativa y de simulación.</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+</div><!-- /bets-layout -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/pages/mis_apuestas.js' %}"></script>
+{% endblock %}

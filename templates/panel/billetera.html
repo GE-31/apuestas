@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Billetera virtual — FairBet Lab{% endblock %}
+{% block nav_billetera %}active{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/billetera.css' %}" />
+{% endblock %}
+
+{% block content %}
+
+<!-- ── ENCABEZADO ── -->
+<div class="wallet-page-header">
+  <h1 class="wallet-page-title">Billetera virtual</h1>
+  <p class="wallet-page-sub">Gestión de fichas educativas sin valor monetario real</p>
+</div>
+
+
+<!-- ── LAYOUT ── -->
+<div class="wallet-layout">
+
+  <!-- ── COLUMNA PRINCIPAL ── -->
+  <div class="wallet-main">
+
+    <!-- Card de saldo principal -->
+    <div class="wallet-hero-card">
+      <div class="wallet-hero-glow" aria-hidden="true"></div>
+      <div class="wallet-hero-glow-2" aria-hidden="true"></div>
+
+      <div class="wallet-hero-top">
+        <div>
+          <div class="wallet-hero-label">Cuenta principal</div>
+          <div class="wallet-hero-name">Wallet educativa</div>
+        </div>
+        <span class="wallet-hero-status">
+          <span class="wallet-hero-status-dot"></span>
+          Activa
+        </span>
+      </div>
+
+      <div class="wallet-hero-balance">
+        <div class="wallet-hero-balance-label">Saldo disponible</div>
+        <div class="wallet-hero-amount">
+          100.0000
+          <span class="wallet-hero-amount-unit">fichas</span>
+        </div>
+      </div>
+
+      <div class="wallet-hero-actions">
+        <button class="wallet-action-btn wallet-action-btn-primary" id="btnRecarga" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               width="15" height="15" aria-hidden="true">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Recarga simulada
+        </button>
+        <button class="wallet-action-btn wallet-action-btn-outline" id="btnRetiro" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               width="15" height="15" aria-hidden="true">
+            <line x1="5" y1="12" x2="19" y2="12"/>
+            <polyline points="12 5 19 12 12 19"/>
+          </svg>
+          Retiro simulado
+        </button>
+        <button class="wallet-action-btn wallet-action-btn-outline" id="btnMovimientos" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               width="15" height="15" aria-hidden="true">
+            <line x1="8" y1="6" x2="21" y2="6"/>
+            <line x1="8" y1="12" x2="21" y2="12"/>
+            <line x1="8" y1="18" x2="21" y2="18"/>
+            <line x1="3" y1="6" x2="3.01" y2="6"/>
+            <line x1="3" y1="12" x2="3.01" y2="12"/>
+            <line x1="3" y1="18" x2="3.01" y2="18"/>
+          </svg>
+          Ver movimientos
+        </button>
+      </div>
+    </div>
+
+    <!-- Grid de cuentas -->
+    <div class="wallet-accounts-grid">
+
+      <div class="wallet-account-card wallet-account-green">
+        <div class="wallet-account-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               width="16" height="16" aria-hidden="true">
+            <rect x="2" y="5" width="20" height="14" rx="2"/>
+            <line x1="2" y1="10" x2="22" y2="10"/>
+          </svg>
+        </div>
+        <div class="wallet-account-label">Wallet usuario</div>
+        <div class="wallet-account-value">100.0000</div>
+        <div class="wallet-account-desc">Fichas disponibles</div>
+      </div>
+
+      <div class="wallet-account-card wallet-account-blue">
+        <div class="wallet-account-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               width="16" height="16" aria-hidden="true">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div class="wallet-account-label">Cuenta casa</div>
+        <div class="wallet-account-value">5,420.0000</div>
+        <div class="wallet-account-desc">Reserva de la plataforma</div>
+      </div>
+
+      <div class="wallet-account-card wallet-account-gold">
+        <div class="wallet-account-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               width="16" height="16" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+        </div>
+        <div class="wallet-account-label">Apuestas pendientes</div>
+        <div class="wallet-account-value">31.0000</div>
+        <div class="wallet-account-desc">Bloqueadas en apuestas activas</div>
+      </div>
+
+      <div class="wallet-account-card wallet-account-purple">
+        <div class="wallet-account-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               width="16" height="16" aria-hidden="true">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div class="wallet-account-label">Bonos</div>
+        <div class="wallet-account-value">0.0000</div>
+        <div class="wallet-account-desc">Bonos educativos disponibles</div>
+      </div>
+
+    </div>
+
+    <!-- Movimientos -->
+    <div class="movements-card" id="movementsCard">
+
+      <div class="movements-header">
+        <span class="movements-title">Movimientos recientes</span>
+        <span class="movements-count">12 registros</span>
+      </div>
+
+      <div class="movements-tabs" role="tablist" aria-label="Filtrar movimientos">
+        <button class="movements-tab active" data-filter="all"
+                role="tab" aria-selected="true" type="button">Todos</button>
+        <button class="movements-tab" data-filter="recarga"
+                role="tab" aria-selected="false" type="button">Recargas</button>
+        <button class="movements-tab" data-filter="retiro"
+                role="tab" aria-selected="false" type="button">Retiros</button>
+        <button class="movements-tab" data-filter="bloqueo"
+                role="tab" aria-selected="false" type="button">Bloqueos</button>
+        <button class="movements-tab" data-filter="liquidacion"
+                role="tab" aria-selected="false" type="button">Liquidaciones</button>
+      </div>
+
+      <div class="movements-table-wrap">
+        <table class="movements-table" aria-label="Tabla de movimientos">
+          <thead>
+            <tr>
+              <th scope="col">Tipo</th>
+              <th scope="col">Referencia</th>
+              <th scope="col">Monto</th>
+              <th scope="col">Dirección</th>
+              <th scope="col">Saldo post.</th>
+              <th scope="col">Fecha</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            <tr class="movement-row" data-type="liquidacion">
+              <td><span class="mov-type mov-type-liquidacion">Liquidación</span></td>
+              <td><span class="mov-ref">LIQ-0013</span></td>
+              <td><span class="mov-amount" style="color:var(--green)">+35.0000</span></td>
+              <td><span class="mov-dir mov-dir-credit">CREDIT</span></td>
+              <td><span class="mov-amount" style="color:var(--text-primary);font-size:.8rem">100.0000</span></td>
+              <td><span class="mov-date">25 may · 20:10</span></td>
+            </tr>
+
+            <tr class="movement-row" data-type="bloqueo">
+              <td><span class="mov-type mov-type-bloqueo">Bloqueo</span></td>
+              <td><span class="mov-ref">BET-0014</span></td>
+              <td><span class="mov-amount" style="color:var(--red)">-10.0000</span></td>
+              <td><span class="mov-dir mov-dir-debit">DEBIT</span></td>
+              <td><span class="mov-amount" style="color:var(--text-primary);font-size:.8rem">65.0000</span></td>
+              <td><span class="mov-date">26 may · 14:32</span></td>
+            </tr>
+
+            <tr class="movement-row" data-type="bloqueo">
+              <td><span class="mov-type mov-type-bloqueo">Bloqueo</span></td>
+              <td><span class="mov-ref">BET-0011</span></td>
+              <td><span class="mov-amount" style="color:var(--red)">-15.0000</span></td>
+              <td><span class="mov-dir mov-dir-debit">DEBIT</span></td>
+              <td><span class="mov-amount" style="color:var(--text-primary);font-size:.8rem">75.0000</span></td>
+              <td><span class="mov-date">26 may · 10:02</span></td>
+            </tr>
+
+            <tr class="movement-row" data-type="bloqueo">
+              <td><span class="mov-type mov-type-bloqueo">Bloqueo</span></td>
+              <td><span class="mov-ref">BET-0008</span></td>
+              <td><span class="mov-amount" style="color:var(--red)">-6.0000</span></td>
+              <td><span class="mov-dir mov-dir-debit">DEBIT</span></td>
+              <td><span class="mov-amount" style="color:var(--text-primary);font-size:.8rem">90.0000</span></td>
+              <td><span class="mov-date">26 may · 08:52</span></td>
+            </tr>
+
+            <tr class="movement-row" data-type="recarga">
+              <td><span class="mov-type mov-type-recarga">Recarga</span></td>
+              <td><span class="mov-ref">REC-0006</span></td>
+              <td><span class="mov-amount" style="color:var(--green)">+50.0000</span></td>
+              <td><span class="mov-dir mov-dir-credit">CREDIT</span></td>
+              <td><span class="mov-amount" style="color:var(--text-primary);font-size:.8rem">96.0000</span></td>
+              <td><span class="mov-date">25 may · 09:00</span></td>
+            </tr>
+
+            <tr class="movement-row" data-type="liquidacion">
+              <td><span class="mov-type mov-type-liquidacion">Liquidación</span></td>
+              <td><span class="mov-ref">LIQ-0010</span></td>
+              <td><span class="mov-amount" style="color:var(--green)">+16.8000</span></td>
+              <td><span class="mov-dir mov-dir-credit">CREDIT</span></td>
+              <td><span class="mov-amount" style="color:var(--text-primary);font-size:.8rem">46.0000</span></td>
+              <td><span class="mov-date">23 may · 22:35</span></td>
+            </tr>
+
+            <tr class="movement-row" data-type="retiro">
+              <td><span class="mov-type mov-type-retiro">Retiro sim.</span></td>
+              <td><span class="mov-ref">RET-0003</span></td>
+              <td><span class="mov-amount" style="color:var(--red)">-20.0000</span></td>
+              <td><span class="mov-dir mov-dir-debit">DEBIT</span></td>
+              <td><span class="mov-amount" style="color:var(--text-primary);font-size:.8rem">29.2000</span></td>
+              <td><span class="mov-date">22 may · 11:14</span></td>
+            </tr>
+
+            <tr class="movement-row" data-type="recarga">
+              <td><span class="mov-type mov-type-recarga">Recarga</span></td>
+              <td><span class="mov-ref">REC-0001</span></td>
+              <td><span class="mov-amount" style="color:var(--green)">+100.0000</span></td>
+              <td><span class="mov-dir mov-dir-credit">CREDIT</span></td>
+              <td><span class="mov-amount" style="color:var(--text-primary);font-size:.8rem">100.0000</span></td>
+              <td><span class="mov-date">20 may · 08:00</span></td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div><!-- /movements-card -->
+
+  </div><!-- /wallet-main -->
+
+
+  <!-- ── COLUMNA LATERAL ── -->
+  <aside class="wallet-aside">
+
+    <!-- Límites de juego responsable -->
+    <div class="limits-card">
+      <div class="limits-header">
+        <div class="limits-header-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+               width="14" height="14" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <span class="limits-header-title">Límites de juego responsable</span>
+      </div>
+
+      <div class="limits-rows">
+
+        <div class="limits-row">
+          <div class="limits-row-left">
+            <span class="limits-row-label">Límite diario</span>
+            <span class="limits-row-used">Usado: 31.00 fichas</span>
+            <div class="limits-progress" role="progressbar" aria-valuenow="31"
+                 aria-valuemin="0" aria-valuemax="100">
+              <div class="limits-progress-fill" style="width:31%"></div>
+            </div>
+          </div>
+          <div class="limits-row-right">
+            <span class="limits-row-limit">100.00</span>
+            <span class="limits-status limits-status-ok">OK</span>
+          </div>
+        </div>
+
+        <div class="limits-row">
+          <div class="limits-row-left">
+            <span class="limits-row-label">Límite semanal</span>
+            <span class="limits-row-used">Usado: 101.00 fichas</span>
+            <div class="limits-progress" role="progressbar" aria-valuenow="51"
+                 aria-valuemin="0" aria-valuemax="200">
+              <div class="limits-progress-fill limits-progress-fill-warn" style="width:51%"></div>
+            </div>
+          </div>
+          <div class="limits-row-right">
+            <span class="limits-row-limit">200.00</span>
+            <span class="limits-status limits-status-ok">OK</span>
+          </div>
+        </div>
+
+        <div class="limits-row">
+          <div class="limits-row-left">
+            <span class="limits-row-label">Límite mensual</span>
+            <span class="limits-row-used">Usado: 101.00 fichas</span>
+            <div class="limits-progress" role="progressbar" aria-valuenow="20"
+                 aria-valuemin="0" aria-valuemax="500">
+              <div class="limits-progress-fill" style="width:20%"></div>
+            </div>
+          </div>
+          <div class="limits-row-right">
+            <span class="limits-row-limit">500.00</span>
+            <span class="limits-status limits-status-ok">OK</span>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /limits-card -->
+
+  </aside>
+
+</div><!-- /wallet-layout -->
+
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/pages/billetera.js' %}"></script>
+{% endblock %}

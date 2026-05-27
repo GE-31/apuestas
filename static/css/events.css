@@ -411,3 +411,378 @@
   .events-search-wrapper { max-width: 100%; margin-left: 0; width: 100%; }
   .filter-tabs { gap: 6px; }
 }
+
+
+/* =============================================================
+   BET SLIP — Panel de apuesta inline dentro de la tarjeta
+   ============================================================= */
+
+/* Cuota como botón: resetear estilos de browser sin perder el visual */
+button.event-item-odd {
+  font-family: var(--font);
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  text-align: center;
+}
+
+button.event-item-odd[aria-pressed="true"] {
+  background: var(--indigo-dim);
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 2.5px rgba(79,70,229,0.15);
+}
+
+button.event-item-odd[aria-pressed="true"] .event-item-odd-val {
+  color: var(--indigo);
+}
+
+/* Cuota sin odd disponible */
+.event-item-odd-na {
+  cursor: default;
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Contenedor del slip ── */
+.bet-slip {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: slipFadeIn 0.18s var(--ease);
+}
+
+@keyframes slipFadeIn {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Hint "selecciona una cuota" ── */
+.bet-slip-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--gold-dim);
+  border: 1px solid rgba(217,119,6,0.18);
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+/* ── Fila de selección elegida ── */
+.bet-slip-selection-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--indigo-dim);
+  border: 1.5px solid #c7d2fe;
+  border-radius: var(--radius-md);
+}
+
+.bet-slip-sel-lbl {
+  font-size: 0.625rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.bet-slip-sel-name {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--indigo-dark);
+}
+
+.bet-slip-sel-mkt {
+  font-size: 0.6875rem;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-top: 2px;
+}
+
+.bet-slip-sel-odd-val {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--gold);
+  font-family: var(--font-mono);
+  flex-shrink: 0;
+}
+
+/* ── Input de stake ── */
+.bet-slip-stake-label {
+  display: block;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.bet-slip-stake-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bet-slip-stake-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+  outline: none;
+  transition: border-color var(--dur), box-shadow var(--dur);
+}
+
+.bet-slip-stake-input:focus {
+  border-color: var(--indigo);
+  box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+.bet-slip-stake-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* Quitar flechas nativas del input number */
+.bet-slip-stake-input::-webkit-outer-spin-button,
+.bet-slip-stake-input::-webkit-inner-spin-button { -webkit-appearance: none; }
+.bet-slip-stake-input[type=number]               { -moz-appearance: textfield; }
+
+.bet-slip-stake-unit {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Preview pago potencial ── */
+.bet-slip-payout-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--bg-raised);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+}
+
+.bet-slip-payout-label {
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.bet-slip-payout-val {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  transition: color 0.15s;
+}
+
+/* ── Mensajes de error/aviso ── */
+.bet-slip-msg {
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  font-size: 0.8125rem;
+  font-weight: 500;
+  line-height: 1.5;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.bet-slip-msg::before {
+  content: '!';
+  font-weight: 800;
+  font-size: 0.75rem;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.bet-slip-msg-error {
+  background: var(--red-dim);
+  border: 1px solid rgba(220,38,38,0.2);
+  color: var(--red);
+}
+
+.bet-slip-msg-error::before {
+  background: rgba(220,38,38,0.15);
+  color: var(--red);
+}
+
+.bet-slip-msg-warn {
+  background: var(--gold-dim);
+  border: 1px solid rgba(217,119,6,0.2);
+  color: var(--gold);
+}
+
+.bet-slip-msg-warn::before {
+  background: rgba(217,119,6,0.15);
+  color: var(--gold);
+}
+
+/* ── Botón confirmar ── */
+.bet-slip-submit {
+  width: 100%;
+  padding: 11px 20px;
+  background: var(--indigo);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font);
+  transition: all var(--dur) var(--ease);
+  letter-spacing: 0.01em;
+}
+
+.bet-slip-submit:hover:not(:disabled) {
+  background: #4338ca;
+  box-shadow: 0 4px 16px rgba(79,70,229,0.3);
+  transform: translateY(-1px);
+}
+
+.bet-slip-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Spinner de carga */
+.bet-slip-spinner {
+  width: 15px;
+  height: 15px;
+  border: 2.5px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: bs-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes bs-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Panel de éxito ── */
+.bet-slip-success-panel {
+  padding: 16px;
+  background: var(--green-dim);
+  border: 1.5px solid rgba(22,163,74,0.22);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: slipFadeIn 0.2s var(--ease);
+}
+
+.bet-slip-success-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #14532d;
+}
+
+.bet-slip-success-check {
+  width: 24px;
+  height: 24px;
+  background: rgba(22,163,74,0.18);
+  border: 1.5px solid rgba(22,163,74,0.25);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--green);
+  flex-shrink: 0;
+}
+
+/* Resumen de apuesta */
+.bet-slip-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bet-slip-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8125rem;
+}
+
+.bet-slip-summary-key {
+  color: #166534;
+  font-weight: 500;
+}
+
+.bet-slip-summary-val {
+  font-weight: 700;
+  color: #14532d;
+  font-family: var(--font-mono);
+  text-align: right;
+}
+
+.bet-slip-summary-val-green {
+  color: var(--green);
+  font-size: 0.9375rem;
+}
+
+.bet-slip-summary-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 9px;
+  background: rgba(22,163,74,0.14);
+  border: 1px solid rgba(22,163,74,0.22);
+  border-radius: var(--radius-full);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: var(--green);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Botón "nueva apuesta" */
+.bet-slip-reset {
+  background: transparent;
+  border: none;
+  padding: 2px 0;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--green);
+  cursor: pointer;
+  font-family: var(--font);
+  text-align: left;
+  transition: color var(--dur);
+}
+
+.bet-slip-reset:hover { color: #15803d; text-decoration: underline; }

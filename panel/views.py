@@ -7,6 +7,14 @@ from config.choices import EstadoApuesta, EstadoEvento
 from eventos.models import Evento
 
 
+class MisApuestasView(LoginRequiredMixin, TemplateView):
+    template_name = 'panel/mis_apuestas.html'
+
+
+class BilleteraView(LoginRequiredMixin, TemplateView):
+    template_name = 'panel/billetera.html'
+
+
 class DashboardView(LoginRequiredMixin, TemplateView):
     template_name = 'panel/dashboard.html'
 
@@ -80,4 +88,5 @@ class EventosView(LoginRequiredMixin, TemplateView):
         context['total_count'] = len(eventos)
         context['deportes'] = list(deportes_map.values())
         context['live_count'] = live_count
+        context['user_id'] = self.request.user.id
         return context

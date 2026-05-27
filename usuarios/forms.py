@@ -1,5 +1,49 @@
 from django import forms
+from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
+from django.db import transaction
+
+_TIPO_DOC = [
+    ('DNI',  'DNI'),
+    ('CE',   'Carné de extranjería'),
+    ('PASS', 'Pasaporte'),
+]
+
+_GENERO = [
+    ('',  'Género'),
+    ('M', 'Masculino'),
+    ('F', 'Femenino'),
+    ('X', 'Prefiero no indicar'),
+]
+
+_DEPARTAMENTOS = [
+    ('',               'Departamento'),
+    ('Amazonas',       'Amazonas'),
+    ('Áncash',         'Áncash'),
+    ('Apurímac',       'Apurímac'),
+    ('Arequipa',       'Arequipa'),
+    ('Ayacucho',       'Ayacucho'),
+    ('Cajamarca',      'Cajamarca'),
+    ('Callao',         'Callao'),
+    ('Cusco',          'Cusco'),
+    ('Huancavelica',   'Huancavelica'),
+    ('Huánuco',        'Huánuco'),
+    ('Ica',            'Ica'),
+    ('Junín',          'Junín'),
+    ('La Libertad',    'La Libertad'),
+    ('Lambayeque',     'Lambayeque'),
+    ('Lima',           'Lima'),
+    ('Loreto',         'Loreto'),
+    ('Madre de Dios',  'Madre de Dios'),
+    ('Moquegua',       'Moquegua'),
+    ('Pasco',          'Pasco'),
+    ('Piura',          'Piura'),
+    ('Puno',           'Puno'),
+    ('San Martín',     'San Martín'),
+    ('Tacna',          'Tacna'),
+    ('Tumbes',         'Tumbes'),
+    ('Ucayali',        'Ucayali'),
+]
 
 
 class LoginClienteForm(AuthenticationForm):
@@ -69,3 +113,108 @@ class LoginAdminForm(AuthenticationForm):
         ),
         'inactive': 'Esta cuenta está inactiva.',
     }
+
+
+class RegistroClienteForm(forms.Form):
+    """Crea un User de Django + PerfilUsuario en una sola transacción."""
+
+    tipo_documento   = forms.ChoiceField(choices=_TIPO_DOC, initial='DNI', label='Tipo de documento')
+    dni              = forms.CharField(max_length=12, label='Número de documento')
+    nombres          = forms.CharField(max_length=100, label='Nombres')
+    apellidos        = forms.CharField(max_length=100, label='Apellidos')
+    fecha_nacimiento = forms.DateField(
+        label='Fecha de nacimiento',
+        widget=forms.DateInput(attrs={'type': 'date', 'placeholder': ' '}),
+    )
+    genero           = forms.ChoiceField(choices=_GENERO, required=False, label='Género')
+    email            = forms.EmailField(label='Correo electrónico')
+    username         = forms.CharField(max_length=150, label='Nombre de usuario')
+    password         = forms.CharField(
+        min_length=8, label='Contraseña',
+        widget=forms.PasswordInput(attrs={'placeholder': ' ', 'data-pwd-toggle-target': ''}),
+    )
+    confirm_password = forms.CharField(
+        label='Confirmar contraseña',
+        widget=forms.PasswordInput(attrs={'placeholder': ' ', 'data-pwd-toggle-target': ''}),
+    )
+    direccion        = forms.CharField(max_length=200, required=False, label='Dirección actual')
+    departamento     = forms.ChoiceField(choices=_DEPARTAMENTOS, required=False, label='Departamento')
+    provincia        = forms.CharField(max_length=100, required=False, label='Provincia')
+    distrito         = forms.CharField(max_length=100, required=False, label='Distrito')
+    telefono         = forms.CharField(max_length=15, required=False, label='Celular')
+    pep              = forms.ChoiceField(
+        choices=[('no', 'no'), ('si', 'si')],
+        initial='no',
+        widget=forms.RadioSelect,
+        label='Declaración PEP',
+    )
+    acepta_terminos  = forms.BooleanField(
+        required=True,
+        error_messages={'required': 'Debes aceptar los Términos y Condiciones para continuar.'},
+    )
+
+    # ── Validaciones ──
+
+    def clean(self):
+        cd  = super().clean()
+        pwd = cd.get('password')
+        cfm = cd.get('confirm_password')
+        if pwd and cfm and pwd != cfm:
+            self.add_error('confirm_password', 'Las contraseñas no coinciden.')
+        return cd
+
+    def clean_dni(self):
+        from usuarios.models import PerfilUsuario
+        tipo = self.data.get('tipo_documento', 'DNI')
+        dni  = self.cleaned_data.get('dni', '').strip()
+        if tipo == 'DNI' and (not dni.isdigit() or len(dni) != 8):
+            raise forms.ValidationError('El DNI peruano debe tener exactamente 8 dígitos.')
+        if PerfilUsuario.objects.filter(dni=dni).exists():
+            raise forms.ValidationError('Ya existe una cuenta registrada con este documento.')
+        return dni
+
+    def clean_username(self):
+        User     = get_user_model()
+        username = self.cleaned_data.get('username', '').strip()
+        if User.objects.filter(username=username).exists():
+            raise forms.ValidationError('Este nombre de usuario ya está en uso.')
+        return username
+
+    def clean_email(self):
+        User  = get_user_model()
+        email = self.cleaned_data.get('email', '').strip()
+        if User.objects.filter(email=email).exists():
+            raise forms.ValidationError('Ya existe una cuenta con este correo electrónico.')
+        return email
+
+    # ── Guardar ──
+
+    def save(self):
+        from usuarios.models import PerfilUsuario
+        User = get_user_model()
+        cd   = self.cleaned_data
+        partes = [p for p in [
+            cd.get('direccion', ''),
+            cd.get('distrito', ''),
+            cd.get('provincia', ''),
+            cd.get('departamento', ''),
+        ] if p]
+        full_dir = ', '.join(partes)
+        with transaction.atomic():
+            user = User.objects.create_user(
+                username   = cd['username'],
+                email      = cd['email'],
+                password   = cd['password'],
+                first_name = cd['nombres'],
+                last_name  = cd['apellidos'],
+            )
+            PerfilUsuario.objects.create(
+                usuario          = user,
+                dni              = cd['dni'],
+                nombres          = cd['nombres'],
+                apellidos        = cd['apellidos'],
+                fecha_nacimiento = cd['fecha_nacimiento'],
+                telefono         = cd.get('telefono') or '',
+                direccion        = full_dir,
+            )
+        return user

@@ -1,0 +1,531 @@
+/* =============================================================
+   registro_cliente.css — Formulario de registro FairBet Lab
+   Estilo: floating labels verdes, botones azules, submit rojo
+   ============================================================= */
+
+/* ── Página completa ── */
+.reg-page {
+  min-height: 100vh;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-bottom: 60px;
+  font-family: var(--font, 'Inter', sans-serif);
+}
+
+/* ── Banner superior (amber) ── */
+.reg-banner {
+  width: 100%;
+  background: #fffbeb;
+  border-bottom: 1.5px solid #fde68a;
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #92400e;
+  justify-content: center;
+}
+
+.reg-banner svg {
+  flex-shrink: 0;
+  color: #d97706;
+}
+
+/* ── Contenedor principal ── */
+.reg-container {
+  width: 100%;
+  max-width: 720px;
+  padding: 40px 32px 48px;
+  background: #fff;
+}
+
+/* ── Título ── */
+.reg-title {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #111827;
+  text-align: center;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+}
+
+/* ── Error box general ── */
+.reg-error-box {
+  background: #fff1f2;
+  border: 1.5px solid #fecdd3;
+  border-radius: 8px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  font-size: 0.875rem;
+  color: #be123c;
+  font-weight: 500;
+}
+
+/* ── Info box (azul) ── */
+.reg-info-box {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 13px 16px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 0.875rem;
+  color: #1e40af;
+  margin-bottom: 18px;
+  line-height: 1.55;
+}
+
+.reg-info-box svg { color: #2563eb; }
+
+/* ── Grid de filas ── */
+.reg-row {
+  display: grid;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.reg-row-1 { grid-template-columns: 1fr; }
+.reg-row-2 { grid-template-columns: 1fr 1fr; }
+.reg-row-3 { grid-template-columns: 1fr 1fr 1fr; }
+
+/* Fila especial: campo + botón + código pequeño */
+.reg-row-code {
+  grid-template-columns: 1fr auto 130px;
+  align-items: start;
+}
+
+/* ── Campo flotante ── */
+.reg-field {
+  position: relative;
+}
+
+/* Input base */
+.reg-input {
+  width: 100%;
+  padding: 20px 14px 8px;
+  border: 2px solid #22c55e;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: inherit;
+  color: #111827;
+  background: #fff;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.reg-input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+}
+
+/* Quitar flechas de number */
+.reg-input[type=number]::-webkit-outer-spin-button,
+.reg-input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+.reg-input[type=number] { -moz-appearance: textfield; }
+
+/* Select: flecha personalizada */
+select.reg-input {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 36px;
+  cursor: pointer;
+}
+
+/* ── Label flotante ── */
+.reg-label {
+  position: absolute;
+  left: 12px;
+  top: 14px;
+  font-size: 0.9375rem;
+  color: #6b7280;
+  pointer-events: none;
+  transition: top 0.15s ease, font-size 0.15s ease, color 0.15s ease;
+  background: #fff;
+  padding: 0 4px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: calc(100% - 28px);
+}
+
+/* Float cuando enfocado o con valor */
+.reg-input:focus ~ .reg-label,
+.reg-input:not(:placeholder-shown) ~ .reg-label {
+  top: -0.55rem;
+  font-size: 0.75rem;
+  color: #16a34a;
+}
+
+/* Select y date siempre con label flotada */
+.reg-field--select .reg-label,
+.reg-field--date   .reg-label {
+  top: -0.55rem;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.reg-field--select .reg-input:focus ~ .reg-label,
+.reg-field--date   .reg-input:focus ~ .reg-label {
+  color: #16a34a;
+}
+
+/* ── Estado error ── */
+.reg-field--error .reg-input {
+  border-color: #e11d48;
+}
+
+.reg-field--error .reg-input:focus {
+  border-color: #e11d48;
+  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15);
+}
+
+.reg-field--error .reg-input:focus ~ .reg-label,
+.reg-field--error .reg-input:not(:placeholder-shown) ~ .reg-label,
+.reg-field--error.reg-field--select .reg-label,
+.reg-field--error.reg-field--date   .reg-label {
+  color: #e11d48;
+}
+
+.reg-field-error {
+  font-size: 0.75rem;
+  color: #e11d48;
+  font-weight: 500;
+  margin-top: 5px;
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reg-field-error::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: rgba(225,29,72,0.12);
+  color: #e11d48;
+  font-size: 0.625rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* ── Botón "Generar código" (azul) ── */
+.reg-code-btn {
+  height: 52px;
+  padding: 0 16px;
+  background: #2563eb;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  transition: background 0.15s, transform 0.12s;
+  align-self: flex-start;
+  margin-top: 0;
+}
+
+.reg-code-btn:hover {
+  background: #1d4ed8;
+  transform: translateY(-1px);
+}
+
+.reg-code-btn:active {
+  transform: translateY(0);
+}
+
+/* Campo "Código" (pequeño) */
+.reg-field--code {
+  width: 130px;
+}
+
+/* ── Campo contraseña (con ojo) ── */
+.reg-field--pwd { position: relative; }
+
+.reg-pwd-toggle {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  color: #e11d48;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s;
+}
+
+.reg-pwd-toggle:hover { color: #be123c; }
+
+.reg-field--pwd .reg-input {
+  padding-right: 44px;
+}
+
+/* ── PEP ── */
+.reg-pep {
+  position: relative;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.reg-pep-info {
+  position: absolute;
+  right: 0;
+  top: 0;
+  background: none;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: #6b7280;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.reg-pep-info:hover {
+  border-color: #2563eb;
+  color: #2563eb;
+}
+
+/* Radio buttons */
+.reg-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  padding: 4px 0;
+}
+
+.reg-radio input[type="radio"] {
+  display: none;
+}
+
+.reg-radio-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid #d1d5db;
+  flex-shrink: 0;
+  position: relative;
+  transition: border-color 0.15s;
+}
+
+.reg-radio-mark::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: #e11d48;
+  transform: scale(0);
+  transition: transform 0.15s ease;
+}
+
+.reg-radio input[type="radio"]:checked ~ .reg-radio-mark {
+  border-color: #e11d48;
+}
+
+.reg-radio input[type="radio"]:checked ~ .reg-radio-mark::after {
+  transform: scale(1);
+}
+
+.reg-radio-text {
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.4;
+}
+
+/* ── Términos ── */
+.reg-terms-text {
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 14px;
+}
+
+.reg-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.reg-link:hover { text-decoration: underline; }
+.reg-link--bold { font-weight: 700; }
+
+/* Checkbox */
+.reg-checkbox {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+  margin-bottom: 24px;
+}
+
+.reg-checkbox input[type="checkbox"] { display: none; }
+
+.reg-checkbox-mark {
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  border: 2px solid #d1d5db;
+  flex-shrink: 0;
+  margin-top: 2px;
+  position: relative;
+  background: #fff;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.reg-checkbox-mark::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 8px;
+  height: 12px;
+  border: 2.5px solid #fff;
+  border-top: none;
+  border-left: none;
+  transform: rotate(45deg) scale(0);
+  transition: transform 0.15s ease;
+}
+
+.reg-checkbox input[type="checkbox"]:checked ~ .reg-checkbox-mark {
+  background: #e11d48;
+  border-color: #e11d48;
+}
+
+.reg-checkbox input[type="checkbox"]:checked ~ .reg-checkbox-mark::after {
+  transform: rotate(45deg) scale(1);
+}
+
+.reg-checkbox-text {
+  font-size: 0.875rem;
+  color: #374151;
+  line-height: 1.55;
+}
+
+.reg-checkbox--error .reg-checkbox-mark {
+  border-color: #e11d48;
+}
+
+/* ── Botón REGISTRAR (rojo) ── */
+.reg-submit-btn {
+  width: 100%;
+  padding: 18px;
+  background: #dc2626;
+  color: #fff;
+  border: none;
+  border-radius: 40px;
+  font-size: 1.0625rem;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+}
+
+.reg-submit-btn:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.38);
+}
+
+.reg-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.reg-submit-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Spinner dentro del botón */
+.reg-submit-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2.5px solid rgba(255,255,255,0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: reg-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes reg-spin { to { transform: rotate(360deg); } }
+
+/* ── Link de login ── */
+.reg-login-link {
+  text-align: center;
+  font-size: 0.9375rem;
+  color: #6b7280;
+}
+
+/* ── Toast de notificación ── */
+.reg-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: #1e1b4b;
+  color: #fff;
+  padding: 12px 20px;
+  border-radius: 10px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  box-shadow: 0 8px 32px rgba(15,23,42,0.25);
+  z-index: 9999;
+  max-width: 340px;
+  line-height: 1.45;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.reg-toast--show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Responsive ── */
+@media (max-width: 700px) {
+  .reg-container { padding: 32px 20px 40px; }
+  .reg-title { font-size: 1.5rem; }
+  .reg-row-2 { grid-template-columns: 1fr; }
+  .reg-row-3 { grid-template-columns: 1fr; }
+  .reg-row-code { grid-template-columns: 1fr; }
+  .reg-code-btn { width: 100%; justify-content: center; }
+  .reg-field--code { width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .reg-container { padding: 24px 16px 36px; }
+  .reg-title { font-size: 1.25rem; }
+  .reg-submit-btn { padding: 16px; font-size: 1rem; }
+}

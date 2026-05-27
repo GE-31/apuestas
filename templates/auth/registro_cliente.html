@@ -1,0 +1,340 @@
+{% extends "layouts/base_auth.html" %}
+{% load static %}
+
+{% block title %}Crear cuenta — FairBet Lab{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/registro_cliente.css' %}" />
+{% endblock %}
+
+{% block body %}
+<div class="reg-page">
+
+  {# ── Banner superior ── #}
+  <div class="reg-banner" role="alert" aria-live="polite">
+    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
+      <path fill-rule="evenodd"
+            d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17
+               2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10
+               5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1
+               1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+    </svg>
+    <span>Para completar tu registro, asegúrate de tener acceso a tu correo electrónico y número de celular.</span>
+  </div>
+
+  <div class="reg-container">
+
+    {# ── Título ── #}
+    <h1 class="reg-title">REGÍSTRATE AQUÍ</h1>
+
+    {# ── Errores generales del form ── #}
+    {% if form.non_field_errors %}
+    <div class="reg-error-box" role="alert">
+      {% for error in form.non_field_errors %}
+      <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <form class="reg-form" method="post" novalidate id="regForm" autocomplete="off">
+      {% csrf_token %}
+
+      {# ══ FILA 1: Tipo documento + DNI ══ #}
+      <div class="reg-row reg-row-2">
+
+        <div class="reg-field reg-field--select{% if form.tipo_documento.errors %} reg-field--error{% endif %}">
+          <select class="reg-input" id="{{ form.tipo_documento.id_for_label }}" name="tipo_documento">
+            {% for val, lbl in form.tipo_documento.field.choices %}
+            <option value="{{ val }}"{% if form.tipo_documento.value == val or val == 'DNI' and not form.tipo_documento.value %} selected{% endif %}>{{ lbl }}</option>
+            {% endfor %}
+          </select>
+          <label class="reg-label" for="{{ form.tipo_documento.id_for_label }}">Tipo de documento</label>
+        </div>
+
+        <div class="reg-field{% if form.dni.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="text" id="{{ form.dni.id_for_label }}"
+                 name="dni" placeholder=" "
+                 value="{{ form.dni.value|default:'' }}"
+                 maxlength="12" inputmode="numeric" />
+          <label class="reg-label" for="{{ form.dni.id_for_label }}">Número de documento</label>
+          {% for e in form.dni.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+
+      </div>{# /fila 1 #}
+
+      {# ── Info box: nombres ── #}
+      <div class="reg-info-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             width="16" height="16" aria-hidden="true" style="flex-shrink:0;margin-top:1px">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>Ingresa tus <strong>nombres</strong> y <strong>apellidos</strong> exactamente como se muestran en tu <strong>documento</strong>.</span>
+      </div>
+
+      {# ══ FILA 2: Nombres + Apellidos ══ #}
+      <div class="reg-row reg-row-2">
+
+        <div class="reg-field{% if form.nombres.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="text" id="{{ form.nombres.id_for_label }}"
+                 name="nombres" placeholder=" "
+                 value="{{ form.nombres.value|default:'' }}" autocomplete="given-name" />
+          <label class="reg-label" for="{{ form.nombres.id_for_label }}">Nombres</label>
+          {% for e in form.nombres.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+
+        <div class="reg-field{% if form.apellidos.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="text" id="{{ form.apellidos.id_for_label }}"
+                 name="apellidos" placeholder=" "
+                 value="{{ form.apellidos.value|default:'' }}" autocomplete="family-name" />
+          <label class="reg-label" for="{{ form.apellidos.id_for_label }}">Apellidos</label>
+          {% for e in form.apellidos.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+
+      </div>{# /fila 2 #}
+
+      {# ══ FILA 3: Fecha nacimiento + Género ══ #}
+      <div class="reg-row reg-row-2">
+
+        <div class="reg-field reg-field--date{% if form.fecha_nacimiento.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="date" id="{{ form.fecha_nacimiento.id_for_label }}"
+                 name="fecha_nacimiento" placeholder=" "
+                 value="{{ form.fecha_nacimiento.value|default:'' }}" />
+          <label class="reg-label" for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de nacimiento</label>
+          {% for e in form.fecha_nacimiento.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+
+        <div class="reg-field reg-field--select{% if form.genero.errors %} reg-field--error{% endif %}">
+          <select class="reg-input" id="{{ form.genero.id_for_label }}" name="genero">
+            {% for val, lbl in form.genero.field.choices %}
+            <option value="{{ val }}"{% if form.genero.value == val %} selected{% endif %}>{{ lbl }}</option>
+            {% endfor %}
+          </select>
+          <label class="reg-label" for="{{ form.genero.id_for_label }}">Género</label>
+        </div>
+
+      </div>{# /fila 3 #}
+
+      {# ══ FILA 4: Email + Botón código + Código ══ #}
+      <div class="reg-row reg-row-code">
+
+        <div class="reg-field{% if form.email.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="email" id="{{ form.email.id_for_label }}"
+                 name="email" placeholder=" "
+                 value="{{ form.email.value|default:'' }}" autocomplete="email" />
+          <label class="reg-label" for="{{ form.email.id_for_label }}">Correo electrónico (te enviaremos un código)</label>
+          {% for e in form.email.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+
+        <button type="button" class="reg-code-btn" id="btnCodigoEmail">
+          Generar código email
+        </button>
+
+        <div class="reg-field reg-field--code">
+          <input class="reg-input" type="text" name="codigo_email" id="id_codigo_email"
+                 placeholder=" " maxlength="10" inputmode="numeric" />
+          <label class="reg-label" for="id_codigo_email">Código</label>
+        </div>
+
+      </div>{# /fila 4 #}
+
+      {# ── Info box: contraseña ── #}
+      <div class="reg-info-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             width="16" height="16" aria-hidden="true" style="flex-shrink:0;margin-top:1px">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <span>Sugerimos que tu <strong>contraseña</strong> sea única para tu cuenta. Evita reutilizar contraseñas de otras plataformas.</span>
+      </div>
+
+      {# ══ FILA 5: Contraseña + Confirmar ══ #}
+      <div class="reg-row reg-row-2">
+
+        <div class="reg-field reg-field--pwd{% if form.password.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="password" id="{{ form.password.id_for_label }}"
+                 name="password" placeholder=" " autocomplete="new-password"
+                 data-pwd-toggle-target />
+          <label class="reg-label" for="{{ form.password.id_for_label }}">Contraseña</label>
+          <button type="button" class="reg-pwd-toggle" data-pwd-toggle
+                  aria-label="Mostrar contraseña" aria-pressed="false">
+            <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" width="18" height="18" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" width="18" height="18" aria-hidden="true" hidden>
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45
+                       18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11
+                       8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+          {% for e in form.password.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+
+        <div class="reg-field reg-field--pwd{% if form.confirm_password.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="password" id="{{ form.confirm_password.id_for_label }}"
+                 name="confirm_password" placeholder=" " autocomplete="new-password"
+                 data-pwd-toggle-target />
+          <label class="reg-label" for="{{ form.confirm_password.id_for_label }}">Confirmar contraseña</label>
+          <button type="button" class="reg-pwd-toggle" data-pwd-toggle
+                  aria-label="Mostrar contraseña" aria-pressed="false">
+            <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" width="18" height="18" aria-hidden="true">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+            <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="2" width="18" height="18" aria-hidden="true" hidden>
+              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45
+                       18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11
+                       8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+              <line x1="1" y1="1" x2="23" y2="23"/>
+            </svg>
+          </button>
+          {% for e in form.confirm_password.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+
+      </div>{# /fila 5 #}
+
+      {# ══ FILA 6: Dirección ══ #}
+      <div class="reg-row reg-row-1">
+        <div class="reg-field{% if form.direccion.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="text" id="{{ form.direccion.id_for_label }}"
+                 name="direccion" placeholder=" "
+                 value="{{ form.direccion.value|default:'' }}" autocomplete="street-address" />
+          <label class="reg-label" for="{{ form.direccion.id_for_label }}">Dirección actual</label>
+          {% for e in form.direccion.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+      </div>
+
+      {# ══ FILA 7: Departamento + Provincia + Distrito ══ #}
+      <div class="reg-row reg-row-3">
+
+        <div class="reg-field reg-field--select{% if form.departamento.errors %} reg-field--error{% endif %}">
+          <select class="reg-input" id="{{ form.departamento.id_for_label }}" name="departamento">
+            {% for val, lbl in form.departamento.field.choices %}
+            <option value="{{ val }}"{% if form.departamento.value == val %} selected{% endif %}>{{ lbl }}</option>
+            {% endfor %}
+          </select>
+          <label class="reg-label" for="{{ form.departamento.id_for_label }}">Departamento</label>
+        </div>
+
+        <div class="reg-field{% if form.provincia.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="text" id="{{ form.provincia.id_for_label }}"
+                 name="provincia" placeholder=" "
+                 value="{{ form.provincia.value|default:'' }}" />
+          <label class="reg-label" for="{{ form.provincia.id_for_label }}">Provincia</label>
+        </div>
+
+        <div class="reg-field{% if form.distrito.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="text" id="{{ form.distrito.id_for_label }}"
+                 name="distrito" placeholder=" "
+                 value="{{ form.distrito.value|default:'' }}" />
+          <label class="reg-label" for="{{ form.distrito.id_for_label }}">Distrito</label>
+        </div>
+
+      </div>{# /fila 7 #}
+
+      {# ══ FILA 8: Celular + Botón código + Código ══ #}
+      <div class="reg-row reg-row-code">
+
+        <div class="reg-field{% if form.telefono.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="tel" id="{{ form.telefono.id_for_label }}"
+                 name="telefono" placeholder=" "
+                 value="{{ form.telefono.value|default:'' }}" autocomplete="tel" maxlength="15" />
+          <label class="reg-label" for="{{ form.telefono.id_for_label }}">Celular</label>
+          {% for e in form.telefono.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+
+        <button type="button" class="reg-code-btn" id="btnCodigoCelular">
+          Generar código celular
+        </button>
+
+        <div class="reg-field reg-field--code">
+          <input class="reg-input" type="text" name="codigo_celular" id="id_codigo_celular"
+                 placeholder=" " maxlength="10" inputmode="numeric" />
+          <label class="reg-label" for="id_codigo_celular">Código</label>
+        </div>
+
+      </div>{# /fila 8 #}
+
+      {# ══ FILA 9: Nombre de usuario ══ #}
+      <div class="reg-row reg-row-1">
+        <div class="reg-field{% if form.username.errors %} reg-field--error{% endif %}">
+          <input class="reg-input" type="text" id="{{ form.username.id_for_label }}"
+                 name="username" placeholder=" "
+                 value="{{ form.username.value|default:'' }}" autocomplete="username" />
+          <label class="reg-label" for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+          {% for e in form.username.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
+        </div>
+      </div>
+
+      {# ══ DECLARACIÓN PEP ══ #}
+      <div class="reg-pep" role="group" aria-labelledby="pep-legend">
+        <p id="pep-legend" class="reg-pep-legend" style="display:none">Declaración PEP</p>
+        <label class="reg-radio">
+          <input type="radio" name="pep" value="no"
+                 {% if not form.pep.value or form.pep.value == 'no' %}checked{% endif %} />
+          <span class="reg-radio-mark"></span>
+          <span class="reg-radio-text">Declaro que <strong>NO</strong> soy una Persona Expuesta Políticamente (PEP)</span>
+        </label>
+        <label class="reg-radio">
+          <input type="radio" name="pep" value="si"
+                 {% if form.pep.value == 'si' %}checked{% endif %} />
+          <span class="reg-radio-mark"></span>
+          <span class="reg-radio-text">Declaro que <strong>SÍ</strong> soy una Persona Expuesta Políticamente (PEP)</span>
+        </label>
+        <button type="button" class="reg-pep-info" id="btnPepInfo" aria-label="¿Qué es una PEP?">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               width="20" height="20" aria-hidden="true">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8"  x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+        </button>
+      </div>
+
+      {# ══ TÉRMINOS ══ #}
+      <p class="reg-terms-text">
+        Al registrarme acepto haber leído y estar de acuerdo con los
+        <a href="#" class="reg-link">Términos y Condiciones</a>,
+        <a href="#" class="reg-link">Política de cookies</a> y la
+        <a href="#" class="reg-link">Política de Privacidad</a>.
+      </p>
+
+      <label class="reg-checkbox{% if form.acepta_terminos.errors %} reg-checkbox--error{% endif %}">
+        <input type="checkbox" name="acepta_terminos" id="{{ form.acepta_terminos.id_for_label }}"
+               {% if form.acepta_terminos.value %}checked{% endif %} />
+        <span class="reg-checkbox-mark"></span>
+        <span class="reg-checkbox-text">Autorizo el uso de mis datos para mejorar mi experiencia en FairBet Lab y recibir información educativa.</span>
+      </label>
+      {% for e in form.acepta_terminos.errors %}
+      <p class="reg-field-error" style="margin-top:-8px;margin-bottom:12px">{{ e }}</p>
+      {% endfor %}
+
+      {# ══ BOTÓN REGISTRAR ══ #}
+      <button type="submit" class="reg-submit-btn" id="regSubmitBtn">
+        <span class="reg-submit-text">REGISTRAR</span>
+        <span class="reg-submit-spinner" hidden aria-hidden="true"></span>
+      </button>
+
+      {# ── Link de login ── #}
+      <p class="reg-login-link">
+        ¿Ya tienes cuenta?
+        <a href="/login/" class="reg-link reg-link--bold">Inicia sesión</a>
+      </p>
+
+    </form>
+
+  </div>{# /reg-container #}
+</div>{# /reg-page #}
+{% endblock %}
+
+{% block page_js %}
+<script src="{% static 'js/pages/registro_cliente.js' %}"></script>
+{% endblock %}

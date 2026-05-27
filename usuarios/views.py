@@ -2,7 +2,7 @@ from django.contrib.auth import login, logout
 from django.shortcuts import redirect
 from django.views.generic.edit import FormView
 
-from .forms import LoginAdminForm, LoginClienteForm
+from .forms import LoginAdminForm, LoginClienteForm, RegistroClienteForm
 
 
 class LoginClienteView(FormView):
@@ -33,7 +33,7 @@ class LoginClienteView(FormView):
     def _success_url(self, user):
         if user.is_staff or user.is_superuser:
             return '/admin/'
-        return '/'
+        return '/eventos/'
 
 
 class LoginAdminView(FormView):
@@ -51,7 +51,7 @@ class LoginAdminView(FormView):
         if request.user.is_authenticated:
             if request.user.is_staff or request.user.is_superuser:
                 return redirect('/admin/')
-            return redirect('/')
+            return redirect('/eventos/')
         return super().dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
@@ -69,6 +69,27 @@ class LoginAdminView(FormView):
             return self.form_invalid(form)
         login(self.request, user)
         return redirect('/admin/')
+
+
+class RegistroClienteView(FormView):
+    """
+    Registro de nuevos clientes.
+    GET  → formulario vacío.
+    POST → crea User + PerfilUsuario y autenticar, redirige al dashboard.
+    """
+
+    template_name = 'auth/registro_cliente.html'
+    form_class    = RegistroClienteForm
+
+    def dispatch(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+            return redirect('/eventos/')
+        return super().dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        user = form.save()
+        login(self.request, user)
+        return redirect('/eventos/')
 
 
 class LogoutView(FormView):

@@ -25,26 +25,7 @@
     }, duration || 3400);
   }
 
-  /* ── Toggle contraseña ── */
-  document.querySelectorAll('[data-pwd-toggle]').forEach(function (btn) {
-    btn.addEventListener('click', function () {
-      var field = btn.closest('.reg-field--pwd');
-      if (!field) return;
-      var input = field.querySelector('[data-pwd-toggle-target]');
-      if (!input) return;
-
-      var shown = input.type === 'text';
-      input.type = shown ? 'password' : 'text';
-      btn.setAttribute('aria-pressed', String(!shown));
-
-      var eyeOn  = btn.querySelector('.icon-eye');
-      var eyeOff = btn.querySelector('.icon-eye-off');
-      if (eyeOn)  eyeOn.hidden  = !shown;
-      if (eyeOff) eyeOff.hidden = shown;
-    });
-  });
-
-  /* ── Botones "Generar código" ── */
+  /* ── Botones "Enviar código" ── */
   var btnEmail   = document.getElementById('btnCodigoEmail');
   var btnCelular = document.getElementById('btnCodigoCelular');
   var btnPepInfo = document.getElementById('btnPepInfo');
@@ -57,7 +38,7 @@
         emailInput && emailInput.focus();
         return;
       }
-      showToast('Código de verificación enviado a ' + emailInput.value.trim() + ' (funcionalidad en integración).');
+      showToast('Código enviado a ' + emailInput.value.trim() + ' (integración en proceso).');
     });
   }
 
@@ -69,28 +50,18 @@
         telInput && telInput.focus();
         return;
       }
-      showToast('Código de verificación enviado al celular ' + telInput.value.trim() + ' (funcionalidad en integración).');
+      showToast('Código enviado al ' + telInput.value.trim() + ' (integración en proceso).');
     });
   }
 
   if (btnPepInfo) {
     btnPepInfo.addEventListener('click', function () {
-      showToast('PEP: Persona que desempeña o ha desempeñado funciones públicas prominentes. Esta declaración es parte del proceso de verificación.', 5000);
+      showToast(
+        'PEP: Persona que desempeña o ha desempeñado funciones públicas prominentes. Esta declaración es parte del proceso de verificación.',
+        5000
+      );
     });
   }
-
-  /* ── Validación visual en tiempo real ── */
-  document.querySelectorAll('.reg-input').forEach(function (input) {
-    input.addEventListener('blur', function () {
-      var field = input.closest('.reg-field');
-      if (!field) return;
-      if (input.required && !input.value.trim()) {
-        field.classList.add('reg-field--error');
-      } else {
-        field.classList.remove('reg-field--error');
-      }
-    });
-  });
 
   /* ── Loading state al enviar ── */
   var form      = document.getElementById('regForm');
@@ -106,17 +77,116 @@
     });
   }
 
-  /* ── Sincronizar label del select cuando cambia valor ── */
-  document.querySelectorAll('select.reg-input').forEach(function (sel) {
-    sel.addEventListener('change', function () {
-      var field = sel.closest('.reg-field');
-      if (field) field.classList.toggle('reg-field--has-value', sel.value !== '');
-    });
-    /* Marcar al cargar si ya tiene valor */
-    if (sel.value) {
-      var field = sel.closest('.reg-field');
-      if (field) field.classList.add('reg-field--has-value');
+  /* ── Consulta DNI automática (API Peru proxy) ── */
+  (function () {
+    var dniInput = document.getElementById('id_dni');
+    var tipoDoc  = document.getElementById('id_tipo_documento');
+    var nomInput = document.getElementById('id_nombres');
+    var apInput  = document.getElementById('id_apellidos');
+    if (!dniInput || !nomInput || !apInput) return;
+
+    /* Badge de estado junto al campo DNI */
+    var badge = document.createElement('span');
+    badge.id = 'dniBadge';
+    badge.style.cssText = [
+      'display:none', 'align-items:center', 'gap:5px',
+      'font-size:.72rem', 'font-weight:700', 'margin-top:4px',
+      'padding:4px 10px', 'border-radius:8px',
+    ].join(';');
+    dniInput.closest('.form-group').appendChild(badge);
+
+    function setBadge(type, msg) {
+      var colors = {
+        loading: 'background:rgba(59,130,246,.12);color:#93c5fd;border:1px solid rgba(59,130,246,.25)',
+        ok:      'background:rgba(34,197,94,.1);color:#86efac;border:1px solid rgba(34,197,94,.25)',
+        error:   'background:rgba(239,68,68,.1);color:#fca5a5;border:1px solid rgba(239,68,68,.25)',
+      };
+      badge.style.cssText += ';' + (colors[type] || '');
+      badge.style.display = 'inline-flex';
+      badge.textContent   = msg;
     }
-  });
+
+    function hideBadge() { badge.style.display = 'none'; }
+
+    var timer     = null;
+    var abortCtrl = null;
+
+    dniInput.addEventListener('input', function () {
+      clearTimeout(timer);
+
+      /* Cancelar cualquier fetch en vuelo */
+      if (abortCtrl) { abortCtrl.abort(); abortCtrl = null; }
+
+      var val  = dniInput.value.trim();
+      var tipo = tipoDoc ? tipoDoc.value : 'DNI';
+
+      /* Limpiar nombres autocompletados al editar el DNI */
+      if (nomInput.dataset.dniAuto === 'true') {
+        nomInput.value = '';
+        delete nomInput.dataset.dniAuto;
+      }
+      if (apInput.dataset.dniAuto === 'true') {
+        apInput.value = '';
+        delete apInput.dataset.dniAuto;
+      }
+
+      if (tipo !== 'DNI' || val.length !== 8 || !/^\d{8}$/.test(val)) {
+        hideBadge();
+        return;
+      }
+
+      setBadge('loading', 'Verificando...');
+
+      timer = setTimeout(function () {
+        abortCtrl = new AbortController();
+        var signal = abortCtrl.signal;
+
+        /* Primero: ¿ya existe este DNI en BD? */
+        fetch('/verificar-dni/' + val + '/', { signal: signal })
+          .then(function (r) { return r.json(); })
+          .then(function (check) {
+            if (check.duplicate) {
+              setBadge('error', '✗ Ya existe una cuenta registrada con este número de documento');
+              return;
+            }
+            /* No es duplicado: consultar nombre en API Peru */
+            setBadge('loading', 'Consultando RENIEC...');
+            return fetch('/consultar-dni/' + val + '/', { signal: signal })
+              .then(function (r) { return r.json(); })
+              .then(function (data) {
+                if (data.error) {
+                  setBadge('error', '✗ ' + data.error);
+                  return;
+                }
+                if (!nomInput.value || nomInput.dataset.dniAuto === 'true') {
+                  nomInput.value = data.nombres;
+                  nomInput.dataset.dniAuto = 'true';
+                  nomInput.dispatchEvent(new Event('input'));
+                }
+                if (!apInput.value || apInput.dataset.dniAuto === 'true') {
+                  apInput.value = data.apellidos;
+                  apInput.dataset.dniAuto = 'true';
+                  apInput.dispatchEvent(new Event('input'));
+                }
+                setBadge('ok', '✓ ' + data.nombres + ' ' + data.apellidos);
+              });
+          })
+          .catch(function (err) {
+            if (err.name === 'AbortError') return; /* cancelado intencionalmente */
+            setBadge('error', '✗ Error al verificar documento');
+          });
+      }, 500);
+    });
+
+    if (tipoDoc) {
+      tipoDoc.addEventListener('change', function () { hideBadge(); });
+    }
+
+    [nomInput, apInput].forEach(function (inp) {
+      inp.addEventListener('input', function () {
+        if (inp.dataset.dniAuto) delete inp.dataset.dniAuto;
+      });
+    });
+  })();
 
 })();

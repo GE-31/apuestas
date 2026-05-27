@@ -22,9 +22,9 @@ class PerfilUsuario(models.Model):
     )
 
     dni = models.CharField(
-        max_length=8,
+        max_length=12,
         unique=True,
-        help_text='DNI peruano de 8 dígitos.'
+        help_text='Número de documento (DNI 8 dígitos, CE/Pasaporte hasta 12).'
     )
 
     nombres = models.CharField(max_length=100)

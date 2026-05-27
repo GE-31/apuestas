@@ -1,6 +1,5 @@
 from django.db import models
 
-# Create your models here.
 from config.choices import EstadoEvento
 
 
@@ -29,6 +28,38 @@ class Deporte(models.Model):
 
     def __str__(self):
         return self.nombre
+
+
+class Liga(models.Model):
+    """
+    Liga o competición deportiva.
+    Ejemplo: Liga 1 Perú, Premier League, Champions League.
+    """
+
+    nombre = models.CharField(max_length=120, unique=True)
+    deporte = models.ForeignKey(
+        Deporte,
+        on_delete=models.PROTECT,
+        related_name='ligas',
+    )
+    pais = models.CharField(max_length=80, blank=True, default='')
+    activa = models.BooleanField(default=True)
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'eventos_liga'
+        verbose_name = 'Liga'
+        verbose_name_plural = 'Ligas'
+        ordering = ['deporte__nombre', 'nombre']
+        indexes = [
+            models.Index(fields=['deporte']),
+            models.Index(fields=['activa']),
+        ]
+
+    def __str__(self):
+        return f'{self.nombre}'
 
 
 class Equipo(models.Model):
@@ -87,6 +118,14 @@ class Evento(models.Model):
         Deporte,
         on_delete=models.PROTECT,
         related_name='eventos'
+    )
+
+    liga = models.ForeignKey(
+        Liga,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='eventos',
     )
 
     equipo_local = models.ForeignKey(

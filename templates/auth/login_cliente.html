@@ -10,7 +10,6 @@
 {% block body %}
 <div class="auth-page">
 
-  {# Banner informativo obligatorio #}
   {% include "components/auth_message.html" %}
 
   <div class="auth-split">
@@ -19,37 +18,64 @@
     <aside class="auth-brand-panel" aria-hidden="true"
            style="background-image: url('{% static 'img/portada-login.png' %}');">
 
-      {# Círculos decorativos — puramente visuales #}
-      <div class="auth-brand-circle auth-brand-circle--lg"></div>
-      <div class="auth-brand-circle auth-brand-circle--md"></div>
-      <div class="auth-brand-circle auth-brand-circle--sm"></div>
+      <div class="auth-brand-grid"></div>
+      <div class="auth-brand-orb auth-brand-orb--1"></div>
+      <div class="auth-brand-orb auth-brand-orb--2"></div>
+      <div class="auth-brand-orb auth-brand-orb--3"></div>
 
-      {# Logo #}
+      <!-- Logo -->
       <a href="/" class="auth-brand-logo">
         <div class="auth-brand-logo-mark">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-               width="18" height="18" aria-hidden="true">
+               width="20" height="20" aria-hidden="true">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
         </div>
-        Apuesta24<span class="auth-brand-logo-accent">/7</span>
+        <span class="auth-brand-logo-text">Apuesta24<span>/7</span></span>
       </a>
 
-      {# Tagline #}
+      <!-- Content -->
       <div class="auth-brand-content">
+        <div class="auth-brand-eyebrow">
+          <span class="auth-brand-eyebrow-dot"></span>
+          Simulador Deportivo
+        </div>
+
         <h1 class="auth-brand-tagline">
-          Aprende a <em>analizar</em><br>apuestas deportivas
+          Domina<br><em>tus apuestas</em><br>virtuales
         </h1>
+
         <p class="auth-brand-desc">
-          Simulador con mercados reales, cuotas virtuales
-          y herramientas para comprender la probabilidad en el deporte.
+          Aprende a analizar mercados, cuotas y probabilidades
+          con fichas virtuales en un entorno 100% seguro.
         </p>
 
-        {# Stats decorativos — valores de ejemplo ilustrativos #}
+        <div class="auth-brand-features">
+          <div class="auth-brand-feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Cuotas en tiempo real
+          </div>
+          <div class="auth-brand-feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/>
+              <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>
+            </svg>
+            Mercados deportivos reales
+          </div>
+          <div class="auth-brand-feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Fichas virtuales seguras
+          </div>
+        </div>
+
         <div class="auth-brand-stats">
           <div class="auth-brand-stat">
             <span class="auth-brand-stat-value">Juega</span>
-            <span class="auth-brand-stat-label">con fichas virtuales</span>
+            <span class="auth-brand-stat-label">fichas virtuales</span>
           </div>
           <div class="auth-brand-stat">
             <span class="auth-brand-stat-value">Analiza</span>
@@ -62,9 +88,6 @@
         </div>
       </div>
 
-      {# Disclaimer al pie del panel #}
-      
-
     </aside>
 
     <!-- ── Panel derecho: Formulario ── -->
@@ -72,18 +95,21 @@
       <div class="auth-form-container">
 
         <div class="auth-form-header">
-          <h2 class="auth-form-title">Bienvenido de vuelta</h2>
+          <div class="auth-form-badge">
+            <svg viewBox="0 0 12 12" fill="currentColor" width="8" height="8" aria-hidden="true">
+              <circle cx="6" cy="6" r="4"/>
+            </svg>
+            Acceso Cliente
+          </div>
+          <h2 class="auth-form-title">Bienvenido<br>de vuelta</h2>
           <p class="auth-form-subtitle">Ingresa a tu cuenta para continuar</p>
         </div>
 
-        {# Errores generales del formulario #}
         {% include "components/form_errors.html" with form=form %}
 
-        {# Formulario de autenticación Django #}
         <form class="auth-form" method="post" novalidate id="loginClienteForm">
           {% csrf_token %}
 
-          {# Campo usuario #}
           <div class="form-group">
             <label for="{{ form.username.id_for_label }}" class="form-label">
               Usuario
@@ -117,7 +143,6 @@
             {% endfor %}
           </div>
 
-          {# Campo contraseña #}
           <div class="form-group">
             <label for="{{ form.password.id_for_label }}" class="form-label">
               Contraseña
@@ -168,30 +193,28 @@
             {% endfor %}
           </div>
 
-          {# Botón submit #}
-          <button type="submit" class="btn btn-primary btn-full auth-submit-btn" id="loginClienteSubmit">
+          <button type="submit" class="auth-submit-btn" id="loginClienteSubmit">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                 width="16" height="16" aria-hidden="true">
+                 width="18" height="18" aria-hidden="true">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
               <polyline points="10 17 15 12 10 7"/>
               <line x1="15" y1="12" x2="3" y2="12"/>
             </svg>
-            <span class="btn-text">Ingresar</span>
+            <span class="btn-text">Ingresar ahora</span>
             <span class="btn-spinner" hidden aria-hidden="true"></span>
           </button>
 
         </form>
 
-        {# Links secundarios #}
         <div class="auth-links">
           <p class="auth-link">
             ¿No tienes cuenta?
-            <a href="/registro/">Crear cuenta</a>
+            <a href="/registro/">Crear cuenta gratis</a>
           </p>
           <p class="auth-link-forgot">
             <a href="/recuperar-password/">¿Olvidaste tu contraseña?</a>
           </p>
-          <p class="auth-link-forgot" style="margin-top: 6px">
+          <p class="auth-link-forgot">
             ¿Eres administrador?
             <a href="/admin-login/">Acceso admin</a>
           </p>
@@ -200,8 +223,8 @@
       </div>
     </main>
 
-  </div><!-- /auth-split -->
-</div><!-- /auth-page -->
+  </div>
+</div>
 {% endblock %}
 
 {% block page_js %}

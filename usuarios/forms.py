@@ -167,24 +167,27 @@ class RegistroClienteForm(forms.Form):
         from usuarios.models import PerfilUsuario
         tipo = self.data.get('tipo_documento', 'DNI')
         dni  = self.cleaned_data.get('dni', '').strip()
-        if tipo == 'DNI' and (not dni.isdigit() or len(dni) != 8):
-            raise forms.ValidationError('El DNI peruano debe tener exactamente 8 dígitos.')
+        if tipo == 'DNI':
+            if not dni.isdigit() or len(dni) != 8:
+                raise forms.ValidationError('El DNI peruano debe tener exactamente 8 dígitos numéricos.')
+        if not dni:
+            raise forms.ValidationError('El número de documento es obligatorio.')
         if PerfilUsuario.objects.filter(dni=dni).exists():
-            raise forms.ValidationError('Ya existe una cuenta registrada con este documento.')
+            raise forms.ValidationError('Ya existe una cuenta registrada con este número de documento.')
         return dni
 
     def clean_username(self):
         User     = get_user_model()
         username = self.cleaned_data.get('username', '').strip()
-        if User.objects.filter(username=username).exists():
-            raise forms.ValidationError('Este nombre de usuario ya está en uso.')
+        if User.objects.filter(username__iexact=username).exists():
+            raise forms.ValidationError('Este nombre de usuario ya está en uso. Elige otro.')
         return username
 
     def clean_email(self):
         User  = get_user_model()
-        email = self.cleaned_data.get('email', '').strip()
-        if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('Ya existe una cuenta con este correo electrónico.')
+        email = self.cleaned_data.get('email', '').strip().lower()
+        if User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError('Ya existe una cuenta registrada con este correo electrónico.')
         return email
 
     # ── Guardar ──
@@ -203,7 +206,7 @@ class RegistroClienteForm(forms.Form):
         with transaction.atomic():
             user = User.objects.create_user(
                 username   = cd['username'],
-                email      = cd['email'],
+                email      = cd['email'].lower(),
                 password   = cd['password'],
                 first_name = cd['nombres'],
                 last_name  = cd['apellidos'],

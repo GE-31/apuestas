@@ -6,13 +6,18 @@ from django.views.generic import TemplateView
 from decimal import Decimal
 
 from apuestas_core.models import Bet
+from apuestas_core.services.liquidacion_service import (
+    anular_apuesta,
+    liquidar_apuesta_ganada,
+    liquidar_apuesta_perdida,
+)
 from billetera.models import Account
 from billetera.selectors import obtener_saldo_cuenta
 from config.choices import EstadoApuesta, EstadoEvento, TipoCuentaLedger
-from eventos.models import Deporte, Equipo, Evento
+from eventos.models import Deporte, Equipo, Evento, Liga
 from usuarios.models import PerfilUsuario
 
-from .forms import ApuestaAdminForm, EquipoAdminForm, EventoAdminForm, RecargaAdminForm
+from .forms import DeporteAdminForm, EquipoAdminForm, EventoAdminForm, LigaAdminForm
 
 
 class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
@@ -82,28 +87,43 @@ class EventosView(LoginRequiredMixin, TemplateView):
         eventos = list(
             Evento.objects
             .filter(activo=True)
-            .select_related('deporte', 'equipo_local', 'equipo_visitante')
+            .select_related('deporte', 'liga', 'equipo_local', 'equipo_visitante')
             .prefetch_related('mercados__selecciones__odd')
-            .order_by('fecha_inicio')
+            .order_by('liga__nombre', 'fecha_inicio')
         )
 
+        ligas_map = {}
         deportes_map = {}
         live_count = 0
 
         for evento in eventos:
-            key = slugify(evento.deporte.nombre)
-            if key not in deportes_map:
-                deportes_map[key] = {
+            # Agrupar por liga
+            liga_key = slugify(evento.liga.nombre) if evento.liga else 'sin-liga'
+            liga_nombre = evento.liga.nombre if evento.liga else 'Sin liga asignada'
+            if liga_key not in ligas_map:
+                ligas_map[liga_key] = {
+                    'key': liga_key,
+                    'nombre': liga_nombre,
+                    'deporte': evento.deporte.nombre,
+                    'eventos': [],
+                }
+            ligas_map[liga_key]['eventos'].append(evento)
+
+            # Filtros por deporte (para tabs)
+            dep_key = slugify(evento.deporte.nombre)
+            if dep_key not in deportes_map:
+                deportes_map[dep_key] = {
                     'nombre': evento.deporte.nombre,
-                    'key': key,
+                    'key': dep_key,
                     'count': 0,
                 }
-            deportes_map[key]['count'] += 1
+            deportes_map[dep_key]['count'] += 1
 
             if evento.estado == EstadoEvento.EN_VIVO:
                 live_count += 1
 
         context['eventos'] = eventos
+        context['ligas'] = list(ligas_map.values())
         context['total_count'] = len(eventos)
         context['deportes'] = list(deportes_map.values())
         context['live_count'] = live_count
@@ -123,28 +143,56 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             .order_by('-fecha_creacion')[:8]
         )
 
+        from django.utils import timezone as tz
+        from django.db.models import Q
+        hoy = tz.now().date()
+        apuestas_todas = (
+            Bet.objects
+            .select_related('usuario')
+            .prefetch_related(
+                'selecciones__seleccion__mercado__evento__equipo_local',
+                'selecciones__seleccion__mercado__evento__equipo_visitante',
+            )
+            .filter(
+                Q(fecha_creacion__date=hoy) | Q(estado=EstadoApuesta.ACCEPTED)
+            )
+            .order_by('estado', '-fecha_creacion')
+        )
+
         context.update({
+            'deporte_form': kwargs.get('deporte_form') or DeporteAdminForm(),
+            'liga_form': kwargs.get('liga_form') or LigaAdminForm(),
             'equipo_form': kwargs.get('equipo_form') or EquipoAdminForm(),
             'evento_form': kwargs.get('evento_form') or EventoAdminForm(),
-            'recarga_form': kwargs.get('recarga_form') or RecargaAdminForm(),
-            'apuesta_form': kwargs.get('apuesta_form') or ApuestaAdminForm(),
+            'deportes_lista': Deporte.objects.order_by('nombre'),
+            'ligas_lista': Liga.objects.select_related('deporte').order_by('deporte__nombre', 'nombre'),
             'deportes_count': Deporte.objects.count(),
+            'ligas_count': Liga.objects.count(),
             'equipos_count': Equipo.objects.count(),
             'eventos_count': Evento.objects.count(),
             'apuestas_count': Bet.objects.count(),
             'usuarios_count': PerfilUsuario.objects.count(),
             'apuestas_recientes_admin': apuestas,
             'eventos_recientes_admin': eventos,
+            'apuestas_todas': apuestas_todas,
+            'apuestas_pendientes_count': Bet.objects.filter(estado=EstadoApuesta.ACCEPTED).count(),
+            'apuestas_won_count': Bet.objects.filter(estado=EstadoApuesta.WON).count(),
+            'apuestas_lost_count': Bet.objects.filter(estado=EstadoApuesta.LOST).count(),
+            'apuestas_void_count': Bet.objects.filter(estado=EstadoApuesta.VOID).count(),
         })
         return context
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
+
+        if action == 'liquidar':
+            return self._handle_liquidar(request)
+
         form_map = {
+            'deporte': DeporteAdminForm,
+            'liga': LigaAdminForm,
             'equipo': EquipoAdminForm,
             'evento': EventoAdminForm,
-            'recarga': RecargaAdminForm,
-            'apuesta': ApuestaAdminForm,
         }
         form_class = form_map.get(action)
         if not form_class:
@@ -157,22 +205,46 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
                 if action == 'evento':
                     form.save(request.user)
                     messages.success(request, 'Evento, mercado y cuotas creados correctamente.')
-                elif action == 'recarga':
-                    form.save(request.user)
-                    messages.success(request, 'Fichas recargadas y guardadas en la base de datos.')
-                elif action == 'apuesta':
-                    form.save(request)
-                    messages.success(request, 'Apuesta creada correctamente.')
-                else:
+                    return redirect('/admin-panel/#eventos')
+                elif action == 'liga':
+                    form.save()
+                    messages.success(request, 'Liga creada correctamente.')
+                    return redirect('/admin-panel/#ligas')
+                elif action == 'equipo':
                     form.save()
                     messages.success(request, 'Equipo creado correctamente.')
-                return redirect('/admin-panel/')
+                    return redirect('/admin-panel/#equipos')
+                else:
+                    form.save()
+                    messages.success(request, 'Deporte creado correctamente.')
+                    return redirect('/admin-panel/#deportes')
             except Exception as exc:
                 form.add_error(None, str(exc))
 
         context_key = f'{action}_form'
         context = self.get_context_data(**{context_key: form})
         return self.render_to_response(context)
+
+    def _handle_liquidar(self, request):
+        from django.utils import timezone as tz
+        bet_id = request.POST.get('bet_id')
+        resultado = request.POST.get('resultado')
+        ikey = f'admin-liq-{bet_id}-{int(tz.now().timestamp())}'
+        try:
+            if resultado == 'won':
+                liquidar_apuesta_ganada(bet_id=bet_id, idempotency_key=ikey, liquidado_por=request.user)
+                messages.success(request, f'Apuesta #{bet_id} marcada como Ganada.')
+            elif resultado == 'lost':
+                liquidar_apuesta_perdida(bet_id=bet_id, idempotency_key=ikey, liquidado_por=request.user)
+                messages.success(request, f'Apuesta #{bet_id} marcada como Perdida.')
+            elif resultado == 'void':
+                anular_apuesta(bet_id=bet_id, idempotency_key=ikey, anulado_por=request.user)
+                messages.success(request, f'Apuesta #{bet_id} anulada.')
+            else:
+                messages.error(request, 'Resultado no válido.')
+        except Exception as exc:
+            messages.error(request, str(exc))
+        return redirect('/admin-panel/#apuestas')
 
 
 def get_saldos_usuario(usuario):

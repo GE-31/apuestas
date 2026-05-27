@@ -6,8 +6,68 @@
 /* ── SECCIÓN EN DASHBOARD ── */
 .events-section { margin-bottom: 24px; }
 
+/* ── SECCIÓN DE LIGA ── */
+.liga-section {
+  margin-bottom: 32px;
+}
+
+.liga-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  border-left: 4px solid var(--orange);
+}
+
+.liga-header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.liga-trophy-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(249,115,22,.1);
+  color: var(--orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.liga-name {
+  font-size: .9rem;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+
+.liga-sport {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--muted);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 100px;
+}
+
+.liga-count {
+  font-size: .72rem;
+  font-weight: 600;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
 /* ── GRILLA DE EVENTOS ── */
-.events-grid {
+.events-grid,
+.liga-events-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;

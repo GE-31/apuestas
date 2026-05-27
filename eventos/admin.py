@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Deporte, Equipo, Evento, ResultadoEvento
+from .models import Deporte, Equipo, Evento, Liga, ResultadoEvento
 
 # Register your models here.
 
@@ -29,6 +29,16 @@ class DeporteAdmin(admin.ModelAdmin):
     ordering = (
         'nombre',
     )
+
+
+@admin.register(Liga)
+class LigaAdmin(admin.ModelAdmin):
+    list_display = ('id', 'nombre', 'deporte', 'pais', 'activa')
+    list_filter = ('deporte', 'activa')
+    search_fields = ('nombre', 'pais')
+    readonly_fields = ('fecha_creacion', 'fecha_actualizacion')
+    ordering = ('deporte__nombre', 'nombre')
+    autocomplete_fields = ('deporte',)
 
 
 @admin.register(Equipo)
@@ -63,39 +73,18 @@ class EquipoAdmin(admin.ModelAdmin):
 @admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):
     list_display = (
-        'id',
-        'nombre',
-        'deporte',
-        'equipo_local',
-        'equipo_visitante',
-        'estado',
-        'fecha_inicio',
-        'activo',
+        'id', 'nombre', 'liga', 'deporte',
+        'equipo_local', 'equipo_visitante',
+        'estado', 'fecha_inicio', 'activo',
     )
-    list_filter = (
-        'estado',
-        'deporte',
-        'activo',
-        'fecha_inicio',
-    )
+    list_filter = ('estado', 'deporte', 'liga', 'activo', 'fecha_inicio')
     search_fields = (
-        'nombre',
-        'equipo_local__nombre',
-        'equipo_visitante__nombre',
-        'deporte__nombre',
+        'nombre', 'equipo_local__nombre',
+        'equipo_visitante__nombre', 'deporte__nombre', 'liga__nombre',
     )
-    readonly_fields = (
-        'fecha_creacion',
-        'fecha_actualizacion',
-    )
-    ordering = (
-        'fecha_inicio',
-    )
-    autocomplete_fields = (
-        'deporte',
-        'equipo_local',
-        'equipo_visitante',
-    )
+    readonly_fields = ('fecha_creacion', 'fecha_actualizacion')
+    ordering = ('fecha_inicio',)
+    autocomplete_fields = ('deporte', 'liga', 'equipo_local', 'equipo_visitante')
 
 
 @admin.register(ResultadoEvento)

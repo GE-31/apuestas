@@ -1,7 +1,7 @@
 {% extends "layouts/base_auth.html" %}
 {% load static %}
 
-{% block title %}Acceso Administrativo - Apuesta24/7{% endblock %}
+{% block title %}Acceso Administrativo — Apuesta24/7{% endblock %}
 
 {% block page_css %}
 <link rel="stylesheet" href="{% static 'css/pages/login/admin.css' %}" />
@@ -14,56 +14,113 @@
 
   <div class="auth-split">
 
+    <!-- ── Panel izquierdo: Branding Admin ── -->
     <aside class="auth-brand-panel" aria-hidden="true"
            style="background-image: url('{% static 'img/login-admin.png' %}');">
 
-      <div class="auth-brand-circle auth-brand-circle--lg"></div>
-      <div class="auth-brand-circle auth-brand-circle--md"></div>
-      <div class="auth-brand-circle auth-brand-circle--sm"></div>
+      <div class="auth-brand-grid"></div>
+      <div class="auth-brand-orb auth-brand-orb--1"></div>
+      <div class="auth-brand-orb auth-brand-orb--2"></div>
+      <div class="auth-brand-orb auth-brand-orb--3"></div>
 
+      <!-- Logo -->
       <a href="/" class="auth-brand-logo">
         <div class="auth-brand-logo-mark">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-               width="18" height="18" aria-hidden="true">
+               width="20" height="20" aria-hidden="true">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
         </div>
-        Apuesta24<span class="auth-brand-logo-accent">/7</span>
+        <span class="auth-brand-logo-text">Apuesta24<span>/7</span></span>
       </a>
 
+      <!-- Content -->
       <div class="auth-brand-content">
+        <div class="auth-brand-eyebrow">
+          <span class="auth-brand-eyebrow-dot"></span>
+          Zona Restringida
+        </div>
+
         <h1 class="auth-brand-tagline">
-          Panel <em>Administrativo</em><br>para el equipo interno
+          Panel<br><em>administrativo</em><br>interno
         </h1>
+
         <p class="auth-brand-desc">
-          Acceso reservado para trabajadores y administradores
-          de la plataforma.
+          Acceso exclusivo para el equipo de operadores
+          y administradores de la plataforma.
         </p>
+
+        <div class="auth-brand-features">
+          <div class="auth-brand-feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Gestión de usuarios y KYC
+          </div>
+          <div class="auth-brand-feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="20" x2="18" y2="10"/>
+              <line x1="12" y1="20" x2="12" y2="4"/>
+              <line x1="6" y1="20" x2="6" y2="14"/>
+            </svg>
+            Control de eventos y cuotas
+          </div>
+          <div class="auth-brand-feature">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="9 11 12 14 22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+            Auditoría y liquidaciones
+          </div>
+        </div>
 
         <div class="auth-brand-stats">
           <div class="auth-brand-stat">
             <span class="auth-brand-stat-value">Gestiona</span>
-            <span class="auth-brand-stat-label">operaciones clave</span>
+            <span class="auth-brand-stat-label">operaciones</span>
           </div>
           <div class="auth-brand-stat">
             <span class="auth-brand-stat-value">Supervisa</span>
-            <span class="auth-brand-stat-label">actividad y usuarios</span>
+            <span class="auth-brand-stat-label">actividad</span>
           </div>
           <div class="auth-brand-stat">
             <span class="auth-brand-stat-value">Controla</span>
-            <span class="auth-brand-stat-label">el panel interno</span>
+            <span class="auth-brand-stat-label">el sistema</span>
           </div>
         </div>
       </div>
 
     </aside>
 
+    <!-- ── Panel derecho: Formulario Admin ── -->
     <main class="auth-form-panel">
       <div class="auth-form-container">
 
+        <!-- Security notice -->
+        <div class="auth-form-security">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               width="20" height="20" aria-hidden="true">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <div class="auth-form-security-text">
+            <strong>Acceso protegido</strong>
+            Área exclusiva para el equipo de Apuesta24/7
+          </div>
+        </div>
+
         <div class="auth-form-header">
-          <h2 class="auth-form-title">Panel Administrativo</h2>
-          <p class="auth-form-subtitle">Ingresa con tu usuario del equipo</p>
+          <div class="auth-form-badge">
+            <svg viewBox="0 0 12 12" fill="currentColor" width="8" height="8" aria-hidden="true">
+              <circle cx="6" cy="6" r="4"/>
+            </svg>
+            Panel Administrativo
+          </div>
+          <h2 class="auth-form-title">Acceso<br>del equipo</h2>
+          <p class="auth-form-subtitle">Ingresa con tu usuario del sistema</p>
         </div>
 
         {% include "components/form_errors.html" with form=form %}
@@ -106,7 +163,7 @@
 
           <div class="form-group">
             <label for="{{ form.password.id_for_label }}" class="form-label">
-              Contrase&ntilde;a
+              Contraseña
             </label>
             <div class="input-wrapper has-right-icon">
               <span class="input-icon-left" aria-hidden="true">
@@ -121,14 +178,14 @@
                 name="{{ form.password.html_name }}"
                 id="{{ form.password.id_for_label }}"
                 class="form-input{% if form.password.errors %} form-input--error{% endif %}"
-                placeholder="********"
+                placeholder="••••••••"
                 autocomplete="current-password"
                 data-pwd-toggle-target
               />
               <button type="button"
                       class="input-icon-right btn-icon-ghost"
                       data-pwd-toggle
-                      aria-label="Mostrar contrase&ntilde;a"
+                      aria-label="Mostrar contraseña"
                       aria-pressed="false"
                       tabindex="-1">
                 <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -154,16 +211,17 @@
             {% endfor %}
           </div>
 
-          <button type="submit" class="btn btn-primary btn-full auth-submit-btn" id="loginAdminSubmit">
+          <button type="submit" class="auth-submit-btn" id="loginAdminSubmit">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                 width="16" height="16" aria-hidden="true">
+                 width="18" height="18" aria-hidden="true">
               <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/>
               <polyline points="10 17 15 12 10 7"/>
               <line x1="15" y1="12" x2="3" y2="12"/>
             </svg>
-            <span class="btn-text">Ingresar como administrador</span>
+            <span class="btn-text">Acceder al panel</span>
             <span class="btn-spinner" hidden aria-hidden="true"></span>
           </button>
+
         </form>
 
         <div class="auth-links">
@@ -171,7 +229,7 @@
             Acceso exclusivo para el equipo de Apuesta24/7.
           </p>
           <p class="auth-link">
-            &iquest;Eres cliente?
+            ¿Eres cliente?
             <a href="/login/">Ingresar como cliente</a>
           </p>
         </div>

@@ -1,157 +1,124 @@
-{% extends "base.html" %}
+{% extends "layouts/base_admin.html" %}
 {% load static %}
 
-{% block title %}Panel administrativo - Apuesta24/7{% endblock %}
-{% block nav_admin %}active{% endblock %}
+{% block title %}Panel Admin — Apuesta24/7{% endblock %}
+{% block topbar_title %}<span id="topbarTitle">Resumen</span>{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/admin_dashboard.css' %}" />
+<link rel="stylesheet" href="{% static 'css/admin/dashboard.css' %}" />
 {% endblock %}
 
-{% block content %}
-<div class="admin-shell">
-  <aside class="admin-sidebar">
-    <div class="admin-sidebar-brand">
-      <img src="{% static 'img/logo.png' %}" alt="" />
-      <div>
-        <strong>Apuesta24/7</strong>
-        <span>Panel interno</span>
-      </div>
-    </div>
-    <nav class="admin-side-nav" aria-label="Panel admin">
-      <a href="#resumen" class="active">Resumen</a>
-      <a href="#equipos">Equipos</a>
-      <a href="#eventos">Eventos y cuotas</a>
-      <a href="#montos">Montos</a>
-      <a href="#apuestas">Apuestas</a>
-      <a href="/admin/">Admin Django</a>
-    </nav>
-  </aside>
+{% block admin_content %}
 
-  <section class="admin-workspace">
-    <header class="admin-hero" id="resumen">
+  {% if messages %}
+  <div class="admin-messages" id="adminMessages">
+    {% for message in messages %}
+    <div class="admin-message admin-message-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ════════════════════════════════
+       PANEL: Resumen (activo por default)
+  ════════════════════════════════ -->
+  <div class="admin-panel is-active" id="panel-resumen">
+
+    <div class="admin-hero">
       <div>
-        <p>Centro de control</p>
+        <p class="admin-hero-kicker">Centro de control</p>
         <h1>Panel Administrativo</h1>
-        <span>Gestiona equipos, eventos, cuotas, apuestas y fichas virtuales.</span>
+        <p class="admin-hero-sub">
+          Vista general de la plataforma. Selecciona un módulo en el menú izquierdo.
+        </p>
       </div>
-      <a href="/logout/" class="admin-hero-action">Cerrar sesi&oacute;n</a>
-    </header>
-
-    {% if messages %}
-    <div class="admin-messages">
-      {% for message in messages %}
-      <div class="admin-message admin-message-{{ message.tags }}">{{ message }}</div>
-      {% endfor %}
+      <a href="/logout/" class="admin-hero-action">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             width="16" height="16" aria-hidden="true">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Cerrar sesión
+      </a>
     </div>
-    {% endif %}
 
+    <!-- Métricas -->
     <div class="admin-metrics">
-      <article>
-        <span>Deportes</span>
-        <strong>{{ deportes_count }}</strong>
-      </article>
-      <article>
-        <span>Equipos</span>
-        <strong>{{ equipos_count }}</strong>
-      </article>
-      <article>
-        <span>Eventos</span>
-        <strong>{{ eventos_count }}</strong>
-      </article>
-      <article>
-        <span>Apuestas</span>
-        <strong>{{ apuestas_count }}</strong>
-      </article>
-      <article>
-        <span>Usuarios</span>
-        <strong>{{ usuarios_count }}</strong>
-      </article>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon admin-metric-icon--orange">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="2" y1="12" x2="22" y2="12"/>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          </svg>
+        </div>
+        <div class="admin-metric-body">
+          <div class="admin-metric-value">{{ deportes_count }}</div>
+          <div class="admin-metric-label">Deportes</div>
+        </div>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon admin-metric-icon--blue">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+            <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+          </svg>
+        </div>
+        <div class="admin-metric-body">
+          <div class="admin-metric-value">{{ equipos_count }}</div>
+          <div class="admin-metric-label">Equipos</div>
+        </div>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon admin-metric-icon--green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+            <line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/>
+            <line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+        </div>
+        <div class="admin-metric-body">
+          <div class="admin-metric-value">{{ eventos_count }}</div>
+          <div class="admin-metric-label">Eventos</div>
+        </div>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon admin-metric-icon--purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+        <div class="admin-metric-body">
+          <div class="admin-metric-value">{{ apuestas_count }}</div>
+          <div class="admin-metric-label">Apuestas</div>
+        </div>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon admin-metric-icon--teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div class="admin-metric-body">
+          <div class="admin-metric-value">{{ usuarios_count }}</div>
+          <div class="admin-metric-label">Usuarios</div>
+        </div>
+      </div>
+
     </div>
 
-    <div class="admin-grid">
-      <form class="admin-card" id="equipos" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="equipo" />
-        <div class="admin-card-head">
-          <h2>Crear equipo</h2>
-          <span>Alta rapida</span>
-        </div>
-        {{ equipo_form.non_field_errors }}
-        <div class="admin-form-grid">
-          {% for field in equipo_form %}
-          <label>
-            <span>{{ field.label }}</span>
-            {{ field }}
-            {{ field.errors }}
-          </label>
-          {% endfor %}
-        </div>
-        <button type="submit">Guardar equipo</button>
-      </form>
+    <!-- Tabla eventos recientes -->
+    <div class="admin-tables" style="grid-template-columns: 1fr;">
 
-      <form class="admin-card admin-card-wide" id="eventos" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="evento" />
-        <div class="admin-card-head">
-          <h2>Crear evento y cuotas</h2>
-          <span>Mercado 1X2 automatico</span>
-        </div>
-        {{ evento_form.non_field_errors }}
-        <div class="admin-form-grid admin-form-grid-3">
-          {% for field in evento_form %}
-          <label>
-            <span>{{ field.label }}</span>
-            {{ field }}
-            {{ field.errors }}
-          </label>
-          {% endfor %}
-        </div>
-        <button type="submit">Generar evento</button>
-      </form>
-
-      <form class="admin-card" id="montos" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="recarga" />
-        <div class="admin-card-head">
-          <h2>Recargar fichas</h2>
-          <span>Se guarda en base de datos</span>
-        </div>
-        {{ recarga_form.non_field_errors }}
-        <div class="admin-form-grid">
-          {% for field in recarga_form %}
-          <label>
-            <span>{{ field.label }}</span>
-            {{ field }}
-            {{ field.errors }}
-          </label>
-          {% endfor %}
-        </div>
-        <button type="submit">Recargar monto</button>
-      </form>
-
-      <form class="admin-card" id="apuestas" method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="apuesta" />
-        <div class="admin-card-head">
-          <h2>Crear apuesta</h2>
-          <span>Cliente, seleccion y monto</span>
-        </div>
-        {{ apuesta_form.non_field_errors }}
-        <div class="admin-form-grid">
-          {% for field in apuesta_form %}
-          <label>
-            <span>{{ field.label }}</span>
-            {{ field }}
-            {{ field.errors }}
-          </label>
-          {% endfor %}
-        </div>
-        <button type="submit">Registrar apuesta</button>
-      </form>
-    </div>
-
-    <div class="admin-tables">
       <section class="admin-table-card">
         <div class="admin-card-head">
           <h2>Eventos recientes</h2>
@@ -161,10 +128,7 @@
           <table>
             <thead>
               <tr>
-                <th>Evento</th>
-                <th>Deporte</th>
-                <th>Estado</th>
-                <th>Fecha</th>
+                <th>Evento</th><th>Deporte</th><th>Estado</th><th>Fecha</th>
               </tr>
             </thead>
             <tbody>
@@ -176,46 +140,449 @@
                 <td>{{ evento.fecha_inicio|date:"d/m/Y H:i" }}</td>
               </tr>
               {% empty %}
-              <tr><td colspan="4">Aun no hay eventos.</td></tr>
+              <tr><td colspan="4" class="admin-table-empty">Aún no hay eventos.</td></tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
       </section>
 
-      <section class="admin-table-card">
+    </div>
+
+  </div><!-- /panel-resumen -->
+
+
+  <!-- ════════════════════════════════
+       PANEL: Apuestas — Gestión y liquidación
+  ════════════════════════════════ -->
+  <div class="admin-panel" id="panel-apuestas">
+
+    <div class="admin-panel-header">
+      <div class="admin-panel-icon admin-panel-icon--purple">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="admin-panel-title">Apuestas</h2>
+        <p class="admin-panel-sub">Gestiona y liquida las apuestas de los clientes</p>
+      </div>
+    </div>
+
+    <!-- Pills de estado -->
+    <div class="apuestas-stats">
+      <span class="apuesta-stat">Total: {{ apuestas_count }}</span>
+      <span class="apuesta-stat apuesta-stat--pending">Pendientes: {{ apuestas_pendientes_count }}</span>
+      <span class="apuesta-stat apuesta-stat--won">Ganadas: {{ apuestas_won_count }}</span>
+      <span class="apuesta-stat apuesta-stat--lost">Perdidas: {{ apuestas_lost_count }}</span>
+      <span class="apuesta-stat apuesta-stat--void">Anuladas: {{ apuestas_void_count }}</span>
+    </div>
+
+    <div class="admin-table-card" style="border-radius:18px;">
+      <div class="admin-card-head" style="padding:18px 20px 16px; margin-bottom:0;">
+        <h2>Apuestas de hoy</h2>
+        <span>Hoy · pendientes primero</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Cliente</th>
+              <th>Partido</th>
+              <th>Selección</th>
+              <th>Monto FV</th>
+              <th>Cuota</th>
+              <th>Pago pot.</th>
+              <th>Estado</th>
+              <th>Acción</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for bet in apuestas_todas %}
+            {% with sel=bet.selecciones.first %}
+            <tr class="{% if bet.estado != 'accepted' %}bet-row--done{% endif %}">
+              <td><strong>#{{ bet.id }}</strong></td>
+              <td>{{ bet.usuario.username }}</td>
+              <td>
+                {% if sel %}
+                  <span style="font-weight:600; color:var(--ca-text);">
+                    {{ sel.seleccion.mercado.evento.equipo_local.nombre }}
+                  </span>
+                  <span style="color:var(--ca-muted); padding:0 4px;">—</span>
+                  <span style="font-weight:600; color:var(--ca-text);">
+                    {{ sel.seleccion.mercado.evento.equipo_visitante.nombre }}
+                  </span>
+                {% else %}—{% endif %}
+              </td>
+              <td>
+                {% if sel %}
+                  <span class="bet-badge bet-badge--{{ sel.seleccion.tipo|lower }}">
+                    {{ sel.seleccion.nombre }}
+                  </span>
+                {% else %}—{% endif %}
+              </td>
+              <td>{{ bet.stake }}</td>
+              <td>{{ bet.odds_total }}</td>
+              <td>{{ bet.payout_potencial }}</td>
+              <td>
+                <span class="bet-badge bet-badge--{{ bet.estado }}">{{ bet.get_estado_display }}</span>
+              </td>
+              <td>
+                {% if bet.estado == 'accepted' %}
+                <div class="bet-actions">
+                  <form method="post" style="display:contents;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="liquidar">
+                    <input type="hidden" name="bet_id" value="{{ bet.id }}">
+                    <input type="hidden" name="resultado" value="won">
+                    <button type="submit" class="bet-btn bet-btn--won" title="Marcar ganada">✓ Ganó</button>
+                  </form>
+                  <form method="post" style="display:contents;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="liquidar">
+                    <input type="hidden" name="bet_id" value="{{ bet.id }}">
+                    <input type="hidden" name="resultado" value="lost">
+                    <button type="submit" class="bet-btn bet-btn--lost" title="Marcar perdida">✗ Perdió</button>
+                  </form>
+                  <form method="post" style="display:contents;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="liquidar">
+                    <input type="hidden" name="bet_id" value="{{ bet.id }}">
+                    <input type="hidden" name="resultado" value="void">
+                    <button type="submit" class="bet-btn bet-btn--void" title="Anular">○ Anular</button>
+                  </form>
+                </div>
+                {% else %}
+                <span style="color:var(--ca-muted); font-size:.8rem;">—</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endwith %}
+            {% empty %}
+            <tr><td colspan="9" class="admin-table-empty">No hay apuestas hoy ni pendientes.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /panel-apuestas -->
+
+
+
+  <!-- ════════════════════════════════
+       PANEL: Ligas
+  ════════════════════════════════ -->
+  <div class="admin-panel" id="panel-ligas">
+
+    <div class="admin-panel-header">
+      <div class="admin-panel-icon admin-panel-icon--blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+          <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+          <path d="M4 22h16"/>
+          <path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+          <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+          <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="admin-panel-title">Ligas</h2>
+        <p class="admin-panel-sub">Crea las ligas y competiciones por deporte</p>
+      </div>
+    </div>
+
+    <div class="admin-grid">
+
+      <form class="admin-card" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="liga" />
         <div class="admin-card-head">
-          <h2>Apuestas recientes</h2>
-          <span>{{ apuestas_count }} total</span>
+          <h2>Crear liga</h2>
+          <span>Alta rápida</span>
+        </div>
+        {{ liga_form.non_field_errors }}
+        <div class="admin-form-grid">
+          {% for field in liga_form %}
+          <label>
+            <span>{{ field.label }}</span>
+            {{ field }}
+            {{ field.errors }}
+          </label>
+          {% endfor %}
+        </div>
+        <button type="submit">Guardar liga</button>
+      </form>
+
+      <div class="admin-table-card" style="border-radius:18px;">
+        <div class="admin-card-head" style="padding:18px 20px 16px; margin-bottom:0;">
+          <h2>Ligas registradas</h2>
+          <span>{{ ligas_count }} total</span>
         </div>
         <div class="admin-table-wrap">
           <table>
             <thead>
-              <tr>
-                <th>ID</th>
-                <th>Usuario</th>
-                <th>Monto</th>
-                <th>Cuota</th>
-                <th>Estado</th>
-              </tr>
+              <tr><th>Liga</th><th>Deporte</th><th>País</th><th>Eventos</th></tr>
             </thead>
             <tbody>
-              {% for apuesta in apuestas_recientes_admin %}
+              {% for liga in ligas_lista %}
               <tr>
-                <td>#{{ apuesta.id }}</td>
-                <td>{{ apuesta.usuario.username }}</td>
-                <td>{{ apuesta.stake }}</td>
-                <td>{{ apuesta.odds_total }}</td>
-                <td>{{ apuesta.get_estado_display }}</td>
+                <td><strong>{{ liga.nombre }}</strong></td>
+                <td>{{ liga.deporte.nombre }}</td>
+                <td>{{ liga.pais|default:"—" }}</td>
+                <td>{{ liga.eventos.count }}</td>
               </tr>
               {% empty %}
-              <tr><td colspan="5">Aun no hay apuestas.</td></tr>
+              <tr><td colspan="4" class="admin-table-empty">Aún no hay ligas.</td></tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-      </section>
+      </div>
+
     </div>
-  </section>
-</div>
+
+  </div><!-- /panel-ligas -->
+
+
+  <!-- ════════════════════════════════
+       PANEL: Deportes
+  ════════════════════════════════ -->
+  <div class="admin-panel" id="panel-deportes">
+
+    <div class="admin-panel-header">
+      <div class="admin-panel-icon admin-panel-icon--orange">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+          <line x1="2" y1="12" x2="22" y2="12"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="admin-panel-title">Deportes</h2>
+        <p class="admin-panel-sub">Registra los tipos de deporte disponibles en la plataforma</p>
+      </div>
+    </div>
+
+    <div class="admin-grid">
+
+      <form class="admin-card" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="deporte" />
+        <div class="admin-card-head">
+          <h2>Crear deporte</h2>
+          <span>Alta rápida</span>
+        </div>
+        {{ deporte_form.non_field_errors }}
+        <div class="admin-form-grid">
+          {% for field in deporte_form %}
+          <label>
+            <span>{{ field.label }}</span>
+            {{ field }}
+            {{ field.errors }}
+          </label>
+          {% endfor %}
+        </div>
+        <button type="submit">Guardar deporte</button>
+      </form>
+
+      <div class="admin-table-card" style="border-radius:18px;">
+        <div class="admin-card-head" style="padding:18px 20px 16px; margin-bottom:0;">
+          <h2>Deportes registrados</h2>
+          <span>{{ deportes_count }} total</span>
+        </div>
+        <div class="admin-table-wrap">
+          <table>
+            <thead>
+              <tr><th>Deporte</th><th>Descripción</th><th>Equipos</th></tr>
+            </thead>
+            <tbody>
+              {% for deporte in deportes_lista %}
+              <tr>
+                <td><strong>{{ deporte.nombre }}</strong></td>
+                <td>{{ deporte.descripcion|default:"—" }}</td>
+                <td>{{ deporte.equipos.count }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="3" class="admin-table-empty">Aún no hay deportes.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </div><!-- /panel-deportes -->
+
+
+  <!-- ════════════════════════════════
+       PANEL: Equipos
+  ════════════════════════════════ -->
+  <div class="admin-panel" id="panel-equipos">
+
+    <div class="admin-panel-header">
+      <div class="admin-panel-icon admin-panel-icon--blue">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+          <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="admin-panel-title">Equipos</h2>
+        <p class="admin-panel-sub">Da de alta equipos deportivos en el sistema</p>
+      </div>
+    </div>
+
+    <form class="admin-card" method="post" style="max-width:480px;">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="equipo" />
+      <div class="admin-card-head">
+        <h2>Crear equipo</h2>
+        <span>Alta rápida</span>
+      </div>
+      {{ equipo_form.non_field_errors }}
+      <div class="admin-form-grid">
+        {% for field in equipo_form %}
+        <label>
+          <span>{{ field.label }}</span>
+          {{ field }}
+          {{ field.errors }}
+        </label>
+        {% endfor %}
+      </div>
+      <button type="submit">Guardar equipo</button>
+    </form>
+
+  </div><!-- /panel-equipos -->
+
+
+  <!-- ════════════════════════════════
+       PANEL: Eventos y cuotas
+  ════════════════════════════════ -->
+  <div class="admin-panel" id="panel-eventos">
+
+    <div class="admin-panel-header">
+      <div class="admin-panel-icon admin-panel-icon--green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="admin-panel-title">Eventos y cuotas</h2>
+        <p class="admin-panel-sub">Crea un evento deportivo con mercado 1X2 automático</p>
+      </div>
+    </div>
+
+    <form class="admin-card" method="post">
+      {% csrf_token %}
+      <input type="hidden" name="action" value="evento" />
+      <div class="admin-card-head">
+        <h2>Crear evento y cuotas</h2>
+        <span>Mercado 1X2 automático</span>
+      </div>
+      {{ evento_form.non_field_errors }}
+      <div class="admin-form-grid admin-form-grid-3">
+        {% for field in evento_form %}
+        <label>
+          <span>{{ field.label }}</span>
+          {{ field }}
+          {{ field.errors }}
+        </label>
+        {% endfor %}
+      </div>
+      <button type="submit">Generar evento</button>
+    </form>
+
+  </div><!-- /panel-eventos -->
+
+{% endblock %}
+
+
+{% block admin_js %}
+<script>
+(function () {
+  'use strict';
+
+  /* ── Config ── */
+  var PANEL_TITLES = {
+    resumen:  'Resumen',
+    apuestas: 'Apuestas',
+    deportes: 'Deportes',
+    ligas:    'Ligas',
+    equipos:  'Equipos',
+    eventos:  'Eventos y cuotas'
+  };
+
+  /* ── Referencias ── */
+  var navItems   = document.querySelectorAll('#adminSideNav .admin-nav-item[data-section]');
+  var titleEl    = document.getElementById('topbarTitle');
+  var messages   = document.getElementById('adminMessages');
+  var currentPanel = 'resumen';
+
+  /* ── Función principal ── */
+  function showPanel(sectionId) {
+    if (sectionId === currentPanel) return;
+
+    /* Oculta panel actual */
+    var prev = document.getElementById('panel-' + currentPanel);
+    if (prev) prev.classList.remove('is-active');
+
+    /* Muestra nuevo panel */
+    var next = document.getElementById('panel-' + sectionId);
+    if (!next) return;
+    next.classList.add('is-active');
+
+    /* Scroll al inicio del contenido */
+    var content = document.getElementById('adminContent');
+    if (content) content.scrollTop = 0;
+    window.scrollTo({ top: 0, behavior: 'instant' });
+
+    /* Actualiza active en sidebar */
+    navItems.forEach(function (a) { a.classList.remove('active'); });
+    var activeLink = document.querySelector('#adminSideNav .admin-nav-item[data-section="' + sectionId + '"]');
+    if (activeLink) activeLink.classList.add('active');
+
+    /* Actualiza título del topbar */
+    if (titleEl) titleEl.textContent = PANEL_TITLES[sectionId] || sectionId;
+
+    /* Mueve messages al panel visible */
+    if (messages) next.prepend(messages);
+
+    currentPanel = sectionId;
+
+    /* Cierra sidebar en móvil */
+    var sidebar = document.getElementById('adminSidebar');
+    var overlay = document.getElementById('sidebarOverlay');
+    if (sidebar && window.innerWidth <= 1024) {
+      sidebar.classList.remove('open');
+      if (overlay) overlay.classList.remove('open');
+    }
+  }
+
+  /* ── Eventos de clic en sidebar ── */
+  navItems.forEach(function (link) {
+    link.addEventListener('click', function (e) {
+      var section = link.dataset.section;
+      if (section) {
+        e.preventDefault();
+        showPanel(section);
+      }
+    });
+  });
+
+  /* ── URL hash al cargar (ej: /admin-panel/#apuestas) ── */
+  var hash = window.location.hash.replace('#', '');
+  if (hash && document.getElementById('panel-' + hash)) {
+    showPanel(hash);
+  }
+
+})();
+</script>
 {% endblock %}

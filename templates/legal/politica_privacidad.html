@@ -1,0 +1,498 @@
+{% extends "layouts/base_auth.html" %}
+{% load static %}
+
+{% block title %}Política de Privacidad — Apuesta24/7{% endblock %}
+
+{% block page_css %}
+<link rel="stylesheet" href="{% static 'css/pages/legal.css' %}" />
+{% endblock %}
+
+{% block body %}
+<div class="lp-page">
+
+  {# ── Top bar ── #}
+  <header class="lp-topbar">
+    <a href="/" class="lp-topbar-logo">
+      <img src="{% static 'img/logo.png' %}" alt="Apuesta24/7" />
+    </a>
+    <a href="javascript:history.back()" class="lp-topbar-back">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"
+           width="12" height="12" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 12L6 8l4-4"/>
+      </svg>
+      Volver
+    </a>
+  </header>
+
+  {# ── Contenido ── #}
+  <main class="lp-content">
+
+    {# Hero #}
+    <div class="lp-hero">
+      <div class="lp-hero-badge">
+        <svg viewBox="0 0 16 16" fill="currentColor" width="9" height="9">
+          <path d="M8 1a7 7 0 1 1 0 14A7 7 0 0 1 8 1zm0 3a.75.75 0 0 0-.75.75v3.5a.75.75 0 0 0 1.5 0v-3.5A.75.75 0 0 0 8 4zm0 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+        </svg>
+        Documento legal
+      </div>
+      <h1 class="lp-hero-title">Política de Privacidad</h1>
+      <div class="lp-hero-meta">
+        <span class="lp-hero-meta-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="12" height="12">
+            <rect x="2" y="2" width="12" height="12" rx="2"/>
+            <path d="M5 8h6M5 11h4M5 5h6"/>
+          </svg>
+          Última actualización: 27 de mayo de 2026
+        </span>
+        <span class="lp-hero-meta-item">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="12" height="12">
+            <circle cx="8" cy="8" r="6"/>
+            <path d="M8 5v3l2 2"/>
+          </svg>
+          Vigente desde: 27 de mayo de 2026
+        </span>
+      </div>
+    </div>
+
+    {# Disclaimer #}
+    <div class="lp-disclaimer">
+      <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16">
+        <path fill-rule="evenodd"
+              d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516
+                 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75
+                 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z"
+              clip-rule="evenodd"/>
+      </svg>
+      <span>
+        <strong>Plataforma educativa con moneda virtual.</strong> Apuesta24/7 opera exclusivamente con
+        fichas virtuales sin valor económico real. No constituye una casa de apuestas, casino ni
+        servicio de juego de azar regulado. Ningún dato personal es utilizado con fines comerciales
+        de juego real.
+      </span>
+    </div>
+
+    {# Índice #}
+    <nav class="lp-index" aria-label="Índice de contenidos">
+      <p class="lp-index-title">Contenido</p>
+      <ol class="lp-index-list">
+        <li><a href="#sec1"><span class="lp-index-num">01</span> Responsable del tratamiento</a></li>
+        <li><a href="#sec2"><span class="lp-index-num">02</span> Datos que recopilamos</a></li>
+        <li><a href="#sec3"><span class="lp-index-num">03</span> Finalidad del tratamiento</a></li>
+        <li><a href="#sec4"><span class="lp-index-num">04</span> Base legal</a></li>
+        <li><a href="#sec5"><span class="lp-index-num">05</span> Conservación de datos</a></li>
+        <li><a href="#sec6"><span class="lp-index-num">06</span> Derechos del usuario</a></li>
+        <li><a href="#sec7"><span class="lp-index-num">07</span> Cookies</a></li>
+        <li><a href="#sec8"><span class="lp-index-num">08</span> Seguridad</a></li>
+        <li><a href="#sec9"><span class="lp-index-num">09</span> Menores de edad</a></li>
+        <li><a href="#sec10"><span class="lp-index-num">10</span> Modificaciones</a></li>
+      </ol>
+    </nav>
+
+    {# Sección 1 #}
+    <section class="lp-section" id="sec1">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <path d="M10 2l7 3v5c0 4-3.5 7-7 8C6.5 17 3 14 3 10V5l7-3z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">01</p>
+          <h2 class="lp-section-title">Responsable del tratamiento</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>
+          <strong>Apuesta24/7</strong> es una plataforma educativa de simulación de apuestas
+          deportivas desarrollada como proyecto académico. El responsable del tratamiento de los
+          datos personales recopilados a través de esta plataforma es el equipo de desarrollo de
+          Apuesta24/7.
+        </p>
+        <p>
+          Esta plataforma opera únicamente con <strong>moneda virtual sin valor económico real</strong>.
+          No realizamos transacciones financieras reales, no procesamos pagos y no somos una casa de
+          apuestas ni un servicio de juego regulado bajo ninguna legislación vigente.
+        </p>
+        <ul>
+          <li>Denominación: Apuesta24/7 — Simulador de Apuestas Deportivas</li>
+          <li>Carácter: Plataforma educativa y de demostración tecnológica</li>
+          <li>Correo de contacto: privacidad@apuesta247.pe</li>
+          <li>Ámbito geográfico: República del Perú</li>
+        </ul>
+      </div>
+    </section>
+
+    {# Sección 2 #}
+    <section class="lp-section" id="sec2">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <rect x="3" y="3" width="14" height="14" rx="3"/>
+            <path d="M7 8h6M7 11h4"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">02</p>
+          <h2 class="lp-section-title">Datos que recopilamos</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>Durante el proceso de registro y uso de la plataforma recopilamos los siguientes datos:</p>
+        <p><strong>Datos de identidad:</strong></p>
+        <ul>
+          <li>Nombres y apellidos completos</li>
+          <li>Tipo y número de documento de identidad (DNI, CE o Pasaporte)</li>
+          <li>Fecha de nacimiento</li>
+          <li>Género (opcional)</li>
+          <li>Declaración de Persona Expuesta Políticamente (PEP)</li>
+        </ul>
+        <p><strong>Datos de contacto:</strong></p>
+        <ul>
+          <li>Dirección de correo electrónico</li>
+          <li>Número de teléfono celular</li>
+          <li>Dirección postal (departamento, provincia, distrito)</li>
+        </ul>
+        <p><strong>Datos de cuenta:</strong></p>
+        <ul>
+          <li>Nombre de usuario</li>
+          <li>Contraseña (almacenada con hash criptográfico; nunca en texto plano)</li>
+          <li>Historial de sesiones y acceso</li>
+        </ul>
+        <p><strong>Datos de uso de la plataforma:</strong></p>
+        <ul>
+          <li>Apuestas simuladas realizadas con fichas virtuales</li>
+          <li>Movimientos en la billetera virtual</li>
+          <li>Eventos y mercados consultados</li>
+          <li>Registros de auditoría para seguridad de la plataforma</li>
+        </ul>
+      </div>
+    </section>
+
+    {# Sección 3 #}
+    <section class="lp-section" id="sec3">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <circle cx="10" cy="10" r="7"/>
+            <path d="M10 6v4l3 2"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">03</p>
+          <h2 class="lp-section-title">Finalidad del tratamiento</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>Tratamos tus datos personales para las siguientes finalidades:</p>
+        <ol>
+          <li><strong>Gestión de cuenta:</strong> crear, mantener y administrar tu cuenta de usuario en la plataforma.</li>
+          <li><strong>Prestación del servicio educativo:</strong> permitirte simular apuestas deportivas, analizar cuotas y practicar estrategias con moneda virtual.</li>
+          <li><strong>Verificación de identidad:</strong> prevenir el registro de cuentas duplicadas y garantizar que cada usuario tenga una sola cuenta.</li>
+          <li><strong>Seguridad y auditoría:</strong> detectar y prevenir actividades fraudulentas, abuso de la plataforma o accesos no autorizados.</li>
+          <li><strong>Juego responsable:</strong> implementar herramientas de autoexclusión y límites de uso conforme a buenas prácticas del sector.</li>
+          <li><strong>Comunicaciones del servicio:</strong> enviarte notificaciones relacionadas con tu cuenta, alertas de seguridad y actualizaciones de la plataforma.</li>
+          <li><strong>Mejora continua:</strong> analizar el uso agregado y anónimo de la plataforma para mejorar la experiencia educativa.</li>
+        </ol>
+        <p>
+          <strong>No utilizamos tus datos para:</strong> publicidad de terceros, perfilado comercial,
+          venta de datos ni ninguna finalidad de juego real con dinero.
+        </p>
+      </div>
+    </section>
+
+    {# Sección 4 #}
+    <section class="lp-section" id="sec4">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <path d="M17 9H3M17 9l-5-5M17 9l-5 5"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">04</p>
+          <h2 class="lp-section-title">Base legal del tratamiento</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>
+          El tratamiento de tus datos personales se sustenta en las siguientes bases legales conforme
+          a la <strong>Ley N.° 29733, Ley de Protección de Datos Personales del Perú</strong>, y su
+          Reglamento aprobado por Decreto Supremo N.° 003-2013-JUS:
+        </p>
+        <ul>
+          <li><strong>Ejecución de contrato:</strong> el tratamiento es necesario para prestarte el servicio solicitado al registrarte en la plataforma.</li>
+          <li><strong>Consentimiento informado:</strong> al aceptar esta Política de Privacidad y los Términos de Uso durante el registro, otorgas tu consentimiento libre, previo, expreso e informado.</li>
+          <li><strong>Obligación legal:</strong> determinados tratamientos (como el registro PEP) son requeridos por normas de prevención de lavado de activos, aunque en esta plataforma se aplican a título educativo/demostrativo.</li>
+          <li><strong>Interés legítimo:</strong> la auditoría, seguridad y prevención de fraude se realizan en interés legítimo para proteger la integridad de la plataforma y sus usuarios.</li>
+        </ul>
+      </div>
+    </section>
+
+    {# Sección 5 #}
+    <section class="lp-section" id="sec5">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <path d="M10 2a8 8 0 1 1 0 16A8 8 0 0 1 10 2zm0 4v4l-3 3"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">05</p>
+          <h2 class="lp-section-title">Conservación de datos</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>Conservamos tus datos personales durante el tiempo estrictamente necesario:</p>
+        <ul>
+          <li><strong>Datos de cuenta activa:</strong> durante toda la vigencia de tu cuenta en la plataforma.</li>
+          <li><strong>Tras la eliminación de cuenta:</strong> los datos de identidad y auditoría se conservan por un plazo máximo de <strong>5 años</strong> para cumplir con obligaciones legales y prevenir el abuso de bonificaciones.</li>
+          <li><strong>Registros de auditoría:</strong> se conservan por <strong>2 años</strong> desde su generación para garantizar la trazabilidad y seguridad.</li>
+          <li><strong>Datos de sesión:</strong> se eliminan automáticamente al expirar la sesión o al cerrar sesión de forma activa.</li>
+        </ul>
+        <p>
+          Transcurridos estos plazos, los datos serán suprimidos o anonimizados de forma irreversible
+          de nuestros sistemas.
+        </p>
+      </div>
+    </section>
+
+    {# Sección 6 #}
+    <section class="lp-section" id="sec6">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <circle cx="10" cy="7" r="3"/>
+            <path d="M3 17c0-3.3 3.1-6 7-6s7 2.7 7 6"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">06</p>
+          <h2 class="lp-section-title">Derechos del usuario</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>
+          De acuerdo con la Ley N.° 29733, tienes los siguientes derechos sobre tus datos personales.
+          Puedes ejercerlos en cualquier momento escribiéndonos a
+          <strong>privacidad@apuesta247.pe</strong>:
+        </p>
+        <div class="lp-rights-grid">
+          <div class="lp-right-card">
+            <div class="lp-right-title">Acceso</div>
+            <div class="lp-right-desc">Conocer qué datos tuyos tratamos, de dónde provienen y con qué finalidad.</div>
+          </div>
+          <div class="lp-right-card">
+            <div class="lp-right-title">Rectificación</div>
+            <div class="lp-right-desc">Corregir datos inexactos, incompletos o desactualizados.</div>
+          </div>
+          <div class="lp-right-card">
+            <div class="lp-right-title">Cancelación</div>
+            <div class="lp-right-desc">Solicitar la eliminación de tus datos cuando ya no sean necesarios o retires tu consentimiento.</div>
+          </div>
+          <div class="lp-right-card">
+            <div class="lp-right-title">Oposición</div>
+            <div class="lp-right-desc">Oponerte al tratamiento de tus datos para determinadas finalidades cuando exista causa legítima.</div>
+          </div>
+          <div class="lp-right-card">
+            <div class="lp-right-title">Portabilidad</div>
+            <div class="lp-right-desc">Recibir una copia de tus datos en formato estructurado y de uso común.</div>
+          </div>
+          <div class="lp-right-card">
+            <div class="lp-right-title">Limitación</div>
+            <div class="lp-right-desc">Solicitar la suspensión temporal del tratamiento mientras se verifica una reclamación.</div>
+          </div>
+        </div>
+        <p style="margin-top:16px;">
+          Atenderemos tu solicitud en un plazo máximo de <strong>20 días hábiles</strong>.
+          Si consideras que el tratamiento vulnera tus derechos, puedes presentar una reclamación ante
+          la <strong>Autoridad Nacional de Protección de Datos Personales (ANPDP)</strong> del Perú.
+        </p>
+      </div>
+    </section>
+
+    {# Sección 7 #}
+    <section class="lp-section" id="sec7">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <circle cx="10" cy="10" r="7"/>
+            <path d="M7 10h.01M10 10h.01M13 10h.01"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">07</p>
+          <h2 class="lp-section-title">Política de Cookies</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>
+          Apuesta24/7 utiliza cookies y tecnologías similares para el correcto funcionamiento de la
+          plataforma. A continuación detallamos las cookies que empleamos:
+        </p>
+        <ul>
+          <li>
+            <strong>Cookies de sesión (esenciales):</strong> permiten mantener tu sesión iniciada
+            mientras navegas por la plataforma. Se eliminan al cerrar el navegador. Son imprescindibles
+            y no pueden desactivarse.
+          </li>
+          <li>
+            <strong>Cookies CSRF (esenciales):</strong> protegen cada formulario contra ataques de
+            falsificación de solicitudes entre sitios. Son de seguridad obligatoria.
+          </li>
+          <li>
+            <strong>Cookies de preferencias:</strong> almacenan configuraciones básicas de usuario
+            (idioma, tema). Puedes eliminarlas desde la configuración de tu navegador.
+          </li>
+        </ul>
+        <p>
+          No utilizamos cookies de rastreo, publicidad ni analítica de terceros.
+          Puedes gestionar o eliminar las cookies desde la configuración de tu navegador en cualquier
+          momento, aunque algunas funcionalidades pueden dejar de operar correctamente.
+        </p>
+      </div>
+    </section>
+
+    {# Sección 8 #}
+    <section class="lp-section" id="sec8">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <path d="M10 2l7 3v5c0 4-3.5 7-7 8C6.5 17 3 14 3 10V5l7-3z"/>
+            <path d="M7 10l2 2 4-4"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">08</p>
+          <h2 class="lp-section-title">Medidas de seguridad</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>
+          Implementamos medidas técnicas y organizativas adecuadas para proteger tus datos personales
+          contra pérdida accidental, acceso no autorizado, destrucción, alteración o divulgación:
+        </p>
+        <ul>
+          <li><strong>Cifrado de contraseñas:</strong> todas las contraseñas se almacenan utilizando funciones hash seguras (PBKDF2 con SHA-256). Nunca guardamos contraseñas en texto plano.</li>
+          <li><strong>HTTPS obligatorio:</strong> toda comunicación entre tu navegador y la plataforma viaja cifrada mediante TLS.</li>
+          <li><strong>Protección CSRF:</strong> cada formulario incluye tokens de protección contra ataques de falsificación de solicitudes.</li>
+          <li><strong>Control de acceso:</strong> sistema de roles estricto (Cliente, Operador, Administrador, Superadmin) que limita el acceso a los datos según necesidad.</li>
+          <li><strong>Registros de auditoría:</strong> registramos todos los accesos y operaciones relevantes para detectar y responder ante incidentes de seguridad.</li>
+          <li><strong>Actualizaciones de seguridad:</strong> mantenemos el software actualizado para aplicar los parches de seguridad más recientes.</li>
+        </ul>
+        <p>
+          En caso de producirse una brecha de seguridad que afecte a tus datos personales, te
+          notificaremos en el menor plazo posible conforme a lo establecido en la normativa vigente.
+        </p>
+      </div>
+    </section>
+
+    {# Sección 9 #}
+    <section class="lp-section" id="sec9">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <circle cx="10" cy="8" r="4"/>
+            <path d="M4 17c0-2.8 2.7-5 6-5s6 2.2 6 5"/>
+            <path d="M14 3l2 2-2 2"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">09</p>
+          <h2 class="lp-section-title">Menores de edad</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>
+          <strong>Apuesta24/7 está dirigida exclusivamente a personas mayores de 18 años.</strong>
+        </p>
+        <p>
+          Aunque se trata de una plataforma educativa con moneda virtual, la temática de apuestas
+          deportivas no es adecuada para menores. No recopilamos intencionadamente datos personales
+          de personas menores de 18 años.
+        </p>
+        <p>
+          Si tienes conocimiento de que un menor ha proporcionado datos personales en nuestra plataforma,
+          te rogamos que nos lo comuniques a <strong>privacidad@apuesta247.pe</strong> para proceder
+          a la eliminación inmediata de dicha información.
+        </p>
+        <p>
+          Nos reservamos el derecho de solicitar verificación de edad en cualquier momento y suspender
+          aquellas cuentas sobre las que existan indicios fundados de pertenencia a menores de edad.
+        </p>
+      </div>
+    </section>
+
+    {# Sección 10 #}
+    <section class="lp-section" id="sec10">
+      <div class="lp-section-header">
+        <div class="lp-section-icon">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+               width="18" height="18">
+            <path d="M4 4h12v2H4zM4 9h12v2H4zM4 14h7v2H4z"/>
+          </svg>
+        </div>
+        <div>
+          <p class="lp-section-num">10</p>
+          <h2 class="lp-section-title">Modificaciones de esta política</h2>
+        </div>
+      </div>
+      <div class="lp-section-body">
+        <p>
+          Nos reservamos el derecho de actualizar esta Política de Privacidad en cualquier momento
+          para reflejar cambios en la plataforma, en la normativa aplicable o en nuestras prácticas
+          de tratamiento de datos.
+        </p>
+        <p>
+          Cuando realicemos cambios sustanciales, te notificaremos mediante:
+        </p>
+        <ul>
+          <li>Un aviso destacado en la plataforma al iniciar sesión.</li>
+          <li>Un correo electrónico a la dirección registrada en tu cuenta, con al menos <strong>15 días de antelación</strong> a la entrada en vigor.</li>
+        </ul>
+        <p>
+          El uso continuado de la plataforma tras la entrada en vigor de los cambios implica la
+          aceptación de la nueva política. Si no estás de acuerdo con las modificaciones, puedes
+          solicitar la eliminación de tu cuenta antes de la fecha de entrada en vigor.
+        </p>
+        <p>
+          La versión vigente siempre estará disponible en <strong>/politica-privacidad/</strong>.
+          Las versiones anteriores pueden solicitarse a <strong>privacidad@apuesta247.pe</strong>.
+        </p>
+      </div>
+    </section>
+
+    {# Contacto #}
+    <div class="lp-contact-card">
+      <h3>¿Tienes alguna pregunta?</h3>
+      <p>Nuestro equipo de privacidad está disponible para resolver cualquier duda sobre el tratamiento de tus datos personales.</p>
+      <a href="mailto:privacidad@apuesta247.pe" class="lp-contact-email">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.8"
+             width="15" height="15">
+          <path d="M3 5h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z"/>
+          <path d="M3 6l7 5 7-5"/>
+        </svg>
+        privacidad@apuesta247.pe
+      </a>
+    </div>
+
+  </main>
+
+  {# Footer #}
+  <footer class="lp-footer">
+    <p>© 2026 Apuesta24/7 — Plataforma educativa con moneda virtual.</p>
+    <p>No constituye una casa de apuestas. No se realizan transacciones con dinero real.</p>
+  </footer>
+
+</div>
+{% endblock %}

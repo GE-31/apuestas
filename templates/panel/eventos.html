@@ -50,19 +50,40 @@
 </div>
 
 
-<!-- ── GRILLA ── -->
-{% if eventos %}
-<div class="events-grid" id="eventsGrid" role="list">
+<!-- ── GRILLA agrupada por liga ── -->
+{% if ligas %}
+<div id="eventsGrid">
 
-  {% for evento in eventos %}
-  <article
-    class="event-card-full{% if evento.estado == 'en_vivo' %} live{% elif evento.estado == 'finalizado' %} finished{% endif %}"
-    data-sport="{{ evento.deporte.nombre|slugify }}"
-    data-status="{{ evento.estado }}"
-    data-event-id="{{ evento.id }}"
-    data-event-name="{{ evento.equipo_local.nombre }} vs {{ evento.equipo_visitante.nombre }}"
-    role="listitem"
-  >
+  {% for liga_group in ligas %}
+  <div class="liga-section" data-liga="{{ liga_group.key }}">
+
+    <!-- Cabecera de liga -->
+    <div class="liga-header">
+      <div class="liga-header-left">
+        <div class="liga-trophy-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
+            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+            <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+          </svg>
+        </div>
+        <span class="liga-name">{{ liga_group.nombre }}</span>
+        <span class="liga-sport">{{ liga_group.deporte }}</span>
+      </div>
+      <span class="liga-count">{{ liga_group.eventos|length }} partido{% if liga_group.eventos|length != 1 %}s{% endif %}</span>
+    </div>
+
+    <!-- Eventos de esta liga -->
+    <div class="events-grid liga-events-grid" role="list">
+    {% for evento in liga_group.eventos %}
+    <article
+      class="event-card-full{% if evento.estado == 'en_vivo' %} live{% elif evento.estado == 'finalizado' %} finished{% endif %}"
+      data-sport="{{ evento.deporte.nombre|slugify }}"
+      data-status="{{ evento.estado }}"
+      data-event-id="{{ evento.id }}"
+      data-event-name="{{ evento.equipo_local.nombre }} vs {{ evento.equipo_visitante.nombre }}"
+      role="listitem"
+    >
 
     <!-- Deporte + Estado -->
     <div class="event-item-header">
@@ -322,10 +343,14 @@
     </div>
     {% endif %}
 
-  </article>
+    </article>
+    {% endfor %}
+    </div><!-- /liga-events-grid -->
+
+  </div><!-- /liga-section -->
   {% endfor %}
 
-</div><!-- /events-grid -->
+</div><!-- /eventsGrid -->
 
 {% else %}
 <!-- BD sin eventos aún -->

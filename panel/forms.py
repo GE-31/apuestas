@@ -6,8 +6,35 @@ from apuestas_core.services.apuesta_service import crear_apuesta_simple
 from billetera.services.deposito_service import recargar_fichas_usuario
 from config.choices import EstadoEvento, TipoMercado, TipoSeleccionMercado
 from cuotas.models import Odd
-from eventos.models import Deporte, Equipo, Evento
+from eventos.models import Deporte, Equipo, Evento, Liga
 from mercados.models import Mercado, SeleccionMercado
+
+
+class DeporteAdminForm(forms.Form):
+    nombre = forms.CharField(max_length=120, label='Nombre del deporte')
+    descripcion = forms.CharField(max_length=255, required=False, label='Descripción (opcional)',
+                                  widget=forms.TextInput())
+
+    def save(self):
+        return Deporte.objects.create(
+            nombre=self.cleaned_data['nombre'],
+            descripcion=self.cleaned_data.get('descripcion') or '',
+            activo=True,
+        )
+
+
+class LigaAdminForm(forms.Form):
+    deporte = forms.ModelChoiceField(queryset=Deporte.objects.filter(activo=True), label='Deporte')
+    nombre = forms.CharField(max_length=120, label='Nombre de la liga')
+    pais = forms.CharField(max_length=80, required=False, label='País (opcional)')
+
+    def save(self):
+        return Liga.objects.create(
+            deporte=self.cleaned_data['deporte'],
+            nombre=self.cleaned_data['nombre'],
+            pais=self.cleaned_data.get('pais') or '',
+            activa=True,
+        )
 
 
 class EquipoAdminForm(forms.Form):
@@ -28,6 +55,12 @@ class EquipoAdminForm(forms.Form):
 
 class EventoAdminForm(forms.Form):
     deporte = forms.ModelChoiceField(queryset=Deporte.objects.filter(activo=True), label='Deporte')
+    liga = forms.ModelChoiceField(
+        queryset=Liga.objects.filter(activa=True).select_related('deporte').order_by('deporte__nombre', 'nombre'),
+        required=False,
+        label='Liga (opcional)',
+        empty_label='— Sin liga —',
+    )
     equipo_local = forms.ModelChoiceField(queryset=Equipo.objects.filter(activo=True), label='Equipo local')
     equipo_visitante = forms.ModelChoiceField(queryset=Equipo.objects.filter(activo=True), label='Equipo visitante')
     fecha_inicio = forms.DateTimeField(
@@ -55,6 +88,7 @@ class EventoAdminForm(forms.Form):
 
         evento = Evento.objects.create(
             deporte=self.cleaned_data['deporte'],
+            liga=self.cleaned_data.get('liga'),
             equipo_local=local,
             equipo_visitante=visitante,
             nombre=f'{local.nombre} vs {visitante.nombre}',
@@ -98,8 +132,10 @@ class EventoAdminForm(forms.Form):
 
 class RecargaAdminForm(forms.Form):
     usuario = forms.ModelChoiceField(
-        queryset=get_user_model().objects.filter(is_active=True).order_by('username'),
-        label='Usuario',
+        queryset=get_user_model().objects.filter(
+            is_active=True, is_staff=False, is_superuser=False
+        ).order_by('username'),
+        label='Cliente',
     )
     amount = forms.DecimalField(max_digits=18, decimal_places=4, min_value=0.0001, label='Cantidad FV')
 

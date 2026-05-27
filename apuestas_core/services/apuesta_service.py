@@ -221,4 +221,19 @@ def crear_apuesta_simple(
         ip_origen=ip_origen,
     )
 
+    # Análisis antifraude post-commit — nunca bloquea la apuesta
+    _apuesta_id = apuesta.id
+    transaction.on_commit(lambda: _ejecutar_antifraude(_apuesta_id))
+
     return apuesta
+
+
+def _ejecutar_antifraude(bet_id):
+    try:
+        from antifraude.services.fraud_detection_service import analizar_apuesta
+        analizar_apuesta(bet_id)
+    except Exception:
+        import logging
+        logging.getLogger(__name__).exception(
+            'Error en análisis antifraude para bet %s.', bet_id
+        )

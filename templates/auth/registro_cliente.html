@@ -10,331 +10,508 @@
 {% block body %}
 <div class="reg-page">
 
-  {# ── Banner superior ── #}
-  <div class="reg-banner" role="alert" aria-live="polite">
-    <svg viewBox="0 0 20 20" fill="currentColor" width="16" height="16" aria-hidden="true">
-      <path fill-rule="evenodd"
-            d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17
-               2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10
-               5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1
-               1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
-    </svg>
-    <span>Para completar tu registro, asegúrate de tener acceso a tu correo electrónico y número de celular.</span>
-  </div>
+  {# ── Cabecera con logo ── #}
+  <header class="reg-topbar">
+    <a href="/" class="reg-brand-logo">
+      <img src="{% static 'img/logo.png' %}" alt="Apuesta24/7" class="reg-brand-logo-img" />
+    </a>
+    <p class="reg-topbar-note">Plataforma de apuestas · Moneda virtual</p>
+  </header>
 
-  <div class="reg-container">
+  {# ── Contenedor central ── #}
+  <main class="reg-center">
+    <div class="reg-card">
 
-    {# ── Título ── #}
-    <h1 class="reg-title">REGÍSTRATE AQUÍ</h1>
-
-    {# ── Errores generales del form ── #}
-    {% if form.non_field_errors %}
-    <div class="reg-error-box" role="alert">
-      {% for error in form.non_field_errors %}
-      <p>{{ error }}</p>
-      {% endfor %}
-    </div>
-    {% endif %}
-
-    <form class="reg-form" method="post" novalidate id="regForm" autocomplete="off">
-      {% csrf_token %}
-
-      {# ══ FILA 1: Tipo documento + DNI ══ #}
-      <div class="reg-row reg-row-2">
-
-        <div class="reg-field reg-field--select{% if form.tipo_documento.errors %} reg-field--error{% endif %}">
-          <select class="reg-input" id="{{ form.tipo_documento.id_for_label }}" name="tipo_documento">
-            {% for val, lbl in form.tipo_documento.field.choices %}
-            <option value="{{ val }}"{% if form.tipo_documento.value == val or val == 'DNI' and not form.tipo_documento.value %} selected{% endif %}>{{ lbl }}</option>
-            {% endfor %}
-          </select>
-          <label class="reg-label" for="{{ form.tipo_documento.id_for_label }}">Tipo de documento</label>
-        </div>
-
-        <div class="reg-field{% if form.dni.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="text" id="{{ form.dni.id_for_label }}"
-                 name="dni" placeholder=" "
-                 value="{{ form.dni.value|default:'' }}"
-                 maxlength="12" inputmode="numeric" />
-          <label class="reg-label" for="{{ form.dni.id_for_label }}">Número de documento</label>
-          {% for e in form.dni.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-
-      </div>{# /fila 1 #}
-
-      {# ── Info box: nombres ── #}
-      <div class="reg-info-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             width="16" height="16" aria-hidden="true" style="flex-shrink:0;margin-top:1px">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span>Ingresa tus <strong>nombres</strong> y <strong>apellidos</strong> exactamente como se muestran en tu <strong>documento</strong>.</span>
-      </div>
-
-      {# ══ FILA 2: Nombres + Apellidos ══ #}
-      <div class="reg-row reg-row-2">
-
-        <div class="reg-field{% if form.nombres.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="text" id="{{ form.nombres.id_for_label }}"
-                 name="nombres" placeholder=" "
-                 value="{{ form.nombres.value|default:'' }}" autocomplete="given-name" />
-          <label class="reg-label" for="{{ form.nombres.id_for_label }}">Nombres</label>
-          {% for e in form.nombres.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-
-        <div class="reg-field{% if form.apellidos.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="text" id="{{ form.apellidos.id_for_label }}"
-                 name="apellidos" placeholder=" "
-                 value="{{ form.apellidos.value|default:'' }}" autocomplete="family-name" />
-          <label class="reg-label" for="{{ form.apellidos.id_for_label }}">Apellidos</label>
-          {% for e in form.apellidos.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-
-      </div>{# /fila 2 #}
-
-      {# ══ FILA 3: Fecha nacimiento + Género ══ #}
-      <div class="reg-row reg-row-2">
-
-        <div class="reg-field reg-field--date{% if form.fecha_nacimiento.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="date" id="{{ form.fecha_nacimiento.id_for_label }}"
-                 name="fecha_nacimiento" placeholder=" "
-                 value="{{ form.fecha_nacimiento.value|default:'' }}" />
-          <label class="reg-label" for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de nacimiento</label>
-          {% for e in form.fecha_nacimiento.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-
-        <div class="reg-field reg-field--select{% if form.genero.errors %} reg-field--error{% endif %}">
-          <select class="reg-input" id="{{ form.genero.id_for_label }}" name="genero">
-            {% for val, lbl in form.genero.field.choices %}
-            <option value="{{ val }}"{% if form.genero.value == val %} selected{% endif %}>{{ lbl }}</option>
-            {% endfor %}
-          </select>
-          <label class="reg-label" for="{{ form.genero.id_for_label }}">Género</label>
-        </div>
-
-      </div>{# /fila 3 #}
-
-      {# ══ FILA 4: Email + Botón código + Código ══ #}
-      <div class="reg-row reg-row-code">
-
-        <div class="reg-field{% if form.email.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="email" id="{{ form.email.id_for_label }}"
-                 name="email" placeholder=" "
-                 value="{{ form.email.value|default:'' }}" autocomplete="email" />
-          <label class="reg-label" for="{{ form.email.id_for_label }}">Correo electrónico (te enviaremos un código)</label>
-          {% for e in form.email.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-
-        <button type="button" class="reg-code-btn" id="btnCodigoEmail">
-          Generar código email
-        </button>
-
-        <div class="reg-field reg-field--code">
-          <input class="reg-input" type="text" name="codigo_email" id="id_codigo_email"
-                 placeholder=" " maxlength="10" inputmode="numeric" />
-          <label class="reg-label" for="id_codigo_email">Código</label>
-        </div>
-
-      </div>{# /fila 4 #}
-
-      {# ── Info box: contraseña ── #}
-      <div class="reg-info-box">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-             width="16" height="16" aria-hidden="true" style="flex-shrink:0;margin-top:1px">
-          <circle cx="12" cy="12" r="10"/>
-          <line x1="12" y1="8" x2="12" y2="12"/>
-          <line x1="12" y1="16" x2="12.01" y2="16"/>
-        </svg>
-        <span>Sugerimos que tu <strong>contraseña</strong> sea única para tu cuenta. Evita reutilizar contraseñas de otras plataformas.</span>
-      </div>
-
-      {# ══ FILA 5: Contraseña + Confirmar ══ #}
-      <div class="reg-row reg-row-2">
-
-        <div class="reg-field reg-field--pwd{% if form.password.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="password" id="{{ form.password.id_for_label }}"
-                 name="password" placeholder=" " autocomplete="new-password"
-                 data-pwd-toggle-target />
-          <label class="reg-label" for="{{ form.password.id_for_label }}">Contraseña</label>
-          <button type="button" class="reg-pwd-toggle" data-pwd-toggle
-                  aria-label="Mostrar contraseña" aria-pressed="false">
-            <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2" width="18" height="18" aria-hidden="true">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-            <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2" width="18" height="18" aria-hidden="true" hidden>
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45
-                       18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11
-                       8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
-            </svg>
-          </button>
-          {% for e in form.password.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-
-        <div class="reg-field reg-field--pwd{% if form.confirm_password.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="password" id="{{ form.confirm_password.id_for_label }}"
-                 name="confirm_password" placeholder=" " autocomplete="new-password"
-                 data-pwd-toggle-target />
-          <label class="reg-label" for="{{ form.confirm_password.id_for_label }}">Confirmar contraseña</label>
-          <button type="button" class="reg-pwd-toggle" data-pwd-toggle
-                  aria-label="Mostrar contraseña" aria-pressed="false">
-            <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2" width="18" height="18" aria-hidden="true">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-              <circle cx="12" cy="12" r="3"/>
-            </svg>
-            <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                 stroke-width="2" width="18" height="18" aria-hidden="true" hidden>
-              <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45
-                       18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11
-                       8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-              <line x1="1" y1="1" x2="23" y2="23"/>
-            </svg>
-          </button>
-          {% for e in form.confirm_password.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-
-      </div>{# /fila 5 #}
-
-      {# ══ FILA 6: Dirección ══ #}
-      <div class="reg-row reg-row-1">
-        <div class="reg-field{% if form.direccion.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="text" id="{{ form.direccion.id_for_label }}"
-                 name="direccion" placeholder=" "
-                 value="{{ form.direccion.value|default:'' }}" autocomplete="street-address" />
-          <label class="reg-label" for="{{ form.direccion.id_for_label }}">Dirección actual</label>
-          {% for e in form.direccion.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-      </div>
-
-      {# ══ FILA 7: Departamento + Provincia + Distrito ══ #}
-      <div class="reg-row reg-row-3">
-
-        <div class="reg-field reg-field--select{% if form.departamento.errors %} reg-field--error{% endif %}">
-          <select class="reg-input" id="{{ form.departamento.id_for_label }}" name="departamento">
-            {% for val, lbl in form.departamento.field.choices %}
-            <option value="{{ val }}"{% if form.departamento.value == val %} selected{% endif %}>{{ lbl }}</option>
-            {% endfor %}
-          </select>
-          <label class="reg-label" for="{{ form.departamento.id_for_label }}">Departamento</label>
-        </div>
-
-        <div class="reg-field{% if form.provincia.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="text" id="{{ form.provincia.id_for_label }}"
-                 name="provincia" placeholder=" "
-                 value="{{ form.provincia.value|default:'' }}" />
-          <label class="reg-label" for="{{ form.provincia.id_for_label }}">Provincia</label>
-        </div>
-
-        <div class="reg-field{% if form.distrito.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="text" id="{{ form.distrito.id_for_label }}"
-                 name="distrito" placeholder=" "
-                 value="{{ form.distrito.value|default:'' }}" />
-          <label class="reg-label" for="{{ form.distrito.id_for_label }}">Distrito</label>
-        </div>
-
-      </div>{# /fila 7 #}
-
-      {# ══ FILA 8: Celular + Botón código + Código ══ #}
-      <div class="reg-row reg-row-code">
-
-        <div class="reg-field{% if form.telefono.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="tel" id="{{ form.telefono.id_for_label }}"
-                 name="telefono" placeholder=" "
-                 value="{{ form.telefono.value|default:'' }}" autocomplete="tel" maxlength="15" />
-          <label class="reg-label" for="{{ form.telefono.id_for_label }}">Celular</label>
-          {% for e in form.telefono.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-
-        <button type="button" class="reg-code-btn" id="btnCodigoCelular">
-          Generar código celular
-        </button>
-
-        <div class="reg-field reg-field--code">
-          <input class="reg-input" type="text" name="codigo_celular" id="id_codigo_celular"
-                 placeholder=" " maxlength="10" inputmode="numeric" />
-          <label class="reg-label" for="id_codigo_celular">Código</label>
-        </div>
-
-      </div>{# /fila 8 #}
-
-      {# ══ FILA 9: Nombre de usuario ══ #}
-      <div class="reg-row reg-row-1">
-        <div class="reg-field{% if form.username.errors %} reg-field--error{% endif %}">
-          <input class="reg-input" type="text" id="{{ form.username.id_for_label }}"
-                 name="username" placeholder=" "
-                 value="{{ form.username.value|default:'' }}" autocomplete="username" />
-          <label class="reg-label" for="{{ form.username.id_for_label }}">Nombre de usuario</label>
-          {% for e in form.username.errors %}<p class="reg-field-error">{{ e }}</p>{% endfor %}
-        </div>
-      </div>
-
-      {# ══ DECLARACIÓN PEP ══ #}
-      <div class="reg-pep" role="group" aria-labelledby="pep-legend">
-        <p id="pep-legend" class="reg-pep-legend" style="display:none">Declaración PEP</p>
-        <label class="reg-radio">
-          <input type="radio" name="pep" value="no"
-                 {% if not form.pep.value or form.pep.value == 'no' %}checked{% endif %} />
-          <span class="reg-radio-mark"></span>
-          <span class="reg-radio-text">Declaro que <strong>NO</strong> soy una Persona Expuesta Políticamente (PEP)</span>
-        </label>
-        <label class="reg-radio">
-          <input type="radio" name="pep" value="si"
-                 {% if form.pep.value == 'si' %}checked{% endif %} />
-          <span class="reg-radio-mark"></span>
-          <span class="reg-radio-text">Declaro que <strong>SÍ</strong> soy una Persona Expuesta Políticamente (PEP)</span>
-        </label>
-        <button type="button" class="reg-pep-info" id="btnPepInfo" aria-label="¿Qué es una PEP?">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-               width="20" height="20" aria-hidden="true">
-            <circle cx="12" cy="12" r="10"/>
-            <line x1="12" y1="8"  x2="12" y2="12"/>
-            <line x1="12" y1="16" x2="12.01" y2="16"/>
+      {# Cabecera del card #}
+      <div class="reg-card-header">
+        <div class="reg-form-badge">
+          <svg viewBox="0 0 12 12" fill="currentColor" width="7" height="7" aria-hidden="true">
+            <circle cx="6" cy="6" r="4"/>
           </svg>
-        </button>
+          Nuevo Cliente
+        </div>
+        <h1 class="reg-form-title">REGÍSTRATE AQUÍ</h1>
+        <p class="reg-form-subtitle">Crea tu cuenta gratis en minutos</p>
       </div>
 
-      {# ══ TÉRMINOS ══ #}
-      <p class="reg-terms-text">
-        Al registrarme acepto haber leído y estar de acuerdo con los
-        <a href="#" class="reg-link">Términos y Condiciones</a>,
-        <a href="#" class="reg-link">Política de cookies</a> y la
-        <a href="#" class="reg-link">Política de Privacidad</a>.
-      </p>
+      {# Banner informativo #}
+      <div class="reg-banner" role="alert" aria-live="polite">
+        <svg viewBox="0 0 20 20" fill="currentColor" width="15" height="15" aria-hidden="true">
+          <path fill-rule="evenodd"
+                d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17
+                   2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485
+                   2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0
+                   0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+        </svg>
+        <span>Ten listos tu <strong>correo electrónico</strong> y <strong>número de celular</strong> para verificar tu cuenta.</span>
+      </div>
 
-      <label class="reg-checkbox{% if form.acepta_terminos.errors %} reg-checkbox--error{% endif %}">
-        <input type="checkbox" name="acepta_terminos" id="{{ form.acepta_terminos.id_for_label }}"
-               {% if form.acepta_terminos.value %}checked{% endif %} />
-        <span class="reg-checkbox-mark"></span>
-        <span class="reg-checkbox-text">Autorizo el uso de mis datos para mejorar mi experiencia en Apuesta24/7 y recibir información de la plataforma.</span>
-      </label>
-      {% for e in form.acepta_terminos.errors %}
-      <p class="reg-field-error" style="margin-top:-8px;margin-bottom:12px">{{ e }}</p>
-      {% endfor %}
+      {# Errores generales #}
+      {% if form.non_field_errors %}
+      <div class="reg-error-box" role="alert">
+        {% for error in form.non_field_errors %}<p>{{ error }}</p>{% endfor %}
+      </div>
+      {% endif %}
 
-      {# ══ BOTÓN REGISTRAR ══ #}
-      <button type="submit" class="reg-submit-btn" id="regSubmitBtn">
-        <span class="reg-submit-text">REGISTRAR</span>
-        <span class="reg-submit-spinner" hidden aria-hidden="true"></span>
-      </button>
+      <form class="reg-form" method="post" novalidate id="regForm" autocomplete="off">
+        {% csrf_token %}
 
-      {# ── Link de login ── #}
-      <p class="reg-login-link">
-        ¿Ya tienes cuenta?
-        <a href="/login/" class="reg-link reg-link--bold">Inicia sesión</a>
-      </p>
+        {# ═══ SECCIÓN 1: Identidad ═══ #}
+        <div class="reg-section">
+          <div class="reg-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="14" height="14" aria-hidden="true">
+              <rect x="2" y="5" width="20" height="14" rx="2"/>
+              <line x1="2" y1="10" x2="22" y2="10"/>
+            </svg>
+            <span>Identidad</span>
+          </div>
 
-    </form>
+          <div class="reg-row reg-row-2">
+            <div class="form-group{% if form.tipo_documento.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.tipo_documento.id_for_label }}">Tipo de documento</label>
+              <div class="input-wrapper">
+                <select class="form-input form-select"
+                        id="{{ form.tipo_documento.id_for_label }}" name="tipo_documento">
+                  {% for val, lbl in form.tipo_documento.field.choices %}
+                  <option value="{{ val }}"
+                    {% if form.tipo_documento.value == val or val == 'DNI' and not form.tipo_documento.value %}selected{% endif %}>{{ lbl }}</option>
+                  {% endfor %}
+                </select>
+                <span class="select-chevron" aria-hidden="true">
+                  <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8"
+                       width="11" height="7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 1l5 5 5-5"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
 
-  </div>{# /reg-container #}
+            <div class="form-group{% if form.dni.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.dni.id_for_label }}">Número de documento</label>
+              <div class="input-wrapper">
+                <input class="form-input" type="text"
+                       id="{{ form.dni.id_for_label }}" name="dni"
+                       placeholder="Ej. 12345678"
+                       value="{{ form.dni.value|default:'' }}"
+                       maxlength="12" inputmode="numeric" />
+              </div>
+              {% for e in form.dni.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+          </div>
+
+          <div class="reg-info-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="14" height="14" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>Ingresa tus <strong>nombres</strong> y <strong>apellidos</strong> exactamente como figuran en tu <strong>documento oficial</strong>.</span>
+          </div>
+
+          <div class="reg-row reg-row-2">
+            <div class="form-group{% if form.nombres.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.nombres.id_for_label }}">Nombres</label>
+              <div class="input-wrapper">
+                <input class="form-input" type="text"
+                       id="{{ form.nombres.id_for_label }}" name="nombres"
+                       placeholder="Tus nombres"
+                       value="{{ form.nombres.value|default:'' }}" autocomplete="given-name" />
+              </div>
+              {% for e in form.nombres.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+
+            <div class="form-group{% if form.apellidos.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.apellidos.id_for_label }}">Apellidos</label>
+              <div class="input-wrapper">
+                <input class="form-input" type="text"
+                       id="{{ form.apellidos.id_for_label }}" name="apellidos"
+                       placeholder="Tus apellidos"
+                       value="{{ form.apellidos.value|default:'' }}" autocomplete="family-name" />
+              </div>
+              {% for e in form.apellidos.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+          </div>
+        </div>{# /identidad #}
+
+        {# ═══ SECCIÓN 2: Datos personales ═══ #}
+        <div class="reg-section">
+          <div class="reg-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="14" height="14" aria-hidden="true">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+            <span>Datos personales</span>
+          </div>
+
+          <div class="reg-row reg-row-2">
+            <div class="form-group{% if form.fecha_nacimiento.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de nacimiento</label>
+              <div class="input-wrapper">
+                <input class="form-input" type="date"
+                       id="{{ form.fecha_nacimiento.id_for_label }}" name="fecha_nacimiento"
+                       value="{{ form.fecha_nacimiento.value|default:'' }}" />
+              </div>
+              {% for e in form.fecha_nacimiento.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+
+            <div class="form-group{% if form.genero.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.genero.id_for_label }}">Género</label>
+              <div class="input-wrapper">
+                <select class="form-input form-select"
+                        id="{{ form.genero.id_for_label }}" name="genero">
+                  {% for val, lbl in form.genero.field.choices %}
+                  <option value="{{ val }}"{% if form.genero.value == val %} selected{% endif %}>{{ lbl }}</option>
+                  {% endfor %}
+                </select>
+                <span class="select-chevron" aria-hidden="true">
+                  <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8"
+                       width="11" height="7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 1l5 5 5-5"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>{# /datos personales #}
+
+        {# ═══ SECCIÓN 3: Cuenta y seguridad ═══ #}
+        <div class="reg-section">
+          <div class="reg-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="14" height="14" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <span>Cuenta y seguridad</span>
+          </div>
+
+          <div class="form-group{% if form.username.errors %} form-group--error{% endif %}" style="margin-bottom:16px">
+            <label class="form-label" for="{{ form.username.id_for_label }}">Nombre de usuario</label>
+            <div class="input-wrapper">
+              <span class="input-icon-left" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                     width="15" height="15">
+                  <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                  <circle cx="12" cy="7" r="4"/>
+                </svg>
+              </span>
+              <input class="form-input form-input--icon-l" type="text"
+                     id="{{ form.username.id_for_label }}" name="username"
+                     placeholder="Tu nombre de usuario"
+                     value="{{ form.username.value|default:'' }}" autocomplete="username" />
+            </div>
+            {% for e in form.username.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+          </div>
+
+          <div class="reg-info-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="14" height="14" aria-hidden="true">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+            <span>Usa una <strong>contraseña única</strong> para esta cuenta. Evita reutilizar contraseñas de otras plataformas.</span>
+          </div>
+
+          <div class="reg-row reg-row-2">
+            <div class="form-group{% if form.password.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.password.id_for_label }}">Contraseña</label>
+              <div class="input-wrapper has-right-icon">
+                <input class="form-input" type="password"
+                       id="{{ form.password.id_for_label }}" name="password"
+                       placeholder="••••••••" autocomplete="new-password"
+                       data-pwd-toggle-target />
+                <button type="button" class="input-icon-right btn-icon-ghost"
+                        data-pwd-toggle aria-label="Mostrar contraseña"
+                        aria-pressed="false" tabindex="-1">
+                  <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" width="16" height="16" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" width="16" height="16" aria-hidden="true" hidden>
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
+              {% for e in form.password.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+
+            <div class="form-group{% if form.confirm_password.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.confirm_password.id_for_label }}">Confirmar contraseña</label>
+              <div class="input-wrapper has-right-icon">
+                <input class="form-input" type="password"
+                       id="{{ form.confirm_password.id_for_label }}" name="confirm_password"
+                       placeholder="••••••••" autocomplete="new-password"
+                       data-pwd-toggle-target />
+                <button type="button" class="input-icon-right btn-icon-ghost"
+                        data-pwd-toggle aria-label="Mostrar contraseña"
+                        aria-pressed="false" tabindex="-1">
+                  <svg class="icon-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" width="16" height="16" aria-hidden="true">
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                    <circle cx="12" cy="12" r="3"/>
+                  </svg>
+                  <svg class="icon-eye-off" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                       stroke-width="2" width="16" height="16" aria-hidden="true" hidden>
+                    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                    <line x1="1" y1="1" x2="23" y2="23"/>
+                  </svg>
+                </button>
+              </div>
+              {% for e in form.confirm_password.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+          </div>
+        </div>{# /cuenta y seguridad #}
+
+        {# ═══ SECCIÓN 4: Contacto y verificación ═══ #}
+        <div class="reg-section">
+          <div class="reg-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="14" height="14" aria-hidden="true">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.63 3.42 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.1a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+            </svg>
+            <span>Contacto y verificación</span>
+          </div>
+
+          {# Email + código #}
+          <div class="reg-verify-group">
+            <div class="form-group{% if form.email.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.email.id_for_label }}">Correo electrónico</label>
+              <div class="input-wrapper">
+                <span class="input-icon-left" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                    <polyline points="22,6 12,13 2,6"/>
+                  </svg>
+                </span>
+                <input class="form-input form-input--icon-l" type="email"
+                       id="{{ form.email.id_for_label }}" name="email"
+                       placeholder="tucorreo@ejemplo.com"
+                       value="{{ form.email.value|default:'' }}" autocomplete="email" />
+              </div>
+              {% for e in form.email.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+            <div class="reg-verify-row">
+              <button type="button" class="reg-code-btn" id="btnCodigoEmail">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                     width="13" height="13" aria-hidden="true">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                Enviar código
+              </button>
+              <div class="form-group form-group--code">
+                <label class="form-label" for="id_codigo_email">Código email</label>
+                <input class="form-input" type="text" name="codigo_email" id="id_codigo_email"
+                       placeholder="0000" maxlength="4" inputmode="numeric" />
+              </div>
+            </div>
+          </div>
+
+          {# Celular + código #}
+          <div class="reg-verify-group">
+            <div class="form-group{% if form.telefono.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.telefono.id_for_label }}">Número de celular</label>
+              <div class="input-wrapper">
+                <span class="input-icon-left" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15">
+                    <rect x="5" y="2" width="14" height="20" rx="2" ry="2"/>
+                    <line x1="12" y1="18" x2="12.01" y2="18"/>
+                  </svg>
+                </span>
+                <input class="form-input form-input--icon-l" type="tel"
+                       id="{{ form.telefono.id_for_label }}" name="telefono"
+                       placeholder="987 654 321"
+                       value="{{ form.telefono.value|default:'' }}" autocomplete="tel" maxlength="15" />
+              </div>
+              {% for e in form.telefono.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+            <div class="reg-verify-row">
+              <button type="button" class="reg-code-btn" id="btnCodigoCelular">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                     width="13" height="13" aria-hidden="true">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                Enviar código
+              </button>
+              <div class="form-group form-group--code">
+                <label class="form-label" for="id_codigo_celular">Código celular</label>
+                <input class="form-input" type="text" name="codigo_celular" id="id_codigo_celular"
+                       placeholder="0000" maxlength="4" inputmode="numeric" />
+              </div>
+            </div>
+          </div>
+        </div>{# /contacto #}
+
+        {# ═══ SECCIÓN 5: Ubicación ═══ #}
+        <div class="reg-section">
+          <div class="reg-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="14" height="14" aria-hidden="true">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+              <circle cx="12" cy="10" r="3"/>
+            </svg>
+            <span>Ubicación</span>
+          </div>
+
+          <div class="form-group{% if form.direccion.errors %} form-group--error{% endif %}" style="margin-bottom:14px">
+            <label class="form-label" for="{{ form.direccion.id_for_label }}">Dirección actual</label>
+            <div class="input-wrapper">
+              <input class="form-input" type="text"
+                     id="{{ form.direccion.id_for_label }}" name="direccion"
+                     placeholder="Av. Principal 123, Urbanización..."
+                     value="{{ form.direccion.value|default:'' }}" autocomplete="street-address" />
+            </div>
+            {% for e in form.direccion.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+          </div>
+
+          <div class="reg-row reg-row-3">
+            <div class="form-group{% if form.departamento.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.departamento.id_for_label }}">Departamento</label>
+              <div class="input-wrapper">
+                <select class="form-input form-select"
+                        id="{{ form.departamento.id_for_label }}" name="departamento">
+                  {% for val, lbl in form.departamento.field.choices %}
+                  <option value="{{ val }}"{% if form.departamento.value == val %} selected{% endif %}>{{ lbl }}</option>
+                  {% endfor %}
+                </select>
+                <span class="select-chevron" aria-hidden="true">
+                  <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8"
+                       width="11" height="7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 1l5 5 5-5"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group{% if form.provincia.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.provincia.id_for_label }}">Provincia</label>
+              <div class="input-wrapper">
+                <select class="form-input form-select"
+                        id="{{ form.provincia.id_for_label }}" name="provincia"
+                        data-initial="{{ form.provincia.value|default:'' }}"
+                        {% if not form.departamento.value %}disabled{% endif %}>
+                  <option value="">Seleccione provincia</option>
+                </select>
+                <span class="select-chevron" aria-hidden="true">
+                  <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8"
+                       width="11" height="7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 1l5 5 5-5"/>
+                  </svg>
+                </span>
+              </div>
+              {% for e in form.provincia.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+
+            <div class="form-group{% if form.distrito.errors %} form-group--error{% endif %}">
+              <label class="form-label" for="{{ form.distrito.id_for_label }}">Distrito</label>
+              <div class="input-wrapper">
+                <select class="form-input form-select"
+                        id="{{ form.distrito.id_for_label }}" name="distrito"
+                        data-initial="{{ form.distrito.value|default:'' }}"
+                        {% if not form.provincia.value %}disabled{% endif %}>
+                  <option value="">Seleccione distrito</option>
+                </select>
+                <span class="select-chevron" aria-hidden="true">
+                  <svg viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.8"
+                       width="11" height="7" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M1 1l5 5 5-5"/>
+                  </svg>
+                </span>
+              </div>
+              {% for e in form.distrito.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+            </div>
+          </div>
+        </div>{# /ubicación #}
+
+        {# ═══ SECCIÓN 6: Declaración legal PEP ═══ #}
+        <div class="reg-section">
+          <div class="reg-section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 width="14" height="14" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            <span>Declaración legal (PEP)</span>
+          </div>
+
+          <div class="reg-pep" role="group" aria-labelledby="pep-legend">
+            <p id="pep-legend" class="reg-pep-legend">Persona Expuesta Políticamente</p>
+            <label class="reg-radio">
+              <input type="radio" name="pep" value="no"
+                     {% if not form.pep.value or form.pep.value == 'no' %}checked{% endif %} />
+              <span class="reg-radio-mark"></span>
+              <span class="reg-radio-text">Declaro que <strong>NO</strong> soy una Persona Expuesta Políticamente (PEP)</span>
+            </label>
+            <label class="reg-radio">
+              <input type="radio" name="pep" value="si"
+                     {% if form.pep.value == 'si' %}checked{% endif %} />
+              <span class="reg-radio-mark"></span>
+              <span class="reg-radio-text">Declaro que <strong>SÍ</strong> soy una Persona Expuesta Políticamente (PEP)</span>
+            </label>
+            <button type="button" class="reg-pep-info-btn" id="btnPepInfo"
+                    aria-label="¿Qué es una PEP?">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   width="14" height="14" aria-hidden="true">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              ¿Qué es una PEP?
+            </button>
+          </div>
+        </div>{# /PEP #}
+
+        {# ═══ TÉRMINOS ═══ #}
+        <div class="reg-terms">
+          <p class="reg-terms-text">
+            Al registrarme acepto los
+            <a href="#" class="reg-link">Términos y Condiciones</a>,
+            <a href="#" class="reg-link">Política de cookies</a> y la
+            <a href="{% url 'auth:politica_privacidad' %}" class="reg-link" target="_blank" rel="noopener">Política de Privacidad</a> de Apuesta24/7.
+          </p>
+          <label class="reg-checkbox{% if form.acepta_terminos.errors %} reg-checkbox--error{% endif %}">
+            <input type="checkbox" name="acepta_terminos"
+                   id="{{ form.acepta_terminos.id_for_label }}"
+                   {% if form.acepta_terminos.value %}checked{% endif %} />
+            <span class="reg-checkbox-mark"></span>
+            <span class="reg-checkbox-text">Autorizo el uso de mis datos para mejorar mi experiencia en Apuesta24/7 y recibir información de la plataforma.</span>
+          </label>
+          {% for e in form.acepta_terminos.errors %}
+          <p class="form-hint--error" style="margin-top:-6px;margin-bottom:14px">{{ e }}</p>
+          {% endfor %}
+        </div>
+
+        {# ═══ BOTÓN REGISTRAR ═══ #}
+        <button type="submit" class="reg-submit-btn" id="regSubmitBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+               width="18" height="18" aria-hidden="true">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+            <circle cx="9" cy="7" r="4"/>
+            <line x1="19" y1="8" x2="19" y2="14"/>
+            <line x1="22" y1="11" x2="16" y2="11"/>
+          </svg>
+          <span class="reg-submit-text">CREAR CUENTA GRATIS</span>
+          <span class="reg-submit-spinner" hidden aria-hidden="true"></span>
+        </button>
+
+        <p class="reg-login-link">
+          ¿Ya tienes cuenta?
+          <a href="/login/" class="reg-link reg-link--bold">Inicia sesión aquí</a>
+        </p>
+
+      </form>
+    </div>{# /reg-card #}
+  </main>
+
 </div>{# /reg-page #}
 {% endblock %}
 
 {% block page_js %}
-<script src="{% static 'js/pages/registro_cliente.js' %}"></script>
+<script src="{% static 'js/ubicacion.js' %}"></script>
+<script src="{% static 'js/pages/registro_cliente.js' %}?v=2"></script>
 {% endblock %}

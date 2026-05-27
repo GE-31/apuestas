@@ -1,336 +1,480 @@
-/* =============================================================
-   registro_cliente.css — Formulario de registro Apuesta24/7
-   Estilo: floating labels verdes, botones azules, submit rojo
-   ============================================================= */
+/* ═══════════════════════════════════════════════════
+   REGISTRO CLIENTE — Apuesta24/7
+   Layout: formulario centrado, dark glassmorphism
+   Palette: #080b14 · Orange #f97316 · Red #ef4444
+═══════════════════════════════════════════════════ */
 
-/* ── Página completa ── */
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+
+/* ── Variables ── */
+:root {
+  --rc-bg:          #080b14;
+  --rc-bg2:         #0c1122;
+  --rc-orange:      #f97316;
+  --rc-orange-dk:   #ea580c;
+  --rc-orange-glow: rgba(249,115,22,.32);
+  --rc-red:         #ef4444;
+  --rc-text:        #f1f5f9;
+  --rc-error:       #ef4444;
+  --rc-dur:         200ms;
+  --rc-input-bg:    rgba(255,255,255,.055);
+  --rc-input-bdr:   rgba(255,255,255,.10);
+  --rc-section-bg:  rgba(255,255,255,.028);
+  --rc-section-bdr: rgba(255,255,255,.07);
+  --rc-card-bg:     rgba(13,18,36,.85);
+  --rc-card-bdr:    rgba(255,255,255,.08);
+}
+
+/* ── Reset ── */
+.reg-page * { box-sizing: border-box; }
+
+/* ═══════════════════════════════════════
+   PAGE SHELL
+═══════════════════════════════════════ */
 .reg-page {
   min-height: 100vh;
-  background: #f8fafc;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: var(--rc-bg);
+  font-family: 'Inter', sans-serif;
+  overflow-x: hidden;
   padding-bottom: 60px;
-  font-family: var(--font, 'Inter', sans-serif);
 }
 
-/* ── Banner superior (amber) ── */
-.reg-banner {
+/* Ambient gradient blobs */
+.reg-page::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 65% 50% at 12% 90%, rgba(234,88,12,.16) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 45% at 88% 10%, rgba(239,68,68,.10) 0%, transparent 55%),
+    radial-gradient(ellipse 90% 80% at 50% 50%, rgba(8,11,20,.97) 0%, var(--rc-bg) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ═══════════════════════════════════════
+   TOP BAR (logo)
+═══════════════════════════════════════ */
+.reg-topbar {
   width: 100%;
-  background: #fffbeb;
-  border-bottom: 1.5px solid #fde68a;
-  padding: 12px 24px;
+  max-width: 780px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 0.875rem;
+  justify-content: space-between;
+  padding: 28px 16px 0;
+  position: relative;
+  z-index: 1;
+}
+
+.reg-brand-logo {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none !important;
+}
+
+.reg-brand-logo-img {
+  height: 64px;
+  width: auto;
+  display: block;
+  object-fit: contain;
+}
+
+.reg-topbar-note {
+  font-size: .72rem;
+  color: rgba(255,255,255,.28);
   font-weight: 500;
-  color: #92400e;
-  justify-content: center;
+  letter-spacing: .03em;
 }
 
-.reg-banner svg {
-  flex-shrink: 0;
-  color: #d97706;
-}
-
-/* ── Contenedor principal ── */
-.reg-container {
+/* ═══════════════════════════════════════
+   CENTER WRAPPER
+═══════════════════════════════════════ */
+.reg-center {
   width: 100%;
-  max-width: 720px;
-  padding: 40px 32px 48px;
-  background: #fff;
+  max-width: 780px;
+  padding: 28px 16px 0;
+  position: relative;
+  z-index: 1;
 }
 
-/* ── Título ── */
-.reg-title {
-  font-size: 2rem;
-  font-weight: 900;
-  color: #111827;
+/* ═══════════════════════════════════════
+   CARD (contenedor central del form)
+═══════════════════════════════════════ */
+.reg-card {
+  background: var(--rc-card-bg);
+  border: 1px solid var(--rc-card-bdr);
+  border-radius: 20px;
+  padding: 40px 48px 48px;
+  backdrop-filter: blur(24px);
+  animation: rcSlideUp .5s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes rcSlideUp {
+  from { opacity:0; transform:translateY(24px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── Card header ── */
+.reg-card-header {
   text-align: center;
-  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+}
+
+.reg-form-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(249,115,22,.12);
+  border: 1px solid rgba(249,115,22,.28);
+  border-radius: 100px;
+  font-size: .67rem;
+  font-weight: 700;
+  color: var(--rc-orange);
+  letter-spacing: .12em;
   text-transform: uppercase;
-  margin-bottom: 32px;
+  margin-bottom: 14px;
 }
 
-/* ── Error box general ── */
-.reg-error-box {
-  background: #fff1f2;
-  border: 1.5px solid #fecdd3;
-  border-radius: 8px;
-  padding: 14px 18px;
-  margin-bottom: 24px;
-  font-size: 0.875rem;
-  color: #be123c;
-  font-weight: 500;
+.reg-form-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 2.4rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: .04em;
+  line-height: 1.0;
+  text-transform: uppercase;
+  margin-bottom: 8px;
 }
 
-/* ── Info box (azul) ── */
-.reg-info-box {
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  padding: 13px 16px;
+.reg-form-subtitle {
+  font-size: .875rem;
+  color: rgba(255,255,255,.40);
+}
+
+/* ── Banner ── */
+.reg-banner {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  font-size: 0.875rem;
-  color: #1e40af;
-  margin-bottom: 18px;
-  line-height: 1.55;
+  padding: 11px 16px;
+  background: rgba(249,115,22,.08);
+  border: 1px solid rgba(249,115,22,.2);
+  border-radius: 10px;
+  font-size: .8rem;
+  font-weight: 500;
+  color: rgba(253,186,116,.88);
+  margin-bottom: 24px;
+  line-height: 1.45;
 }
 
-.reg-info-box svg { color: #2563eb; }
+.reg-banner svg { flex-shrink: 0; color: var(--rc-orange); margin-top: 1px; }
+.reg-banner strong { color: var(--rc-orange); }
 
-/* ── Grid de filas ── */
+/* ── Error box ── */
+.reg-error-box {
+  background: rgba(239,68,68,.09);
+  border: 1px solid rgba(239,68,68,.26);
+  border-radius: 10px;
+  padding: 14px 18px;
+  margin-bottom: 20px;
+  font-size: .875rem;
+  color: #fca5a5;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════
+   FORM SECTIONS
+═══════════════════════════════════════ */
+.reg-section {
+  background: var(--rc-section-bg);
+  border: 1px solid var(--rc-section-bdr);
+  border-radius: 12px;
+  padding: 18px 20px;
+  margin-bottom: 12px;
+}
+
+.reg-section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .67rem;
+  font-weight: 700;
+  color: var(--rc-orange);
+  text-transform: uppercase;
+  letter-spacing: .14em;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(255,255,255,.055);
+}
+
+.reg-section-header svg { color: var(--rc-orange); flex-shrink: 0; }
+
+/* ── Grid rows ── */
 .reg-row {
   display: grid;
-  gap: 16px;
-  margin-bottom: 18px;
+  gap: 14px;
 }
 
-.reg-row-1 { grid-template-columns: 1fr; }
 .reg-row-2 { grid-template-columns: 1fr 1fr; }
 .reg-row-3 { grid-template-columns: 1fr 1fr 1fr; }
 
-/* Fila especial: campo + botón + código pequeño */
-.reg-row-code {
-  grid-template-columns: 1fr auto 130px;
-  align-items: start;
-}
-
-/* ── Campo flotante ── */
-.reg-field {
-  position: relative;
-}
-
-/* Input base */
-.reg-input {
-  width: 100%;
-  padding: 20px 14px 8px;
-  border: 2px solid #22c55e;
+/* ── Info box ── */
+.reg-info-box {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  background: rgba(59,130,246,.07);
+  border: 1px solid rgba(59,130,246,.16);
   border-radius: 8px;
-  font-size: 1rem;
-  font-family: inherit;
-  color: #111827;
-  background: #fff;
+  padding: 10px 13px;
+  font-size: .79rem;
+  color: rgba(147,197,253,.82);
+  margin-bottom: 14px;
+  line-height: 1.5;
+}
+
+.reg-info-box svg { color: #60a5fa; flex-shrink: 0; margin-top: 1px; }
+.reg-info-box strong { color: #93c5fd; font-weight: 600; }
+
+/* ═══════════════════════════════════════
+   FORM CONTROLS
+═══════════════════════════════════════ */
+
+/* Group */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* Label */
+.form-label {
+  font-size: .775rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.58);
+  letter-spacing: .02em;
+}
+
+/* Input wrapper */
+.input-wrapper { position: relative; }
+
+/* Left icon */
+.input-icon-left {
+  position: absolute;
+  left: 13px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255,255,255,.22);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  z-index: 1;
+  transition: color var(--rc-dur);
+}
+
+.input-wrapper:focus-within .input-icon-left { color: var(--rc-orange); }
+
+/* Base input */
+.form-input {
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  background: var(--rc-input-bg);
+  border: 1.5px solid var(--rc-input-bdr);
+  border-radius: 10px;
+  font-size: .9rem;
+  font-family: 'Inter', sans-serif;
+  color: var(--rc-text);
   outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  box-sizing: border-box;
+  transition: border-color var(--rc-dur), background var(--rc-dur), box-shadow var(--rc-dur);
   -webkit-appearance: none;
   appearance: none;
 }
 
-.reg-input:focus {
-  border-color: #16a34a;
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18);
+.form-input::placeholder { color: rgba(255,255,255,.15); }
+
+.form-input:focus {
+  border-color: var(--rc-orange);
+  background: rgba(249,115,22,.07);
+  box-shadow: 0 0 0 3px rgba(249,115,22,.13);
 }
 
-/* Quitar flechas de number */
-.reg-input[type=number]::-webkit-outer-spin-button,
-.reg-input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
-.reg-input[type=number] { -moz-appearance: textfield; }
+/* With left icon */
+.form-input.form-input--icon-l { padding-left: 40px; }
 
-/* Select: flecha personalizada */
-select.reg-input {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b7280' stroke-width='1.8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 14px center;
-  padding-right: 36px;
-  cursor: pointer;
-}
+/* Select */
+.form-select { cursor: pointer; padding-right: 36px; }
 
-/* ── Label flotante ── */
-.reg-label {
-  position: absolute;
-  left: 12px;
-  top: 14px;
-  font-size: 0.9375rem;
-  color: #6b7280;
-  pointer-events: none;
-  transition: top 0.15s ease, font-size 0.15s ease, color 0.15s ease;
-  background: #fff;
-  padding: 0 4px;
-  line-height: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: calc(100% - 28px);
-}
+.form-select:disabled { opacity: .45; cursor: not-allowed; }
+.form-select:disabled + .select-chevron { opacity: .45; pointer-events: none; }
 
-/* Float cuando enfocado o con valor */
-.reg-input:focus ~ .reg-label,
-.reg-input:not(:placeholder-shown) ~ .reg-label {
-  top: -0.55rem;
-  font-size: 0.75rem;
-  color: #16a34a;
-}
+.form-select option { background: #0d1220; color: var(--rc-text); }
 
-/* Select y date siempre con label flotada */
-.reg-field--select .reg-label,
-.reg-field--date   .reg-label {
-  top: -0.55rem;
-  font-size: 0.75rem;
-  color: #6b7280;
-}
-
-.reg-field--select .reg-input:focus ~ .reg-label,
-.reg-field--date   .reg-input:focus ~ .reg-label {
-  color: #16a34a;
-}
-
-/* ── Estado error ── */
-.reg-field--error .reg-input {
-  border-color: #e11d48;
-}
-
-.reg-field--error .reg-input:focus {
-  border-color: #e11d48;
-  box-shadow: 0 0 0 3px rgba(225, 29, 72, 0.15);
-}
-
-.reg-field--error .reg-input:focus ~ .reg-label,
-.reg-field--error .reg-input:not(:placeholder-shown) ~ .reg-label,
-.reg-field--error.reg-field--select .reg-label,
-.reg-field--error.reg-field--date   .reg-label {
-  color: #e11d48;
-}
-
-.reg-field-error {
-  font-size: 0.75rem;
-  color: #e11d48;
-  font-weight: 500;
-  margin-top: 5px;
-  margin-left: 4px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.reg-field-error::before {
-  content: '!';
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: rgba(225,29,72,0.12);
-  color: #e11d48;
-  font-size: 0.625rem;
-  font-weight: 800;
-  flex-shrink: 0;
-}
-
-/* ── Botón "Generar código" (azul) ── */
-.reg-code-btn {
-  height: 52px;
-  padding: 0 16px;
-  background: #2563eb;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.8125rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  font-family: inherit;
-  transition: background 0.15s, transform 0.12s;
-  align-self: flex-start;
-  margin-top: 0;
-}
-
-.reg-code-btn:hover {
-  background: #1d4ed8;
-  transform: translateY(-1px);
-}
-
-.reg-code-btn:active {
-  transform: translateY(0);
-}
-
-/* Campo "Código" (pequeño) */
-.reg-field--code {
-  width: 130px;
-}
-
-/* ── Campo contraseña (con ojo) ── */
-.reg-field--pwd { position: relative; }
-
-.reg-pwd-toggle {
+.select-chevron {
   position: absolute;
   right: 12px;
   top: 50%;
   transform: translateY(-50%);
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 4px;
-  color: #e11d48;
+  color: rgba(255,255,255,.28);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+/* Date dark */
+input[type="date"].form-input { color-scheme: dark; }
+
+/* Right icon (password) */
+.has-right-icon .form-input { padding-right: 48px; }
+
+.input-icon-right.btn-icon-ghost {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px; height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: color 0.15s;
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,.25);
+  cursor: pointer;
+  border-radius: 7px;
+  padding: 0;
+  transition: color var(--rc-dur), background var(--rc-dur);
 }
 
-.reg-pwd-toggle:hover { color: #be123c; }
-
-.reg-field--pwd .reg-input {
-  padding-right: 44px;
+.input-icon-right.btn-icon-ghost:hover {
+  color: rgba(255,255,255,.65);
+  background: rgba(255,255,255,.07);
 }
 
-/* ── PEP ── */
+/* Error state */
+.form-group--error .form-input {
+  border-color: var(--rc-error) !important;
+  background: rgba(239,68,68,.06) !important;
+}
+
+.form-group--error .form-input:focus {
+  box-shadow: 0 0 0 3px rgba(239,68,68,.13) !important;
+}
+
+/* Error hint */
+.form-hint--error {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: .75rem;
+  color: var(--rc-error);
+  font-weight: 500;
+}
+
+.form-hint--error::before {
+  content: '!';
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px; height: 14px;
+  border-radius: 50%;
+  background: rgba(239,68,68,.14);
+  color: var(--rc-error);
+  font-size: .6rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════
+   VERIFICATION GROUPS
+═══════════════════════════════════════ */
+.reg-verify-group { margin-bottom: 14px; }
+.reg-verify-group:last-child { margin-bottom: 0; }
+
+.reg-verify-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.reg-code-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  background: rgba(249,115,22,.1);
+  border: 1px solid rgba(249,115,22,.28);
+  border-radius: 9px;
+  font-size: .78rem;
+  font-weight: 600;
+  color: var(--rc-orange);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: all var(--rc-dur);
+}
+
+.reg-code-btn:hover {
+  background: rgba(249,115,22,.18);
+  border-color: rgba(249,115,22,.5);
+  transform: translateY(-1px);
+}
+
+.reg-code-btn:active { transform: translateY(0); }
+
+.form-group--code { flex: 1; min-width: 90px; }
+.form-group--code .form-input { height: 40px; font-size: .875rem; }
+
+/* ═══════════════════════════════════════
+   PEP DECLARATION
+═══════════════════════════════════════ */
 .reg-pep {
-  position: relative;
-  margin-bottom: 20px;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-.reg-pep-info {
-  position: absolute;
-  right: 0;
-  top: 0;
-  background: none;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: #6b7280;
-  transition: border-color 0.15s, color 0.15s;
+.reg-pep-legend {
+  font-size: .72rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.34);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  margin: 0;
 }
 
-.reg-pep-info:hover {
-  border-color: #2563eb;
-  color: #2563eb;
-}
-
-/* Radio buttons */
 .reg-radio {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   cursor: pointer;
-  padding: 4px 0;
+  padding: 11px 14px;
+  background: rgba(255,255,255,.022);
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 10px;
+  transition: all var(--rc-dur);
 }
 
-.reg-radio input[type="radio"] {
-  display: none;
+.reg-radio:hover {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(249,115,22,.22);
 }
+
+.reg-radio input[type="radio"] { display: none; }
 
 .reg-radio-mark {
-  width: 20px;
-  height: 20px;
+  width: 18px; height: 18px;
   border-radius: 50%;
-  border: 2px solid #d1d5db;
+  border: 2px solid rgba(255,255,255,.2);
   flex-shrink: 0;
   position: relative;
-  transition: border-color 0.15s;
+  transition: border-color var(--rc-dur);
 }
 
 .reg-radio-mark::after {
@@ -338,40 +482,62 @@ select.reg-input {
   position: absolute;
   inset: 3px;
   border-radius: 50%;
-  background: #e11d48;
+  background: var(--rc-orange);
   transform: scale(0);
-  transition: transform 0.15s ease;
+  transition: transform .15s ease;
 }
 
-.reg-radio input[type="radio"]:checked ~ .reg-radio-mark {
-  border-color: #e11d48;
+.reg-radio input[type="radio"]:checked ~ .reg-radio-mark { border-color: var(--rc-orange); }
+.reg-radio input[type="radio"]:checked ~ .reg-radio-mark::after { transform: scale(1); }
+
+.reg-radio-text { font-size: .83rem; color: rgba(255,255,255,.6); line-height: 1.4; }
+.reg-radio-text strong { color: rgba(255,255,255,.88); }
+
+.reg-pep-info-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 34px;
+  padding: 0 13px;
+  background: rgba(255,255,255,.035);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 8px;
+  font-size: .77rem;
+  font-weight: 600;
+  color: rgba(255,255,255,.4);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all var(--rc-dur);
+  width: fit-content;
+  margin-top: 2px;
 }
 
-.reg-radio input[type="radio"]:checked ~ .reg-radio-mark::after {
-  transform: scale(1);
+.reg-pep-info-btn:hover {
+  border-color: rgba(249,115,22,.3);
+  color: var(--rc-orange);
+  background: rgba(249,115,22,.07);
 }
 
-.reg-radio-text {
-  font-size: 0.875rem;
-  color: #374151;
-  line-height: 1.4;
-}
+/* ═══════════════════════════════════════
+   TERMS
+═══════════════════════════════════════ */
+.reg-terms { margin-bottom: 20px; }
 
-/* ── Términos ── */
 .reg-terms-text {
-  font-size: 0.875rem;
-  color: #374151;
+  font-size: .8rem;
+  color: rgba(255,255,255,.36);
   line-height: 1.6;
   margin-bottom: 14px;
 }
 
 .reg-link {
-  color: #2563eb;
+  color: var(--rc-orange);
   text-decoration: none;
   font-weight: 500;
+  transition: color var(--rc-dur);
 }
 
-.reg-link:hover { text-decoration: underline; }
+.reg-link:hover { color: #fff; text-decoration: underline; }
 .reg-link--bold { font-weight: 700; }
 
 /* Checkbox */
@@ -380,152 +546,175 @@ select.reg-input {
   align-items: flex-start;
   gap: 12px;
   cursor: pointer;
-  margin-bottom: 24px;
+  padding: 12px 14px;
+  background: rgba(255,255,255,.022);
+  border: 1px solid rgba(255,255,255,.065);
+  border-radius: 10px;
+  transition: all var(--rc-dur);
+}
+
+.reg-checkbox:hover {
+  background: rgba(255,255,255,.04);
+  border-color: rgba(249,115,22,.2);
 }
 
 .reg-checkbox input[type="checkbox"] { display: none; }
 
 .reg-checkbox-mark {
-  width: 20px;
-  height: 20px;
+  width: 18px; height: 18px;
   border-radius: 4px;
-  border: 2px solid #d1d5db;
+  border: 2px solid rgba(255,255,255,.2);
   flex-shrink: 0;
-  margin-top: 2px;
+  margin-top: 1px;
   position: relative;
-  background: #fff;
-  transition: border-color 0.15s, background 0.15s;
+  background: transparent;
+  transition: border-color var(--rc-dur), background var(--rc-dur);
 }
 
 .reg-checkbox-mark::after {
   content: '';
   position: absolute;
-  left: 4px;
-  top: 1px;
-  width: 8px;
-  height: 12px;
+  left: 3px; top: 0;
+  width: 8px; height: 11px;
   border: 2.5px solid #fff;
   border-top: none;
   border-left: none;
   transform: rotate(45deg) scale(0);
-  transition: transform 0.15s ease;
+  transition: transform .15s ease;
 }
 
 .reg-checkbox input[type="checkbox"]:checked ~ .reg-checkbox-mark {
-  background: #e11d48;
-  border-color: #e11d48;
+  background: var(--rc-orange);
+  border-color: var(--rc-orange);
 }
 
 .reg-checkbox input[type="checkbox"]:checked ~ .reg-checkbox-mark::after {
   transform: rotate(45deg) scale(1);
 }
 
-.reg-checkbox-text {
-  font-size: 0.875rem;
-  color: #374151;
-  line-height: 1.55;
-}
+.reg-checkbox-text { font-size: .8rem; color: rgba(255,255,255,.50); line-height: 1.55; }
+.reg-checkbox--error .reg-checkbox-mark { border-color: var(--rc-error); }
 
-.reg-checkbox--error .reg-checkbox-mark {
-  border-color: #e11d48;
-}
-
-/* ── Botón REGISTRAR (rojo) ── */
+/* ═══════════════════════════════════════
+   SUBMIT BUTTON
+═══════════════════════════════════════ */
 .reg-submit-btn {
   width: 100%;
-  padding: 18px;
-  background: #dc2626;
-  color: #fff;
-  border: none;
-  border-radius: 40px;
-  font-size: 1.0625rem;
-  font-weight: 800;
-  cursor: pointer;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  font-family: inherit;
+  height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
-  transition: background 0.15s, transform 0.12s, box-shadow 0.15s;
-  margin-bottom: 24px;
-  box-shadow: 0 4px 16px rgba(220, 38, 38, 0.3);
+  background: linear-gradient(135deg, var(--rc-orange) 0%, var(--rc-orange-dk) 100%);
+  border: none;
+  border-radius: 14px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: .07em;
+  text-transform: uppercase;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 5px 24px rgba(234,88,12,.42), 0 1px 3px rgba(0,0,0,.3);
+  margin-bottom: 20px;
+  transition: transform var(--rc-dur), box-shadow var(--rc-dur);
 }
 
-.reg-submit-btn:hover:not(:disabled) {
-  background: #b91c1c;
-  transform: translateY(-1px);
-  box-shadow: 0 6px 20px rgba(220, 38, 38, 0.38);
+/* Sheen */
+.reg-submit-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.18) 0%, transparent 55%);
+  pointer-events: none;
+  border-radius: inherit;
 }
 
-.reg-submit-btn:active:not(:disabled) {
-  transform: translateY(0);
+/* Shimmer sweep on hover */
+.reg-submit-btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -110%;
+  width: 55%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+  transition: left .55s ease;
+  pointer-events: none;
 }
 
-.reg-submit-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
+.reg-submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 9px 32px rgba(234,88,12,.52); }
+.reg-submit-btn:hover::after { left: 155%; }
+.reg-submit-btn:active:not(:disabled) { transform: translateY(0); box-shadow: 0 3px 12px rgba(234,88,12,.3); }
+.reg-submit-btn:disabled { opacity: .6; cursor: not-allowed; transform: none; }
 
-/* Spinner dentro del botón */
 .reg-submit-spinner {
-  width: 18px;
-  height: 18px;
-  border: 2.5px solid rgba(255,255,255,0.35);
+  width: 18px; height: 18px;
+  border: 2.5px solid rgba(255,255,255,.35);
   border-top-color: #fff;
   border-radius: 50%;
-  animation: reg-spin 0.65s linear infinite;
+  animation: rcSpin .65s linear infinite;
   flex-shrink: 0;
 }
 
-@keyframes reg-spin { to { transform: rotate(360deg); } }
+@keyframes rcSpin { to { transform: rotate(360deg); } }
 
-/* ── Link de login ── */
+/* ── Login link ── */
 .reg-login-link {
   text-align: center;
-  font-size: 0.9375rem;
-  color: #6b7280;
+  font-size: .875rem;
+  color: rgba(255,255,255,.36);
 }
 
-/* ── Toast de notificación ── */
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
 .reg-toast {
   position: fixed;
   bottom: 28px;
   right: 28px;
-  background: #1e1b4b;
-  color: #fff;
+  background: rgba(13,18,32,.96);
+  border: 1px solid rgba(249,115,22,.22);
+  color: var(--rc-text);
   padding: 12px 20px;
-  border-radius: 10px;
-  font-size: 0.875rem;
+  border-radius: 11px;
+  font-size: .875rem;
   font-weight: 600;
-  box-shadow: 0 8px 32px rgba(15,23,42,0.25);
+  box-shadow: 0 8px 32px rgba(0,0,0,.45);
   z-index: 9999;
-  max-width: 340px;
+  max-width: 360px;
   line-height: 1.45;
   opacity: 0;
   transform: translateY(8px);
-  transition: opacity 0.2s ease, transform 0.2s ease;
+  transition: opacity .2s ease, transform .2s ease;
 }
 
-.reg-toast--show {
-  opacity: 1;
-  transform: translateY(0);
+.reg-toast--show { opacity: 1; transform: translateY(0); }
+
+/* ═══════════════════════════════════════
+   RESPONSIVE
+═══════════════════════════════════════ */
+@media (max-width: 820px) {
+  .reg-card { padding: 32px 32px 40px; }
 }
 
-/* ── Responsive ── */
-@media (max-width: 700px) {
-  .reg-container { padding: 32px 20px 40px; }
-  .reg-title { font-size: 1.5rem; }
+@media (max-width: 640px) {
+  .reg-card { padding: 28px 20px 36px; border-radius: 16px; }
+  .reg-form-title { font-size: 2rem; }
   .reg-row-2 { grid-template-columns: 1fr; }
   .reg-row-3 { grid-template-columns: 1fr; }
-  .reg-row-code { grid-template-columns: 1fr; }
+  .reg-verify-row { flex-direction: column; align-items: stretch; }
   .reg-code-btn { width: 100%; justify-content: center; }
-  .reg-field--code { width: 100%; }
+  .form-group--code { width: 100%; }
+  .reg-topbar-note { display: none; }
 }
 
 @media (max-width: 480px) {
-  .reg-container { padding: 24px 16px 36px; }
-  .reg-title { font-size: 1.25rem; }
-  .reg-submit-btn { padding: 16px; font-size: 1rem; }
+  .reg-center,
+  .reg-topbar { padding-left: 12px; padding-right: 12px; }
+  .reg-topbar { padding-top: 20px; }
+  .reg-center { padding-top: 20px; }
+  .reg-card { padding: 22px 16px 30px; }
+  .reg-form-title { font-size: 1.75rem; }
+  .reg-submit-btn { height: 50px; font-size: 1rem; }
 }

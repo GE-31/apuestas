@@ -1,0 +1,319 @@
+/* ══════════════════════════════════════════════
+   ADMIN — Sidebar
+   Fijo izquierda · Deep graphite #0d1117
+   Contraste con logo naranja #f97316
+══════════════════════════════════════════════ */
+
+/* ── Container ── */
+.admin-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--sb-width);
+  z-index: 100;
+  background: var(--sb-bg);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--sb-border);
+  overflow: hidden;
+}
+
+/* Ambient orange glow en la parte superior (eco del logo) */
+.admin-sidebar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse 110% 30% at 50% -3%,
+    rgba(249,115,22,.15) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Líneas de grid decorativas muy sutiles */
+.admin-sidebar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.025) 1px, transparent 1px);
+  background-size: 40px 40px;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Brand / Logo ── */
+.admin-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 20px 16px 16px;
+  border-bottom: 1px solid var(--sb-border);
+  position: relative;
+  z-index: 1;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: background var(--sb-dur);
+}
+
+.admin-sidebar-brand:hover {
+  background: rgba(255,255,255,.02);
+}
+
+.admin-sidebar-logo-mark {
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  background: linear-gradient(140deg, var(--a-orange) 0%, var(--a-orange-dk) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow:
+    0 0 20px var(--a-orange-glow),
+    0 2px 8px rgba(0,0,0,.45);
+  overflow: hidden;
+}
+
+.admin-sidebar-logo-img {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+
+.admin-sidebar-brand-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.admin-sidebar-brand-name {
+  font-size: .975rem;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -.01em;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.admin-sidebar-brand-name span { color: var(--a-orange); }
+
+.admin-sidebar-brand-role {
+  font-size: .625rem;
+  color: rgba(255,255,255,.3);
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+/* ── Navigation ── */
+.admin-side-nav {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px 10px 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  position: relative;
+  z-index: 1;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,.08) transparent;
+}
+
+.admin-side-nav::-webkit-scrollbar { width: 3px; }
+.admin-side-nav::-webkit-scrollbar-track { background: transparent; }
+.admin-side-nav::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,.1);
+  border-radius: 3px;
+}
+
+/* Nav group */
+.admin-nav-group {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-bottom: 2px;
+}
+
+/* Sistema group — empujado al fondo */
+.admin-nav-group--sys {
+  margin-top: auto;
+  padding-top: 10px;
+  border-top: 1px solid var(--sb-border);
+}
+
+/* Section label */
+.admin-nav-label {
+  font-size: .585rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.2);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  padding: 10px 10px 4px;
+  display: block;
+  user-select: none;
+}
+
+/* Nav item */
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px 8px 11px;
+  border-radius: 9px;
+  color: var(--sb-muted);
+  font-size: .835rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition:
+    background var(--sb-dur),
+    color var(--sb-dur),
+    border-color var(--sb-dur);
+  cursor: pointer;
+  border-left: 2px solid transparent;
+  position: relative;
+}
+
+.admin-nav-item:hover {
+  background: var(--sb-hover);
+  color: rgba(255,255,255,.80);
+}
+
+.admin-nav-item:hover .admin-nav-icon {
+  color: rgba(255,255,255,.55);
+}
+
+/* Active */
+.admin-nav-item.active {
+  background: var(--a-orange-gl);
+  color: #fff;
+  border-left-color: var(--a-orange);
+}
+
+.admin-nav-item.active .admin-nav-icon {
+  color: var(--a-orange);
+}
+
+/* Icon */
+.admin-nav-icon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: rgba(255,255,255,.22);
+  transition: color var(--sb-dur);
+}
+
+/* Text */
+.admin-nav-text { flex: 1; line-height: 1; white-space: nowrap; }
+
+/* External link indicator */
+.admin-nav-ext {
+  opacity: 0;
+  color: rgba(255,255,255,.25);
+  flex-shrink: 0;
+  transition: opacity var(--sb-dur);
+}
+
+.admin-nav-item:hover .admin-nav-ext { opacity: 1; }
+
+/* ── User footer ── */
+.admin-sidebar-footer {
+  padding: 10px 10px 14px;
+  border-top: 1px solid var(--sb-border);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.admin-sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 10px;
+  border-radius: 11px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+}
+
+.admin-user-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, var(--a-orange), var(--a-orange-dk));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: .875rem;
+  font-weight: 800;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(249,115,22,.22);
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.admin-user-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.admin-user-meta strong {
+  display: block;
+  font-size: .79rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.25;
+}
+
+.admin-user-meta span {
+  display: block;
+  font-size: .65rem;
+  color: rgba(255,255,255,.36);
+  font-weight: 600;
+  margin-top: 2px;
+  letter-spacing: .02em;
+}
+
+.admin-user-logout {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: rgba(255,255,255,.28);
+  flex-shrink: 0;
+  transition: all var(--sb-dur);
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.admin-user-logout:hover {
+  background: rgba(239,68,68,.15);
+  color: #f87171;
+}
+
+/* ── Mobile: slide-in ── */
+@media (max-width: 1024px) {
+  .admin-sidebar {
+    transform: translateX(-100%);
+    transition: transform 260ms cubic-bezier(.22,1,.36,1);
+    box-shadow: none;
+  }
+
+  .admin-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 6px 0 32px rgba(0,0,0,.35);
+  }
+}

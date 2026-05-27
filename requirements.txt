@@ -8,6 +8,7 @@ psycopg2-binary
 python-decouple
 channels
 channels-redis
+daphne
 celery
 redis
 pytest

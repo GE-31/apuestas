@@ -33,3 +33,7 @@ Las recargas y retiros deben revisarse con el saldo disponible y el historial de
 ## Usuarios
 
 Cuando un usuario reporte problemas, valida primero su perfil, estado KYC y actividad reciente antes de modificar cuentas o datos asociados.
+
+## Cierre de turno
+
+Antes de terminar el turno, revisa mensajes pendientes, eventos activos y operaciones recientes para que el siguiente operador tenga contexto.

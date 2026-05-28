@@ -637,6 +637,41 @@
       </div>
     </div>
 
+    <div class="admin-table-card audit-table-card">
+      <div class="admin-card-head">
+        <h2>Verificaciones de integridad</h2>
+        <span>Ultimos 5 chequeos</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Registros revisados</th>
+              <th>Ejecutado por</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for check in verificaciones_auditoria_recientes %}
+            <tr>
+              <td>{{ check.fecha_ejecucion|date:"d/m/Y H:i" }}</td>
+              <td>
+                <span class="audit-status {% if check.es_valida %}audit-status--ok{% else %}audit-status--error{% endif %}">
+                  {% if check.es_valida %}Valida{% else %}Con errores{% endif %}
+                </span>
+              </td>
+              <td>{{ check.total_registros }}</td>
+              <td>{{ check.ejecutado_por.username|default:"Sistema" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="admin-table-empty">Aun no hay verificaciones registradas.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div><!-- /panel-auditoria -->
 
 {% endblock %}

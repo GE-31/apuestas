@@ -1,8 +1,11 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect
+from django.utils import timezone as tz
+from django.utils.dateparse import parse_date
 from django.utils.text import slugify
 from django.views.generic import TemplateView
+from datetime import timedelta
 from decimal import Decimal
 
 from apuestas_core.models import Bet
@@ -11,6 +14,8 @@ from apuestas_core.services.liquidacion_service import (
     liquidar_apuesta_ganada,
     liquidar_apuesta_perdida,
 )
+from auditoria.models import AuditIntegrityCheck, AuditLog
+from auditoria.services.audit_service import ejecutar_verificacion_integridad
 from billetera.models import Account
 from billetera.selectors import obtener_saldo_cuenta
 from config.choices import EstadoApuesta, EstadoEvento, TipoCuentaLedger
@@ -143,7 +148,6 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             .order_by('-fecha_creacion')[:8]
         )
 
-        from django.utils import timezone as tz
         from django.db.models import Q
         hoy = tz.now().date()
         apuestas_todas = (
@@ -158,6 +162,7 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             )
             .order_by('estado', '-fecha_creacion')
         )
+        auditoria_context = self._get_auditoria_context()
 
         context.update({
             'deporte_form': kwargs.get('deporte_form') or DeporteAdminForm(),
@@ -180,13 +185,68 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             'apuestas_lost_count': Bet.objects.filter(estado=EstadoApuesta.LOST).count(),
             'apuestas_void_count': Bet.objects.filter(estado=EstadoApuesta.VOID).count(),
         })
+        context.update(auditoria_context)
         return context
+
+    def _get_auditoria_context(self):
+        hoy = tz.localdate()
+        rango = self.request.GET.get('auditoria_rango') or 'ultimos_7'
+        fecha_desde = parse_date(self.request.GET.get('auditoria_desde') or '')
+        fecha_hasta = parse_date(self.request.GET.get('auditoria_hasta') or '')
+
+        if not fecha_desde and not fecha_hasta:
+            if rango == 'hoy':
+                fecha_desde = hoy
+                fecha_hasta = hoy
+            elif rango == 'ultimos_30':
+                fecha_desde = hoy - timedelta(days=29)
+                fecha_hasta = hoy
+            elif rango == 'todos':
+                fecha_desde = None
+                fecha_hasta = None
+            else:
+                rango = 'ultimos_7'
+                fecha_desde = hoy - timedelta(days=6)
+                fecha_hasta = hoy
+
+        logs_queryset = AuditLog.objects.select_related('creado_por').order_by('-fecha_creacion')
+        if fecha_desde:
+            logs_queryset = logs_queryset.filter(fecha_creacion__date__gte=fecha_desde)
+        if fecha_hasta:
+            logs_queryset = logs_queryset.filter(fecha_creacion__date__lte=fecha_hasta)
+
+        ultimo_check = (
+            AuditIntegrityCheck.objects
+            .select_related('ejecutado_por')
+            .order_by('-fecha_ejecucion')
+            .first()
+        )
+
+        return {
+            'auditoria_logs': logs_queryset[:50],
+            'auditoria_count': AuditLog.objects.count(),
+            'auditoria_filtrados_count': logs_queryset.count(),
+            'auditoria_integrity_checks': (
+                AuditIntegrityCheck.objects
+                .select_related('ejecutado_por')
+                .order_by('-fecha_ejecucion')[:5]
+            ),
+            'auditoria_ultimo_check': ultimo_check,
+            'auditoria_ultimo_check_errores': (ultimo_check.errores_detectados or [])[:5] if ultimo_check else [],
+            'auditoria_filtro_rango': rango,
+            'auditoria_fecha_desde': fecha_desde.isoformat() if fecha_desde else '',
+            'auditoria_fecha_hasta': fecha_hasta.isoformat() if fecha_hasta else '',
+            'auditoria_querystring': self.request.GET.urlencode(),
+        }
 
     def post(self, request, *args, **kwargs):
         action = request.POST.get('action')
 
         if action == 'liquidar':
             return self._handle_liquidar(request)
+
+        if action == 'auditoria_verificar':
+            return self._handle_auditoria_verificar(request)
 
         form_map = {
             'deporte': DeporteAdminForm,
@@ -226,7 +286,6 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
         return self.render_to_response(context)
 
     def _handle_liquidar(self, request):
-        from django.utils import timezone as tz
         bet_id = request.POST.get('bet_id')
         resultado = request.POST.get('resultado')
         ikey = f'admin-liq-{bet_id}-{int(tz.now().timestamp())}'
@@ -245,6 +304,27 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
         except Exception as exc:
             messages.error(request, str(exc))
         return redirect('/admin-panel/#apuestas')
+
+    def _handle_auditoria_verificar(self, request):
+        next_url = request.POST.get('next') or '/admin-panel/#auditoria'
+        if not next_url.startswith('/admin-panel/'):
+            next_url = '/admin-panel/#auditoria'
+
+        try:
+            check = ejecutar_verificacion_integridad(ejecutado_por=request.user)
+            if check.es_valida:
+                messages.success(
+                    request,
+                    f'Cadena de auditoria valida. Registros verificados: {check.total_registros}.'
+                )
+            else:
+                messages.error(
+                    request,
+                    f'La cadena de auditoria tiene {len(check.errores_detectados or [])} error(es).'
+                )
+        except Exception as exc:
+            messages.error(request, str(exc))
+        return redirect(next_url)
 
 
 def get_saldos_usuario(usuario):

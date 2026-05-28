@@ -10,3 +10,4 @@ media/
 # Claude / IA local
 .claude/
 .CLAUDE.md
+.backups/

@@ -5,7 +5,7 @@
 {% block nav_inicio %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}?v=20260527g" />
+<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}?v=20260528b" />
 {% endblock %}
 
 {% block content %}
@@ -186,7 +186,7 @@
         <!-- Odds: 1 X 2 -->
         <div class="sb-match-odds" role="group" aria-label="Cuotas para {{ evento.equipo_local.nombre }} vs {{ evento.equipo_visitante.nombre }}">
           {% if evento.mercado_principal %}
-            {% for sel in evento.mercado_principal.selecciones.all %}
+            {% for sel in evento.mercado_principal.selecciones_sorted %}
             <button class="sb-odd"
                     data-evento-id="{{ evento.id }}"
                     data-evento="{{ evento.equipo_local.nombre }} vs {{ evento.equipo_visitante.nombre }}"
@@ -198,7 +198,7 @@
                     data-odd="{{ sel.odd.valor|default:'0' }}"
                     aria-pressed="false"
                     {% if evento.estado == 'finalizado' or evento.estado == 'anulado' %}disabled{% endif %}>
-              {{ sel.odd.valor|default:"—" }}
+              {{ sel.odd.valor|floatformat:2|default:"—" }}
             </button>
             {% empty %}
             <span class="sb-no-odds">Sin cuotas</span>
@@ -249,7 +249,7 @@
 
   <div class="betslip-body">
 
-    <div class="betslip-sel">
+    <div class="betslip-combo-summary">
       <div class="betslip-sel-top">
         <div>
           <p class="betslip-sel-event" id="bsEvent">—</p>
@@ -309,5 +309,5 @@
     csrfToken: '{{ csrf_token }}'
   };
 </script>
-<script src="{% static 'js/pages/dashboard.js' %}?v=20260527g"></script>
+<script src="{% static 'js/pages/dashboard.js' %}?v=20260528b"></script>
 {% endblock %}

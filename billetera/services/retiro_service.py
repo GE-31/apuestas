@@ -1,4 +1,5 @@
 from decimal import Decimal
+import re
 
 from billetera.models import Account
 from billetera.services.ledger_service import crear_movimiento_simple
@@ -8,6 +9,19 @@ from config.choices import TipoCuentaLedger, TipoTransaccionLedger
 
 class CuentaSistemaNoEncontradaError(Exception):
     pass
+
+
+class NumeroYapeInvalidoError(Exception):
+    pass
+
+
+def validar_numero_yape(yape_number):
+    yape_number = str(yape_number or '').strip().replace(' ', '')
+    if not re.fullmatch(r'9\d{8}', yape_number):
+        raise NumeroYapeInvalidoError(
+            'Ingresa un numero Yape valido de 9 digitos que empiece con 9.'
+        )
+    return yape_number
 
 
 def obtener_cuenta_casa():
@@ -43,6 +57,7 @@ def retirar_fichas_usuario(
     *,
     usuario,
     amount: Decimal,
+    yape_number,
     idempotency_key=None,
     creado_por=None,
 ):
@@ -54,6 +69,7 @@ def retirar_fichas_usuario(
     - Solo mueve saldo virtual de wallet hacia casa.
     """
 
+    yape_number = validar_numero_yape(yape_number)
     wallet_usuario = obtener_wallet_usuario(usuario)
     cuenta_casa = obtener_cuenta_casa()
 
@@ -66,6 +82,6 @@ def retirar_fichas_usuario(
         tipo=TipoTransaccionLedger.RETIRO,
         referencia=f'retiro_usuario_{usuario.id}',
         idempotency_key=idempotency_key,
-        descripcion='Retiro simulado de saldo virtual en soles',
+        descripcion=f'Retiro simulado de saldo virtual en soles hacia Yape +51 {yape_number}',
         creado_por=creado_por,
     )

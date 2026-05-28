@@ -68,6 +68,8 @@
     if (accountCard) accountCard.dataset.accountBalance = nextValue.toFixed(4);
     var accountBalance = document.getElementById('accountDrawerBalance');
     if (accountBalance) accountBalance.textContent = 'S/ ' + nextValue.toFixed(2);
+    var navProfileBalance = document.getElementById('navProfileBalance');
+    if (navProfileBalance) navProfileBalance.textContent = 'S/ ' + nextValue.toFixed(2);
     if (modalSaldo) modalSaldo.textContent = 'S/ ' + nextValue.toFixed(2);
   }
 

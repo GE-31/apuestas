@@ -6,11 +6,52 @@ from django.conf import settings
 from django.contrib.auth import login, logout
 from django.http import JsonResponse
 from django.shortcuts import redirect
+from django.utils import timezone
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.views import View
 
 from .forms import LoginAdminForm, LoginClienteForm, RegistroClienteForm
+from .models import EstadoSesionUsuario
+
+
+def marcar_sesion_usuario(user, activa):
+    if not user or not user.is_authenticated:
+        return
+    estado, _ = EstadoSesionUsuario.objects.get_or_create(usuario=user)
+    estado.sesion_activa = activa
+    now = timezone.now()
+    update_fields = ['sesion_activa', 'fecha_actualizacion']
+    if activa:
+        estado.ultima_conexion = now
+        update_fields.append('ultima_conexion')
+    else:
+        estado.ultima_salida = now
+        update_fields.append('ultima_salida')
+    estado.save(update_fields=update_fields)
+
+
+def obtener_ip_request(request):
+    forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if forwarded_for:
+        return forwarded_for.split(',')[0].strip()
+    return request.META.get('REMOTE_ADDR')
+
+
+def auditar_sesion_request(request, user, accion):
+    if not user or not user.is_authenticated:
+        return
+    try:
+        from auditoria.services.audit_service import auditar_sesion_cuenta
+
+        auditar_sesion_cuenta(
+            usuario=user,
+            accion=accion,
+            ip_origen=obtener_ip_request(request),
+            user_agent=request.META.get('HTTP_USER_AGENT', ''),
+        )
+    except Exception:
+        pass
 
 
 class HomeRedirectView(View):
@@ -18,6 +59,8 @@ class HomeRedirectView(View):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
+            marcar_sesion_usuario(request.user, False)
+            auditar_sesion_request(request, request.user, 'logout')
             logout(request)
         return redirect('/login/')
 
@@ -45,12 +88,14 @@ class LoginClienteView(FormView):
     def form_valid(self, form):
         user = form.get_user()
         login(self.request, user)
+        marcar_sesion_usuario(user, True)
+        auditar_sesion_request(self.request, user, 'login')
         return redirect(self._success_url(user))
 
     def _success_url(self, user):
         if user.is_staff or user.is_superuser:
             return '/admin-panel/'
-        return '/eventos/'
+        return '/inicio/'
 
 
 class LoginAdminView(FormView):
@@ -85,6 +130,8 @@ class LoginAdminView(FormView):
             )
             return self.form_invalid(form)
         login(self.request, user)
+        marcar_sesion_usuario(user, True)
+        auditar_sesion_request(self.request, user, 'login')
         return redirect('/admin-panel/')
 
 
@@ -106,6 +153,8 @@ class RegistroClienteView(FormView):
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)
+        marcar_sesion_usuario(user, True)
+        auditar_sesion_request(self.request, user, 'login')
         return redirect('/eventos/')
 
 
@@ -177,6 +226,9 @@ class LogoutView(FormView):
         return self._do_logout(request)
 
     def _do_logout(self, request):
+        user = request.user
+        marcar_sesion_usuario(request.user, False)
+        auditar_sesion_request(request, user, 'logout')
         logout(request)
         return redirect('/login/')
 

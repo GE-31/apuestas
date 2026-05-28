@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 
+from auditoria.services.audit_service import auditar_juego_responsable
 from config.choices import DuracionAutoexclusion, EstadoAutoexclusion, EstadoCuenta
 from juego_responsable.models import Autoexclusion
 
@@ -131,6 +132,22 @@ def crear_autoexclusion(
         perfil.estado_cuenta = EstadoCuenta.AUTOEXCLUIDO
         perfil.save(update_fields=["estado_cuenta", "fecha_actualizacion"])
 
+    auditar_juego_responsable(
+        entidad="Autoexclusion",
+        entidad_id=autoexclusion.id,
+        accion="created",
+        payload={
+            "usuario_id": usuario.id,
+            "estado": autoexclusion.estado,
+            "duracion": autoexclusion.duracion,
+            "fecha_inicio": str(autoexclusion.fecha_inicio),
+            "fecha_fin": str(autoexclusion.fecha_fin) if autoexclusion.fecha_fin else None,
+            "motivo": autoexclusion.motivo,
+            "estado_cuenta": getattr(perfil, "estado_cuenta", None),
+        },
+        creado_por=creada_por,
+    )
+
     return autoexclusion
 
 
@@ -145,15 +162,29 @@ def finalizar_autoexclusiones_vencidas():
 
     ahora = timezone.now()
 
-    autoexclusiones = Autoexclusion.objects.filter(
+    autoexclusiones = list(Autoexclusion.objects.filter(
         estado=EstadoAutoexclusion.ACTIVA,
         fecha_fin__isnull=False,
         fecha_fin__lte=ahora,
-    )
+    ))
 
-    cantidad = autoexclusiones.update(
-        estado=EstadoAutoexclusion.FINALIZADA,
-        fecha_actualizacion=ahora,
-    )
+    cantidad = 0
+
+    for autoexclusion in autoexclusiones:
+        autoexclusion.estado = EstadoAutoexclusion.FINALIZADA
+        autoexclusion.save(update_fields=["estado", "fecha_actualizacion"])
+        auditar_juego_responsable(
+            entidad="Autoexclusion",
+            entidad_id=autoexclusion.id,
+            accion="expired",
+            payload={
+                "usuario_id": autoexclusion.usuario_id,
+                "estado": autoexclusion.estado,
+                "duracion": autoexclusion.duracion,
+                "fecha_inicio": str(autoexclusion.fecha_inicio),
+                "fecha_fin": str(autoexclusion.fecha_fin) if autoexclusion.fecha_fin else None,
+            },
+        )
+        cantidad += 1
 
     return cantidad

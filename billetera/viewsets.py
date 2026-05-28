@@ -7,6 +7,7 @@ from billetera.services.deposito_service import (
 )
 from billetera.services.retiro_service import (
     CuentaSistemaNoEncontradaError as CuentaRetiroError,
+    NumeroYapeInvalidoError,
     retirar_fichas_usuario,
 )
 from juego_responsable.services.limites_service import LimiteDepositoError
@@ -182,12 +183,15 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
             transaccion = retirar_fichas_usuario(
                 usuario=usuario,
                 amount=serializer.validated_data['amount'],
+                yape_number=serializer.validated_data['yape_number'],
                 idempotency_key=serializer.validated_data.get('idempotency_key'),
                 creado_por=request.user if request.user.is_authenticated else None,
             )
         except LimiteDepositoError as exc:
             return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         except SaldoInsuficienteError as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except NumeroYapeInvalidoError as exc:
             return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         except (CuentaSistemaNoEncontradaError, CuentaRetiroError) as exc:
             return Response({'detail': str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

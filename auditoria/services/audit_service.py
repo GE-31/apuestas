@@ -139,6 +139,42 @@ def auditar_apuesta_liquidada(
     )
 
 
+def auditar_kyc(
+    *,
+    perfil,
+    kyc,
+    accion,
+    creado_por=None,
+    ip_origen=None,
+    user_agent=None,
+):
+    """
+    Registra cambios del KYC simulado y estado de cuenta del usuario.
+    """
+
+    payload = {
+        "perfil_id": perfil.id,
+        "usuario_id": perfil.usuario_id,
+        "estado_cuenta": perfil.estado_cuenta,
+        "dni_verificado": kyc.dni_verificado,
+        "mayor_edad_verificado": kyc.mayor_edad_verificado,
+        "fecha_verificacion": str(kyc.fecha_verificacion),
+        "observacion": kyc.observacion,
+        "verificado_por_id": kyc.verificado_por_id,
+    }
+
+    return crear_registro_auditoria(
+        tipo_evento=AuditLog.TipoEvento.USER_KYC,
+        entidad="VerificacionKYC",
+        entidad_id=kyc.id,
+        accion=accion,
+        payload=payload,
+        creado_por=creado_por,
+        ip_origen=ip_origen,
+        user_agent=user_agent,
+    )
+
+
 def auditar_cambio_cuota(
     *,
     odd,
@@ -226,6 +262,32 @@ def auditar_alerta_antifraude(
         accion=accion,
         payload=payload,
         creado_por=creado_por,
+        ip_origen=ip_origen,
+        user_agent=user_agent,
+    )
+
+
+def auditar_sesion_cuenta(
+    *,
+    usuario,
+    accion,
+    ip_origen=None,
+    user_agent=None,
+):
+    payload = {
+        "usuario_id": usuario.id,
+        "username": usuario.username,
+        "email": usuario.email,
+        "accion": accion,
+    }
+
+    return crear_registro_auditoria(
+        tipo_evento=AuditLog.TipoEvento.SYSTEM,
+        entidad="UserSession",
+        entidad_id=usuario.id,
+        accion=accion,
+        payload=payload,
+        creado_por=usuario,
         ip_origen=ip_origen,
         user_agent=user_agent,
     )

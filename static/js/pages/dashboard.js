@@ -83,9 +83,7 @@
 
       link.classList.add('is-active');
       filterByLeague(ligaKey);
-
-      var main = document.querySelector('.sb-main');
-      if (main) main.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   });
 
@@ -327,6 +325,20 @@
       .then(function (result) {
         if (result.ok) {
           showMsg((isCombinada ? 'Combinada' : 'Apuesta') + ' registrada. ID #' + result.data.id, 'success');
+
+          // Descontar el stake del saldo visible — el dinero está bloqueado hasta que culmine la apuesta
+          if (typeof window.setAccountBalance === 'function') {
+            var saldoActual = typeof window.getAccountBalance === 'function' ? window.getAccountBalance() : 0;
+            window.setAccountBalance(saldoActual - stake);
+          }
+
+          // Actualizar el saldo en el boleto
+          var balanceEl = document.querySelector('.betslip-balance strong');
+          if (balanceEl) {
+            var saldoNum = parseFloat(balanceEl.textContent.replace('S/', '').trim()) || 0;
+            balanceEl.textContent = 'S/ ' + Math.max(0, saldoNum - stake).toFixed(2);
+          }
+
           if (bsStake) bsStake.value = '';
           if (bsPayout) bsPayout.textContent = 'S/ 0.00';
           deselectAll();

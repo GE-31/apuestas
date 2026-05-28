@@ -38,7 +38,7 @@
 /* ── MÉTRICAS ── */
 .bets-metrics {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 14px;
   margin-bottom: 28px;
 }
@@ -52,6 +52,7 @@
   position: relative;
   overflow: hidden;
   transition: transform 0.2s var(--ease), box-shadow 0.2s;
+  min-width: 0;
 }
 
 .bets-metric:hover {
@@ -135,12 +136,20 @@
 /* ── LAYOUT PRINCIPAL ── */
 .bets-layout {
   display: grid;
-  grid-template-columns: 1fr 280px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 280px);
   gap: 20px;
   align-items: start;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
 }
 
-.bets-main { display: flex; flex-direction: column; gap: 16px; }
+.bets-main {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
 
 /* ── FILTRO BAR ── */
 .bets-filter-bar {
@@ -152,6 +161,7 @@
   border-radius: 14px;
   padding: 12px 16px;
   box-shadow: var(--shadow-sm);
+  min-width: 0;
 }
 
 .bets-filter-label {
@@ -168,6 +178,7 @@
   display: flex;
   gap: 6px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .bets-filter-tab {
@@ -220,6 +231,8 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: var(--shadow-md);
+  min-width: 0;
+  max-width: 100%;
 }
 
 .bets-table-header {
@@ -250,10 +263,15 @@
   font-family: var(--font-mono);
 }
 
-.bets-table-wrap { overflow-x: auto; }
+.bets-table-wrap {
+  overflow-x: auto;
+  max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+}
 
 .bets-table {
   width: 100%;
+  min-width: 1040px;
   border-collapse: collapse;
   font-size: 0.875rem;
 }
@@ -428,7 +446,12 @@
 
 
 /* ── SIDEBAR ── */
-.bets-aside { display: flex; flex-direction: column; gap: 16px; }
+.bets-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
 
 /* Resumen estadístico */
 .sidebar-summary {
@@ -578,6 +601,11 @@
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
+  min-width: 0;
+}
+
+.bets-page-header > div {
+  min-width: 0;
 }
 
 .bets-page-meta {
@@ -585,6 +613,7 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
+  min-width: 0;
 }
 
 .bets-page-user {
@@ -693,18 +722,18 @@
 
 /* ── RESPONSIVE ── */
 @media (max-width: 1100px) {
-  .bets-metrics { grid-template-columns: repeat(2, 1fr); }
-  .bets-layout { grid-template-columns: 1fr; }
-  .bets-aside { display: grid; grid-template-columns: 1fr 1fr; }
+  .bets-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bets-layout { grid-template-columns: minmax(0, 1fr); }
+  .bets-aside { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 
 @media (max-width: 700px) {
-  .bets-metrics { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .bets-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .bets-filter-bar { flex-direction: column; align-items: flex-start; }
-  .bets-aside { grid-template-columns: 1fr; }
+  .bets-aside { grid-template-columns: minmax(0, 1fr); }
 }
 
 @media (max-width: 480px) {
-  .bets-metrics { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .bets-metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
   .bets-metric-value { font-size: 1.5rem; }
 }

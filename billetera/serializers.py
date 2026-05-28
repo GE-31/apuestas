@@ -108,4 +108,10 @@ class RecargaFichasSerializer(serializers.Serializer):
 class RetiroFichasSerializer(serializers.Serializer):
     usuario_id = serializers.IntegerField()
     amount = serializers.DecimalField(max_digits=18, decimal_places=4)
+    yape_number = serializers.RegexField(
+        regex=r'^9\d{8}$',
+        error_messages={
+            'invalid': 'Ingresa un numero Yape valido de 9 digitos que empiece con 9.',
+        },
+    )
     idempotency_key = serializers.CharField(required=False, allow_blank=True)

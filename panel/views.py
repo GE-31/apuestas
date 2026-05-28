@@ -142,9 +142,24 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .order_by('liga__nombre', 'fecha_inicio')
         )
 
+        hoy = timezone.localdate()
         live_count = sum(1 for e in eventos if e.estado == EstadoEvento.EN_VIVO)
+        eventos_hoy_count = sum(
+            1 for e in eventos
+            if timezone.localtime(e.fecha_inicio).date() == hoy
+        )
 
         # Attach primary market and sort selections LOCAL → EMPATE → VISITANTE
+        mercados_extra_principales = [
+            TipoMercado.OVER_UNDER_25,
+            TipoMercado.BTTS,
+            TipoMercado.DOUBLE_CHANCE,
+            TipoMercado.DRAW_NO_BET,
+        ]
+        mercados_extra_order = {
+            tipo: index for index, tipo in enumerate(mercados_extra_principales)
+        }
+
         for evento in eventos:
             mp = next(
                 (
@@ -157,10 +172,20 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             if mp:
                 mp.selecciones_ordenadas = ordered_selections(mp.selecciones.all())
             evento.mercados_extra = []
-            for mercado in evento.mercados.all():
-                if mercado.activo and not mercado.suspendido and mercado.tipo != TipoMercado.UNO_X_DOS:
-                    mercado.selecciones_ordenadas = ordered_selections(mercado.selecciones.all())
-                    evento.mercados_extra.append(mercado)
+            mercados_extra = [
+                mercado for mercado in evento.mercados.all()
+                if (
+                    mercado.activo
+                    and not mercado.suspendido
+                    and mercado.tipo in mercados_extra_principales
+                )
+            ]
+            mercados_extra.sort(
+                key=lambda mercado: mercados_extra_order.get(mercado.tipo, 99)
+            )
+            for mercado in mercados_extra[:4]:
+                mercado.selecciones_ordenadas = ordered_selections(mercado.selecciones.all())
+                evento.mercados_extra.append(mercado)
 
         apuestas = list(
             Bet.objects
@@ -172,7 +197,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .order_by('-fecha_creacion')[:10]
         )
 
-        active_bets = sum(1 for b in apuestas if b.estado == EstadoApuesta.ACCEPTED)
+        active_bets = Bet.objects.filter(
+            usuario=self.request.user,
+            estado=EstadoApuesta.ACCEPTED,
+        ).count()
         ultima_apuesta = apuestas[0] if apuestas else None
 
         # Group events by liga for main content
@@ -207,6 +235,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context['ligas_agrupadas'] = list(ligas_map.values())
         context['deportes_sidebar'] = list(deportes_map.values())
         context['total_count'] = len(eventos)
+        context['eventos_hoy_count'] = eventos_hoy_count
         context['live_count'] = live_count
         context['active_bets_count'] = active_bets
         context['apuestas_recientes'] = apuestas
@@ -296,6 +325,14 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             .order_by('estado', '-fecha_creacion')
         )
 
+        from config.choices import EstadoEvento as EE
+        eventos_envivo = (
+            Evento.objects
+            .select_related('deporte', 'liga', 'equipo_local', 'equipo_visitante')
+            .filter(activo=True, estado__in=[EE.PROGRAMADO, EE.EN_VIVO, EE.SUSPENDIDO])
+            .order_by('fecha_inicio')
+        )
+
         context.update({
             'deporte_form': kwargs.get('deporte_form') or DeporteAdminForm(),
             'liga_form': kwargs.get('liga_form') or LigaAdminForm(),
@@ -303,6 +340,7 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             'evento_form': kwargs.get('evento_form') or EventoAdminForm(),
             'deportes_lista': Deporte.objects.order_by('nombre'),
             'ligas_lista': Liga.objects.select_related('deporte').order_by('deporte__nombre', 'nombre'),
+            'eventos_envivo': eventos_envivo,
             'deportes_count': Deporte.objects.count(),
             'ligas_count': Liga.objects.count(),
             'equipos_count': Equipo.objects.count(),
@@ -330,6 +368,9 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
 
         if action == 'liquidar':
             return self._handle_liquidar(request)
+
+        if action in ('iniciar_en_vivo', 'actualizar_marcador', 'finalizar_evento', 'suspender_evento'):
+            return self._handle_live(request, action)
 
         if action == 'update_liga':
             form = EventoLigaUpdateForm(request.POST)
@@ -388,19 +429,98 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
         ikey = f'admin-liq-{bet_id}-{int(tz.now().timestamp())}'
         try:
             if resultado == 'won':
-                liquidar_apuesta_ganada(bet_id=bet_id, idempotency_key=ikey, liquidado_por=request.user)
+                apuesta, _ = liquidar_apuesta_ganada(bet_id=bet_id, idempotency_key=ikey, liquidado_por=request.user)
                 messages.success(request, f'Apuesta #{bet_id} marcada como Ganada.')
             elif resultado == 'lost':
-                liquidar_apuesta_perdida(bet_id=bet_id, idempotency_key=ikey, liquidado_por=request.user)
+                apuesta, _ = liquidar_apuesta_perdida(bet_id=bet_id, idempotency_key=ikey, liquidado_por=request.user)
                 messages.success(request, f'Apuesta #{bet_id} marcada como Perdida.')
             elif resultado == 'void':
-                anular_apuesta(bet_id=bet_id, idempotency_key=ikey, anulado_por=request.user)
+                apuesta, _ = anular_apuesta(bet_id=bet_id, idempotency_key=ikey, anulado_por=request.user)
                 messages.success(request, f'Apuesta #{bet_id} anulada.')
             else:
                 messages.error(request, 'Resultado no válido.')
+                return redirect('/admin-panel/#apuestas')
+
+            self._notificar_saldo_ws(apuesta, resultado)
+
         except Exception as exc:
             messages.error(request, str(exc))
         return redirect('/admin-panel/#apuestas')
+
+    def _handle_live(self, request, action):
+        from tiempo_real.services import broadcast_evento_update
+        from config.choices import EstadoEvento as EE
+
+        evento_id = request.POST.get('evento_id')
+        try:
+            evento = Evento.objects.get(pk=evento_id)
+        except Evento.DoesNotExist:
+            messages.error(request, 'Evento no encontrado.')
+            return redirect('/admin-panel/#envivo')
+
+        if action == 'iniciar_en_vivo':
+            evento.estado = EE.EN_VIVO
+            evento.save(update_fields=['estado'])
+            broadcast_evento_update(evento.id, EE.EN_VIVO, evento.marcador_local, evento.marcador_visitante)
+            messages.success(request, f'"{evento.nombre}" ahora está EN VIVO.')
+
+        elif action == 'actualizar_marcador':
+            try:
+                ml = int(request.POST.get('marcador_local', 0))
+                mv = int(request.POST.get('marcador_visitante', 0))
+            except (TypeError, ValueError):
+                messages.error(request, 'Marcador inválido.')
+                return redirect('/admin-panel/#envivo')
+            evento.marcador_local = ml
+            evento.marcador_visitante = mv
+            evento.save(update_fields=['marcador_local', 'marcador_visitante'])
+            broadcast_evento_update(evento.id, evento.estado, ml, mv)
+            messages.success(request, f'Marcador actualizado: {ml} - {mv}.')
+
+        elif action == 'finalizar_evento':
+            evento.estado = EE.FINALIZADO
+            evento.save(update_fields=['estado'])
+            broadcast_evento_update(evento.id, EE.FINALIZADO, evento.marcador_local, evento.marcador_visitante)
+            messages.success(request, f'"{evento.nombre}" finalizado.')
+
+        elif action == 'suspender_evento':
+            evento.estado = EE.SUSPENDIDO
+            evento.save(update_fields=['estado'])
+            broadcast_evento_update(evento.id, EE.SUSPENDIDO, evento.marcador_local, evento.marcador_visitante)
+            messages.success(request, f'"{evento.nombre}" suspendido.')
+
+        return redirect('/admin-panel/#envivo')
+
+    def _notificar_saldo_ws(self, apuesta, resultado):
+        try:
+            from asgiref.sync import async_to_sync
+            from channels.layers import get_channel_layer
+            from billetera.selectors import obtener_saldo_cuenta
+            from billetera.models import Account
+            from config.choices import TipoCuentaLedger
+
+            usuario = apuesta.usuario
+            wallet = Account.objects.filter(
+                usuario=usuario,
+                tipo=TipoCuentaLedger.WALLET_USUARIO,
+                activa=True,
+            ).first()
+            if not wallet:
+                return
+
+            saldo = float(obtener_saldo_cuenta(wallet))
+            mensajes = {'won': '¡Ganaste! Tu saldo fue acreditado.', 'lost': 'Apuesta perdida.', 'void': 'Apuesta anulada. Stake devuelto.'}
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'user_{usuario.id}',
+                {
+                    'type': 'balance_update',
+                    'saldo': round(saldo, 2),
+                    'mensaje': mensajes.get(resultado, ''),
+                }
+            )
+        except Exception:
+            pass
 
 
 def get_saldos_usuario(usuario, incluir_limites=False):

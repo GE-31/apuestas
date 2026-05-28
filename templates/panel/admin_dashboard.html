@@ -1,5 +1,5 @@
 {% extends "layouts/base_admin.html" %}
-{% load static %}
+{% load static number_format %}
 
 {% block title %}Panel Admin — Apuesta24/7{% endblock %}
 {% block topbar_title %}<span id="topbarTitle">Resumen</span>{% endblock %}
@@ -205,26 +205,64 @@
               <td><strong>#{{ bet.id }}</strong></td>
               <td>{{ bet.usuario.username }}</td>
               <td>
-                {% if sel %}
+                {% if bet.tipo == 'combinada' %}
+                  <div class="admin-bet-kind admin-bet-kind--combo">
+                    <span>Combinada</span>
+                    <strong>{{ bet.selecciones.count }} selecciones</strong>
+                  </div>
+                  <div class="admin-combo-list">
+                    {% for item in bet.selecciones.all %}
+                      {% with evento=item.seleccion.mercado.evento %}
+                      <div class="admin-combo-item">
+                        <span class="admin-combo-index">{{ forloop.counter }}</span>
+                        <div>
+                          <strong>{{ evento.equipo_local.nombre }} - {{ evento.equipo_visitante.nombre }}</strong>
+                          <small>{{ item.seleccion.mercado.nombre }}</small>
+                        </div>
+                      </div>
+                      {% endwith %}
+                    {% endfor %}
+                  </div>
+                {% elif sel %}
                   <span style="font-weight:600; color:var(--ca-text);">
                     {{ sel.seleccion.mercado.evento.equipo_local.nombre }}
                   </span>
-                  <span style="color:var(--ca-muted); padding:0 4px;">—</span>
+                  <span style="color:var(--ca-muted); padding:0 4px;">-</span>
                   <span style="font-weight:600; color:var(--ca-text);">
                     {{ sel.seleccion.mercado.evento.equipo_visitante.nombre }}
                   </span>
-                {% else %}—{% endif %}
+                {% else %}-{% endif %}
               </td>
               <td>
-                {% if sel %}
+                {% if bet.tipo == 'combinada' %}
+                  <div class="admin-combo-picks">
+                    {% for item in bet.selecciones.all %}
+                    <div class="admin-combo-pick">
+                      <span>{{ item.seleccion.nombre }}</span>
+                      <strong>x{{ item.odd_valor_tomado|odds2 }}</strong>
+                    </div>
+                    {% endfor %}
+                  </div>
+                  <small class="admin-combo-note">Cuota total = producto de selecciones</small>
+                {% elif sel %}
                   <span class="bet-badge bet-badge--{{ sel.seleccion.tipo|lower }}">
                     {{ sel.seleccion.nombre }}
                   </span>
-                {% else %}—{% endif %}
+                {% else %}-{% endif %}
               </td>
-              <td>S/ {{ bet.stake }}</td>
-              <td>{{ bet.odds_total }}</td>
-              <td>S/ {{ bet.payout_potencial }}</td>
+              <td>S/ {{ bet.stake|odds2 }}</td>
+              <td>
+                <strong>{{ bet.odds_total|odds2 }}</strong>
+                {% if bet.tipo == 'combinada' %}
+                <small class="admin-combo-note">total</small>
+                {% endif %}
+              </td>
+              <td>
+                S/ {{ bet.payout_potencial|odds2 }}
+                {% if bet.tipo == 'combinada' %}
+                <small class="admin-combo-note">S/ {{ bet.stake|odds2 }} x {{ bet.odds_total|odds2 }}</small>
+                {% endif %}
+              </td>
               <td>
                 <span class="bet-badge bet-badge--{{ bet.estado }}">{{ bet.get_estado_display }}</span>
               </td>
@@ -557,6 +595,137 @@
 
   </div><!-- /panel-eventos -->
 
+
+  <!-- ════════════════════════════════
+       PANEL: En Vivo — Control de partidos
+  ════════════════════════════════ -->
+  <div class="admin-panel" id="panel-envivo">
+
+    <div class="admin-panel-header">
+      <div class="admin-panel-icon" style="background:rgba(239,68,68,.15);color:#ef4444;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <circle cx="12" cy="12" r="9"/>
+          <circle cx="12" cy="12" r="3" fill="currentColor"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="admin-panel-title">Control En Vivo</h2>
+        <p class="admin-panel-sub">Gestiona el estado y marcadores de los partidos en tiempo real</p>
+      </div>
+    </div>
+
+    <div class="admin-table-card" style="border-radius:18px;">
+      <div class="admin-card-head" style="padding:18px 20px 16px;margin-bottom:0;">
+        <h2>Partidos activos</h2>
+        <span>Programados, en vivo y suspendidos</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Partido</th>
+              <th>Deporte / Liga</th>
+              <th>Fecha</th>
+              <th>Estado</th>
+              <th>Marcador</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ev in eventos_envivo %}
+            <tr>
+              <td><strong>{{ ev.nombre }}</strong></td>
+              <td style="font-size:.8125rem;color:var(--ca-muted);">
+                {{ ev.deporte.nombre }}{% if ev.liga %} / {{ ev.liga.nombre }}{% endif %}
+              </td>
+              <td style="font-size:.8125rem;color:var(--ca-muted);">{{ ev.fecha_inicio|date:"d/m H:i" }}</td>
+              <td>
+                {% if ev.estado == 'en_vivo' %}
+                <span class="bet-badge" style="background:rgba(239,68,68,.15);color:#ef4444;display:inline-flex;align-items:center;gap:5px;">
+                  <span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;animation:livePulse 1.2s infinite;"></span>
+                  En vivo
+                </span>
+                {% elif ev.estado == 'programado' %}
+                <span class="bet-badge" style="background:rgba(99,102,241,.12);color:#818cf8;">Programado</span>
+                {% elif ev.estado == 'suspendido' %}
+                <span class="bet-badge" style="background:rgba(234,179,8,.12);color:#eab308;">Suspendido</span>
+                {% endif %}
+              </td>
+              <td>
+                {% if ev.estado == 'en_vivo' or ev.estado == 'suspendido' %}
+                <form method="post" style="display:flex;align-items:center;gap:6px;">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="actualizar_marcador">
+                  <input type="hidden" name="evento_id" value="{{ ev.id }}">
+                  <input type="number" name="marcador_local" value="{{ ev.marcador_local|default:0 }}" min="0"
+                         style="width:48px;padding:4px 6px;border-radius:6px;background:var(--bg-raised);color:var(--text-primary);border:1px solid var(--border);text-align:center;font-weight:700;">
+                  <span style="color:var(--ca-muted);font-weight:700;">-</span>
+                  <input type="number" name="marcador_visitante" value="{{ ev.marcador_visitante|default:0 }}" min="0"
+                         style="width:48px;padding:4px 6px;border-radius:6px;background:var(--bg-raised);color:var(--text-primary);border:1px solid var(--border);text-align:center;font-weight:700;">
+                  <button type="submit"
+                          style="padding:4px 10px;font-size:.75rem;background:var(--indigo);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap;">
+                    Actualizar
+                  </button>
+                </form>
+                {% else %}
+                <span style="color:var(--ca-muted);font-size:.8125rem;">— aún no —</span>
+                {% endif %}
+              </td>
+              <td>
+                <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                  {% if ev.estado == 'programado' or ev.estado == 'suspendido' %}
+                  <form method="post" style="display:contents;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="iniciar_en_vivo">
+                    <input type="hidden" name="evento_id" value="{{ ev.id }}">
+                    <button type="submit"
+                            style="padding:5px 12px;font-size:.8rem;background:#ef4444;color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700;display:inline-flex;align-items:center;gap:5px;">
+                      <svg viewBox="0 0 24 24" fill="currentColor" width="11" height="11"><circle cx="12" cy="12" r="10"/></svg>
+                      En Vivo
+                    </button>
+                  </form>
+                  {% endif %}
+
+                  {% if ev.estado == 'en_vivo' %}
+                  <form method="post" style="display:contents;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="suspender_evento">
+                    <input type="hidden" name="evento_id" value="{{ ev.id }}">
+                    <button type="submit"
+                            style="padding:5px 12px;font-size:.8rem;background:rgba(234,179,8,.2);color:#eab308;border:1px solid rgba(234,179,8,.3);border-radius:8px;cursor:pointer;font-weight:700;">
+                      Suspender
+                    </button>
+                  </form>
+                  <form method="post" style="display:contents;">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="finalizar_evento">
+                    <input type="hidden" name="evento_id" value="{{ ev.id }}">
+                    <button type="submit"
+                            style="padding:5px 12px;font-size:.8rem;background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.25);border-radius:8px;cursor:pointer;font-weight:700;">
+                      Finalizar
+                    </button>
+                  </form>
+                  {% endif %}
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="admin-table-empty">No hay partidos programados ni en vivo.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <style>
+      @keyframes livePulse {
+        0%,100% { opacity:1; transform:scale(1); }
+        50%      { opacity:.4; transform:scale(1.4); }
+      }
+    </style>
+
+  </div><!-- /panel-envivo -->
+
 {% endblock %}
 
 
@@ -572,7 +741,8 @@
     deportes: 'Deportes',
     ligas:    'Ligas',
     equipos:  'Equipos',
-    eventos:  'Eventos y cuotas'
+    eventos:  'Eventos y cuotas',
+    envivo:   'Control En Vivo'
   };
 
   /* ── Referencias ── */

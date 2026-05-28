@@ -5,7 +5,7 @@
 {% block nav_apuestas %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/mis_apuestas.css' %}?v=20260528b" />
+<link rel="stylesheet" href="{% static 'css/pages/mis_apuestas.css' %}?v=20260528d" />
 {% endblock %}
 
 {% block content %}
@@ -69,12 +69,15 @@
 
   <div class="bets-metric bets-metric-gold">
     <div class="bets-metric-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16" aria-hidden="true">
-        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" width="17" height="17" aria-hidden="true">
+        <rect x="3" y="6" width="18" height="12" rx="2"/>
+        <circle cx="12" cy="12" r="2.5"/>
+        <path d="M6.5 9.5v5"/>
+        <path d="M17.5 9.5v5"/>
       </svg>
     </div>
     <div class="bets-metric-label">Pago potencial</div>
-    <div class="bets-metric-value">{{ pago_potencial|floatformat:"2" }}</div>
+    <div class="bets-metric-value">S/ {{ pago_potencial|floatformat:"2" }}</div>
     <div class="bets-metric-unit">saldo virtual</div>
   </div>
 

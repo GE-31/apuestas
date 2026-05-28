@@ -1,6 +1,7 @@
 from django.db import transaction
 from django.utils import timezone
 
+from auditoria.services.audit_service import auditar_apuesta_liquidada
 from apuestas_core.models import Bet, BetSelection
 from apuestas_core.state_machine import cambiar_estado_apuesta
 from billetera.models import Account
@@ -84,5 +85,11 @@ def cashout_apuesta(*, bet_id, idempotency_key=None, solicitado_por=None):
     bet.save(update_fields=["payout_final", "liquidada_en", "fecha_actualizacion"])
     cambiar_estado_apuesta(bet, EstadoApuesta.CASHED_OUT)
     BetSelection.objects.filter(bet=bet).update(resultado="anulada")
+
+    auditar_apuesta_liquidada(
+        bet=bet,
+        accion="cashed_out",
+        creado_por=solicitado_por,
+    )
 
     return bet, movimiento

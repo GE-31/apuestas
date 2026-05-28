@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=20260528b" />
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=20260528d" />
   <link rel="stylesheet" href="{% static 'css/components.css' %}" />
   <link rel="stylesheet" href="{% static 'css/events.css' %}" />
   {% if request.user.is_authenticated and request.path != "/billetera/" %}
@@ -30,11 +30,12 @@
 
       <nav class="nav" id="mainNav" role="navigation" aria-label="Menu principal">
         <div class="nav-links">
-          <a href="/inicio/" class="nav-link {% block nav_inicio %}{% endblock %}">Inicio</a>
+          <a href="/inicio/" class="nav-link {% block nav_inicio %}{% endblock %}">Deportes</a>
           <a href="/mis-apuestas/" class="nav-link {% block nav_apuestas %}{% endblock %}">Mis apuestas</a>
           <a href="/billetera/" class="nav-link {% block nav_billetera %}{% endblock %}">Billetera</a>
           {% if request.user.is_staff or request.user.is_superuser %}
           <a href="/admin-panel/" class="nav-link {% block nav_admin %}{% endblock %}">Admin</a>
+          <a href="/admin-panel/auditoria/" class="nav-link {% block nav_auditoria %}{% endblock %}">Auditoría</a>
           <a href="/api/" class="nav-link" aria-label="Documentacion API">
             <span class="api-pill">API</span>
           </a>
@@ -54,7 +55,7 @@
           <button class="nav-profile" id="navProfileButton" type="button" aria-haspopup="dialog" aria-controls="accountDrawer">
             <span class="nav-profile-meta">
               <span class="nav-user-name">{{ request.user.first_name|default:request.user.username|default:"Usuario" }}</span>
-              <span class="nav-user-role">{% if request.user.is_staff or request.user.is_superuser %}Equipo{% else %}Cliente{% endif %}</span>
+              <span class="nav-user-balance" id="navProfileBalance">S/ {{ cuenta_drawer_saldo|default:"0.0000"|floatformat:"2u" }}</span>
             </span>
             <span class="nav-profile-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -132,7 +133,58 @@
       </button>
     </div>
 
-    <form class="account-recharge account-operation-panel" id="accountWithdrawForm" hidden>
+    <a href="/logout/" class="account-logout">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+           width="17" height="17" aria-hidden="true">
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
+      </svg>
+      Cerrar sesi&oacute;n
+    </a>
+  </aside>
+
+  <div class="account-withdraw-backdrop" id="accountWithdrawModal" aria-hidden="true">
+    <form class="account-withdraw-modal account-withdraw-panel account-operation-panel" id="accountWithdrawForm"
+          role="dialog" aria-modal="true" aria-labelledby="accountWithdrawTitle">
+      {% csrf_token %}
+      <button class="account-withdraw-close" id="accountWithdrawClose" type="button" aria-label="Cerrar retiro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
+             width="18" height="18" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"/>
+          <line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+      <div class="account-withdraw-head">
+        <div class="account-withdraw-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20">
+            <path d="M12 21V9"/>
+            <path d="m7 14 5-5 5 5"/>
+            <path d="M5 3h14"/>
+          </svg>
+        </div>
+        <div>
+          <strong id="accountWithdrawTitle">Retiro simulado</strong>
+          <span>Envia saldo virtual a un numero Yape de prueba.</span>
+        </div>
+      </div>
+
+      <div class="account-withdraw-summary">
+        <span>Saldo disponible</span>
+        <strong id="accountWithdrawBalance">S/ {{ cuenta_drawer_saldo|default:"0.0000"|floatformat:"2u" }}</strong>
+      </div>
+
+      <label class="account-field" for="accountYapeNumber">
+        <span>Numero Yape</span>
+        <div class="account-phone-field">
+          <span>+51</span>
+          <input id="accountYapeNumber" type="tel" inputmode="numeric" maxlength="9" pattern="9[0-9]{8}"
+                 placeholder="9XXXXXXXX" autocomplete="tel"
+                 aria-describedby="accountYapeHelp" />
+        </div>
+        <small id="accountYapeHelp" class="account-field-help">El retiro simulado se enviara a este numero.</small>
+      </label>
+
       <label class="account-field" for="accountWithdrawAmount">
         <span>Monto a retirar</span>
         <input id="accountWithdrawAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="50.00" value="50.00" />
@@ -144,20 +196,17 @@
         <button type="button" data-withdraw-amount="100.00">S/ 100</button>
       </div>
 
-      <button class="account-primary-btn account-secondary-submit" type="submit">Retirar dinero</button>
+      <button class="account-primary-btn account-withdraw-submit" type="submit">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" width="18" height="18" aria-hidden="true">
+          <path d="M12 21V9"/>
+          <path d="m7 14 5-5 5 5"/>
+          <path d="M5 3h14"/>
+        </svg>
+        Simular retiro a Yape
+      </button>
       <p class="account-message" id="accountWithdrawMessage" aria-live="polite"></p>
     </form>
-
-    <a href="/logout/" class="account-logout">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-           width="17" height="17" aria-hidden="true">
-        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-        <polyline points="16 17 21 12 16 7"/>
-        <line x1="21" y1="12" x2="9" y2="12"/>
-      </svg>
-      Cerrar sesi&oacute;n
-    </a>
-  </aside>
+  </div>
 
   {% if request.user.is_authenticated and request.path != "/billetera/" %}
   <div id="apuesta247Meta" data-user-id="{{ request.user.id }}" hidden></div>
@@ -183,14 +232,14 @@
       <div class="footer-links">
         {% if request.user.is_staff or request.user.is_superuser %}
         <a href="/api/" class="footer-link">Docs API</a>
-        <a href="/admin/" class="footer-link">Admin</a>
+        <a href="/admin-panel/" class="footer-link">Panel interno</a>
         {% endif %}
       </div>
 
     </div>
   </footer>
 
-  <script src="{% static 'js/main.js' %}?v=20260528d"></script>
+  <script src="{% static 'js/main.js' %}?v=20260528h"></script>
   {% if request.user.is_authenticated and request.path != "/billetera/" %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="{% static 'js/pages/billetera.js' %}?v=20260528d"></script>

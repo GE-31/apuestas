@@ -10,12 +10,11 @@ django_asgi_app = get_asgi_application()
 from channels.routing import ProtocolTypeRouter, URLRouter          # noqa: E402
 from channels.auth import AuthMiddlewareStack                        # noqa: E402
 from django.contrib.staticfiles.handlers import ASGIStaticFilesHandler  # noqa: E402
+from tiempo_real.routing import websocket_urlpatterns               # noqa: E402
 
 application = ProtocolTypeRouter({
-    # Archivos estáticos + HTTP normal (solo DEBUG=True)
     "http": ASGIStaticFilesHandler(django_asgi_app),
-    # WebSocket: vacío por ahora, se poblará cuando se implementen consumers
     "websocket": AuthMiddlewareStack(
-        URLRouter([])
+        URLRouter(websocket_urlpatterns)
     ),
 })

@@ -5,7 +5,7 @@
 {% block nav_inicio %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}?v=20260528d" />
+<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}?v=20260528g" />
 {% endblock %}
 
 {% block content %}
@@ -15,9 +15,7 @@
 
   <div class="sb-metric sb-metric--green">
     <div class="sb-metric-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
-        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
-      </svg>
+      <span class="sb-metric-currency" aria-hidden="true">S/</span>
     </div>
     <div class="sb-metric-body">
       <span class="sb-metric-label">Saldo disponible</span>
@@ -28,21 +26,25 @@
 
   <div class="sb-metric sb-metric--blue">
     <div class="sb-metric-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
-        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2"/>
+        <line x1="16" y1="2" x2="16" y2="6"/>
+        <line x1="8" y1="2" x2="8" y2="6"/>
+        <line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
     </div>
     <div class="sb-metric-body">
       <span class="sb-metric-label">Eventos hoy</span>
-      <span class="sb-metric-val">{{ total_count }}</span>
+      <span class="sb-metric-val">{{ eventos_hoy_count }}</span>
       <span class="sb-metric-unit">disponibles</span>
     </div>
   </div>
 
   <div class="sb-metric sb-metric--gold">
     <div class="sb-metric-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/>
+        <polyline points="12 7 12 12 15 14"/>
       </svg>
     </div>
     <div class="sb-metric-body">
@@ -54,8 +56,9 @@
 
   <div class="sb-metric sb-metric--red">
     <div class="sb-metric-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18" aria-hidden="true">
+        <circle cx="12" cy="12" r="9"/>
+        <circle cx="12" cy="12" r="2"/>
       </svg>
     </div>
     <div class="sb-metric-body">
@@ -92,7 +95,7 @@
           {% with s=deporte.nombre|lower %}
             {% if 'futbol' in s or 'fútbol' in s %}
             <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7l1.5 4.5H18l-3.75 2.72 1.43 4.38L12 16.11l-3.68 2.49 1.43-4.38L6 11.5h4.5z" fill="currentColor" opacity=".35"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
-            {% elif 'basket' in s or 'básquet' in s %}
+            {% elif 'basket' in s or 'básquet' in s or 'baloncesto' in s %}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93 19.07 19.07M19.07 4.93 4.93 19.07M12 2v20M2 12h20"/></svg>
             {% elif 'tenis' in s %}
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93c3.5 3.5 3.5 9.14 0 12.64M19.07 4.93c-3.5 3.5-3.5 9.14 0 12.64"/></svg>
@@ -111,9 +114,6 @@
         {% for liga in deporte.ligas %}
         <li>
           <a href="#liga-{{ liga.key }}" class="sb-league-link" data-liga="{{ liga.key }}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true">
-              <polyline points="9 18 15 12 9 6"/>
-            </svg>
             {{ liga.nombre }}
           </a>
         </li>
@@ -251,7 +251,7 @@
         <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
       <h3>No hay partidos disponibles</h3>
-      <p>Crea eventos desde el <a href="/admin/">panel de administración</a>.</p>
+      <p>Crea eventos desde el <a href="/admin-panel/#eventos">panel interno</a>.</p>
     </div>
     {% endif %}
 
@@ -340,5 +340,5 @@
     csrfToken: '{{ csrf_token }}'
   };
 </script>
-<script src="{% static 'js/pages/dashboard.js' %}?v=20260528c"></script>
+<script src="{% static 'js/pages/dashboard.js' %}?v=20260528d"></script>
 {% endblock %}

@@ -211,6 +211,7 @@ class RegistroClienteForm(forms.Form):
                 first_name = cd['nombres'],
                 last_name  = cd['apellidos'],
             )
+            from config.choices import EstadoCuenta
             PerfilUsuario.objects.create(
                 usuario          = user,
                 dni              = cd['dni'],
@@ -219,5 +220,6 @@ class RegistroClienteForm(forms.Form):
                 fecha_nacimiento = cd['fecha_nacimiento'],
                 telefono         = cd.get('telefono') or '',
                 direccion        = full_dir,
+                estado_cuenta    = EstadoCuenta.VERIFICADO,
             )
         return user

@@ -55,7 +55,7 @@
         <div class="admin-nav-group">
           <span class="admin-nav-label">Gestión</span>
 
-          <a href="#resumen" class="admin-nav-item active" data-section="resumen">
+          <a href="/admin-panel/#resumen" class="admin-nav-item {% if request.path == '/admin-panel/' %}active{% endif %}" data-section="resumen">
             <span class="admin-nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="17" height="17">
                 <rect x="3" y="3" width="7" height="7" rx="1.5"/>
@@ -67,7 +67,7 @@
             <span class="admin-nav-text">Resumen</span>
           </a>
 
-          <a href="#apuestas" class="admin-nav-item" data-section="apuestas">
+          <a href="/admin-panel/#apuestas" class="admin-nav-item" data-section="apuestas">
             <span class="admin-nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="17" height="17">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
@@ -81,7 +81,7 @@
         <div class="admin-nav-group">
           <span class="admin-nav-label">Configuración</span>
 
-          <a href="#deportes" class="admin-nav-item" data-section="deportes">
+          <a href="/admin-panel/#deportes" class="admin-nav-item" data-section="deportes">
             <span class="admin-nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="17" height="17">
                 <circle cx="12" cy="12" r="10"/>
@@ -92,7 +92,7 @@
             <span class="admin-nav-text">Deportes</span>
           </a>
 
-          <a href="#ligas" class="admin-nav-item" data-section="ligas">
+          <a href="/admin-panel/#ligas" class="admin-nav-item" data-section="ligas">
             <span class="admin-nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="17" height="17">
                 <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/>
@@ -105,7 +105,7 @@
             <span class="admin-nav-text">Ligas</span>
           </a>
 
-          <a href="#equipos" class="admin-nav-item" data-section="equipos">
+          <a href="/admin-panel/#equipos" class="admin-nav-item" data-section="equipos">
             <span class="admin-nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="17" height="17">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -117,7 +117,7 @@
             <span class="admin-nav-text">Equipos</span>
           </a>
 
-          <a href="#eventos" class="admin-nav-item" data-section="eventos">
+          <a href="/admin-panel/#eventos" class="admin-nav-item" data-section="eventos">
             <span class="admin-nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="17" height="17">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
@@ -128,24 +128,29 @@
             </span>
             <span class="admin-nav-text">Eventos y cuotas</span>
           </a>
+
+          <a href="/admin-panel/#envivo" class="admin-nav-item" data-section="envivo">
+            <span class="admin-nav-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="17" height="17">
+                <circle cx="12" cy="12" r="9"/>
+                <circle cx="12" cy="12" r="3" fill="currentColor"/>
+              </svg>
+            </span>
+            <span class="admin-nav-text">En Vivo</span>
+          </a>
         </div>
 
         <div class="admin-nav-group admin-nav-group--sys">
           <span class="admin-nav-label">Sistema</span>
 
-          <a href="/admin/" class="admin-nav-item" target="_blank" rel="noopener noreferrer">
+          <a href="/admin-panel/auditoria/" class="admin-nav-item {% if request.path == '/admin-panel/auditoria/' or request.path == '/auditoria/' %}active{% endif %}">
             <span class="admin-nav-icon" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" width="17" height="17">
-                <circle cx="12" cy="12" r="3"/>
-                <path d="M19.07 4.93A10 10 0 1 0 21 12h-3a6 6 0 1 1-1.76-4.24"/>
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="M9 12l2 2 4-5"/>
               </svg>
             </span>
-            <span class="admin-nav-text">Admin Django</span>
-            <svg class="admin-nav-ext" viewBox="0 0 16 16" fill="none" stroke="currentColor"
-                 stroke-width="1.8" width="12" height="12" aria-hidden="true">
-              <path d="M7 3H3a1 1 0 0 0-1 1v9a1 1 0 0 0 1 1h9a1 1 0 0 0 1-1V9"/>
-              <path d="M9 3h4v4"/><line x1="13" y1="3" x2="7.5" y2="8.5"/>
-            </svg>
+            <span class="admin-nav-text">Auditor&iacute;a</span>
           </a>
         </div>
 

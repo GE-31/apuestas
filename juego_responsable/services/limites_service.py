@@ -4,6 +4,7 @@ from django.db import transaction
 from django.db.models import Sum
 from django.utils import timezone
 
+from auditoria.services.audit_service import auditar_juego_responsable
 from billetera.models import Account, LedgerEntry
 from billetera.services.ledger_service import normalizar_decimal
 from config.choices import TipoCuentaLedger, TipoTransaccionLedger
@@ -208,6 +209,15 @@ def solicitar_cambio_limites(
     """
 
     limite = obtener_o_crear_limite_deposito(usuario)
+    valores_anteriores = {
+        "limite_diario": str(limite.limite_diario),
+        "limite_semanal": str(limite.limite_semanal),
+        "limite_mensual": str(limite.limite_mensual),
+        "cambio_pendiente_diario": str(limite.cambio_pendiente_diario) if limite.cambio_pendiente_diario is not None else None,
+        "cambio_pendiente_semanal": str(limite.cambio_pendiente_semanal) if limite.cambio_pendiente_semanal is not None else None,
+        "cambio_pendiente_mensual": str(limite.cambio_pendiente_mensual) if limite.cambio_pendiente_mensual is not None else None,
+        "aplicar_cambio_en": str(limite.aplicar_cambio_en) if limite.aplicar_cambio_en else None,
+    }
 
     nuevo_diario = normalizar_decimal(limite_diario)
     nuevo_semanal = normalizar_decimal(limite_semanal)
@@ -249,6 +259,32 @@ def solicitar_cambio_limites(
 
     limite.save()
 
+    auditar_juego_responsable(
+        entidad="LimiteDeposito",
+        entidad_id=limite.id,
+        accion="updated",
+        payload={
+            "usuario_id": usuario.id,
+            "antes": valores_anteriores,
+            "solicitado": {
+                "limite_diario": str(nuevo_diario),
+                "limite_semanal": str(nuevo_semanal),
+                "limite_mensual": str(nuevo_mensual),
+            },
+            "despues": {
+                "limite_diario": str(limite.limite_diario),
+                "limite_semanal": str(limite.limite_semanal),
+                "limite_mensual": str(limite.limite_mensual),
+                "cambio_pendiente_diario": str(limite.cambio_pendiente_diario) if limite.cambio_pendiente_diario is not None else None,
+                "cambio_pendiente_semanal": str(limite.cambio_pendiente_semanal) if limite.cambio_pendiente_semanal is not None else None,
+                "cambio_pendiente_mensual": str(limite.cambio_pendiente_mensual) if limite.cambio_pendiente_mensual is not None else None,
+                "aplicar_cambio_en": str(limite.aplicar_cambio_en) if limite.aplicar_cambio_en else None,
+            },
+            "requiere_cooldown": requiere_cooldown,
+        },
+        creado_por=usuario,
+    )
+
     return limite
 
 
@@ -268,6 +304,15 @@ def aplicar_cambios_pendientes_limites():
     cantidad = 0
 
     for limite in limites:
+        valores_anteriores = {
+            "limite_diario": str(limite.limite_diario),
+            "limite_semanal": str(limite.limite_semanal),
+            "limite_mensual": str(limite.limite_mensual),
+            "cambio_pendiente_diario": str(limite.cambio_pendiente_diario) if limite.cambio_pendiente_diario is not None else None,
+            "cambio_pendiente_semanal": str(limite.cambio_pendiente_semanal) if limite.cambio_pendiente_semanal is not None else None,
+            "cambio_pendiente_mensual": str(limite.cambio_pendiente_mensual) if limite.cambio_pendiente_mensual is not None else None,
+        }
+
         if limite.cambio_pendiente_diario is not None:
             limite.limite_diario = limite.cambio_pendiente_diario
             limite.cambio_pendiente_diario = None
@@ -282,6 +327,24 @@ def aplicar_cambios_pendientes_limites():
 
         limite.aplicar_cambio_en = None
         limite.save()
+        auditar_juego_responsable(
+            entidad="LimiteDeposito",
+            entidad_id=limite.id,
+            accion="cooldown_applied",
+            payload={
+                "usuario_id": limite.usuario_id,
+                "antes": valores_anteriores,
+                "despues": {
+                    "limite_diario": str(limite.limite_diario),
+                    "limite_semanal": str(limite.limite_semanal),
+                    "limite_mensual": str(limite.limite_mensual),
+                    "cambio_pendiente_diario": None,
+                    "cambio_pendiente_semanal": None,
+                    "cambio_pendiente_mensual": None,
+                    "aplicar_cambio_en": None,
+                },
+            },
+        )
         cantidad += 1
 
     return cantidad

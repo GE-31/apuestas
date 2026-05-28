@@ -1,0 +1,309 @@
+{% extends "layouts/base_admin.html" %}
+{% load static %}
+
+{% block title %}Auditoría — Apuesta24/7{% endblock %}
+{% block topbar_title %}Auditor&iacute;a{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/auditoria.css' %}?v=20260528b" />
+{% endblock %}
+
+{% block admin_content %}
+<div class="audit-page">
+
+  <!-- ══ HEADER ══ -->
+  <div class="audit-header">
+    <div class="audit-header-left">
+      <div class="audit-header-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="audit-title">Registro de Auditoría</h1>
+        <p class="audit-subtitle">Trazabilidad completa de eventos del sistema</p>
+      </div>
+    </div>
+    <div class="audit-header-right">
+      <div class="audit-integrity-badge">
+        <span class="audit-integrity-dot"></span>
+        Cadena íntegra
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ STATS ══ -->
+  <div class="audit-stats">
+    <div class="audit-stat audit-stat--blue">
+      <div class="audit-stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <div>
+        <span class="audit-stat-val">{{ stats.total_hoy }}</span>
+        <span class="audit-stat-label">Eventos hoy</span>
+      </div>
+    </div>
+    <div class="audit-stat audit-stat--green">
+      <div class="audit-stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+        </svg>
+      </div>
+      <div>
+        <span class="audit-stat-val">{{ stats.apuestas_hoy }}</span>
+        <span class="audit-stat-label">Apuestas hoy</span>
+      </div>
+    </div>
+    <div class="audit-stat audit-stat--orange">
+      <div class="audit-stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <rect x="3" y="5" width="18" height="14" rx="2"/>
+          <path d="M16 10h5v5h-5a2.5 2.5 0 0 1 0-5z"/>
+        </svg>
+      </div>
+      <div>
+        <span class="audit-stat-val">{{ stats.wallet_hoy }}</span>
+        <span class="audit-stat-label">Movimientos hoy</span>
+      </div>
+    </div>
+    <div class="audit-stat audit-stat--red">
+      <div class="audit-stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+          <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </div>
+      <div>
+        <span class="audit-stat-val">{{ stats.alertas_hoy }}</span>
+        <span class="audit-stat-label">Alertas hoy</span>
+      </div>
+    </div>
+    <div class="audit-stat audit-stat--purple">
+      <div class="audit-stat-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+          <ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/>
+          <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/>
+        </svg>
+      </div>
+      <div>
+        <span class="audit-stat-val">{{ stats.total_general }}</span>
+        <span class="audit-stat-label">Total registros</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ FILTROS ══ -->
+  <form class="audit-filters" method="get" action="">
+    <div class="audit-filter-row">
+
+      <div class="audit-filter-group">
+        <label class="audit-filter-label" for="fecha_desde">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Fecha
+        </label>
+        <input class="audit-filter-input" type="date" id="fecha_desde" name="fecha_desde" value="{{ f_fecha_desde }}">
+      </div>
+
+      <div class="audit-filter-group">
+        <label class="audit-filter-label" for="fecha_hasta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/>
+            <line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+          </svg>
+          Hasta opcional
+        </label>
+        <input class="audit-filter-input" type="date" id="fecha_hasta" name="fecha_hasta" value="{{ f_fecha_hasta }}">
+      </div>
+
+      <div class="audit-filter-group">
+        <label class="audit-filter-label" for="tipo_evento">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+          </svg>
+          Tipo de evento
+        </label>
+        <select class="audit-filter-input audit-filter-select" id="tipo_evento" name="tipo_evento">
+          <option value="">— Todos los tipos —</option>
+          {% for val, label in tipos_evento %}
+          <option value="{{ val }}" {% if f_tipo_evento == val %}selected{% endif %}>{{ label }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="audit-filter-group audit-filter-group--search">
+        <label class="audit-filter-label" for="buscar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Buscar
+        </label>
+        <input class="audit-filter-input" type="text" id="buscar" name="buscar"
+               value="{{ f_buscar }}" placeholder="Entidad, ID, acción, usuario, IP…">
+      </div>
+
+      <div class="audit-filter-actions">
+        <button class="audit-btn audit-btn--primary" type="submit">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          Filtrar
+        </button>
+        <a class="audit-btn audit-btn--ghost" href="/admin-panel/auditoria/">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="15" height="15">
+            <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.5"/>
+          </svg>
+          Limpiar
+        </a>
+      </div>
+
+    </div>
+
+    <!-- Pills de filtros activos -->
+    {% if f_fecha_desde or f_fecha_hasta or f_tipo_evento or f_buscar %}
+    <div class="audit-active-filters">
+      <span class="audit-active-label">Filtros activos:</span>
+      {% if f_fecha_desde %}<span class="audit-pill">Fecha: {{ f_fecha_desde }}</span>{% endif %}
+      {% if f_fecha_hasta %}<span class="audit-pill">Hasta: {{ f_fecha_hasta }}</span>{% endif %}
+      {% if f_tipo_evento %}<span class="audit-pill">Tipo: {{ f_tipo_evento }}</span>{% endif %}
+      {% if f_buscar %}<span class="audit-pill">Buscar: "{{ f_buscar }}"</span>{% endif %}
+      <span class="audit-result-count">{{ paginador.count }} resultado{{ paginador.count|pluralize }}</span>
+    </div>
+    {% endif %}
+  </form>
+
+  <!-- ══ TABLA ══ -->
+  <div class="audit-table-card">
+    <div class="audit-table-head">
+      <h2>
+        Registros
+        <span class="audit-table-count">{{ paginador.count }}</span>
+      </h2>
+      <span class="audit-table-meta">Página {{ logs.number }} de {{ paginador.num_pages }}</span>
+    </div>
+
+    <div class="audit-table-wrap">
+      {% if logs.object_list %}
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Tipo</th>
+            <th>Entidad</th>
+            <th>#ID</th>
+            <th>Acción</th>
+            <th>Usuario</th>
+            <th>Cuenta</th>
+            <th>IP</th>
+            <th>Hash</th>
+            <th>Fecha</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for log in logs %}
+          <tr class="audit-row audit-row--{{ log.tipo_evento }}">
+            <td><span class="audit-id">#{{ log.id }}</span></td>
+            <td>
+              <span class="audit-badge audit-badge--{{ log.tipo_evento }}">
+                {% if log.tipo_evento == 'wallet_movement' %}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M16 10h5v5h-5a2.5 2.5 0 0 1 0-5z"/></svg>
+                {% elif log.tipo_evento == 'bet_created' or log.tipo_evento == 'bet_settled' %}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                {% elif log.tipo_evento == 'fraud_alert' %}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+                {% elif log.tipo_evento == 'odd_changed' %}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                {% else %}
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="11" height="11"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                {% endif %}
+                {{ log.get_tipo_evento_display }}
+              </span>
+            </td>
+            <td><span class="audit-entity">{{ log.entidad }}</span></td>
+            <td><code class="audit-code">{{ log.entidad_id }}</code></td>
+            <td><span class="audit-action">{{ log.accion }}</span></td>
+            <td>
+              {% if log.creado_por %}
+                <span class="audit-user">{{ log.creado_por.username }}</span>
+              {% else %}
+                <span class="audit-system">sistema</span>
+              {% endif %}
+            </td>
+            <td>
+              {% if log.creado_por and log.creado_por.estado_sesion_cuenta.sesion_activa %}
+                <span class="audit-status audit-status--active">Activo</span>
+              {% elif log.creado_por %}
+                <span class="audit-status audit-status--inactive">Inactivo</span>
+              {% else %}
+                <span class="audit-system">-</span>
+              {% endif %}
+            </td>
+            <td><code class="audit-code audit-code--ip">{{ log.ip_origen|default:"—" }}</code></td>
+            <td>
+              <span class="audit-hash" title="{{ log.current_hash }}">
+                {{ log.current_hash|slice:":8" }}…
+              </span>
+            </td>
+            <td>
+              <div class="audit-date">
+                <span class="audit-date-day">{{ log.fecha_creacion|date:"d M" }}</span>
+                <span class="audit-date-time">{{ log.fecha_creacion|date:"H:i:s" }}</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+
+      {% else %}
+      <div class="audit-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        {% if tiene_fecha %}
+        <h3>Sin registros</h3>
+        <p>No se encontraron eventos para la fecha seleccionada.</p>
+        <a class="audit-btn audit-btn--primary" href="/admin-panel/auditoria/">Cambiar fecha</a>
+        {% else %}
+        <h3>Selecciona una fecha</h3>
+        <p>El registro de auditor&iacute;a se muestra solo al filtrar por fecha.</p>
+        {% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- ── Paginación ── -->
+    {% if paginador.num_pages > 1 %}
+    <div class="audit-pagination">
+      {% if logs.has_previous %}
+      <a class="audit-page-btn" href="?{{ pagination_prefix }}pagina={{ logs.previous_page_number }}" aria-label="Anterior">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polyline points="15 18 9 12 15 6"/></svg>
+      </a>
+      {% endif %}
+
+      {% for num in paginador.page_range %}
+        {% if num == logs.number %}
+        <span class="audit-page-btn audit-page-btn--active">{{ num }}</span>
+        {% elif num == 1 or num == paginador.num_pages or num >= logs.number|add:"-2" and num <= logs.number|add:"2" %}
+        <a class="audit-page-btn" href="?{{ pagination_prefix }}pagina={{ num }}">{{ num }}</a>
+        {% elif num == logs.number|add:"-3" or num == logs.number|add:"3" %}
+        <span class="audit-page-ellipsis">…</span>
+        {% endif %}
+      {% endfor %}
+
+      {% if logs.has_next %}
+      <a class="audit-page-btn" href="?{{ pagination_prefix }}pagina={{ logs.next_page_number }}" aria-label="Siguiente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+
+  </div><!-- /audit-table-card -->
+
+</div><!-- /audit-page -->
+{% endblock %}

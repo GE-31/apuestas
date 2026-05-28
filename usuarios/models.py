@@ -116,3 +116,33 @@ class VerificacionKYC(models.Model):
 
     def __str__(self):
         return f'KYC - {self.perfil.dni}'
+
+
+class EstadoSesionUsuario(models.Model):
+    usuario = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='estado_sesion_cuenta'
+    )
+
+    sesion_activa = models.BooleanField(
+        default=False,
+        help_text='Indica si el usuario tiene una sesion web activa.'
+    )
+
+    ultima_conexion = models.DateTimeField(blank=True, null=True)
+    ultima_salida = models.DateTimeField(blank=True, null=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = 'usuarios_estado_sesion'
+        verbose_name = 'Estado de sesion de usuario'
+        verbose_name_plural = 'Estados de sesion de usuarios'
+        indexes = [
+            models.Index(fields=['sesion_activa']),
+            models.Index(fields=['fecha_actualizacion']),
+        ]
+
+    def __str__(self):
+        estado = 'activo' if self.sesion_activa else 'inactivo'
+        return f'{self.usuario} - {estado}'

@@ -418,6 +418,7 @@
   color: #1e293b;
   font-weight: 500;
   white-space: nowrap;
+  vertical-align: top;
 }
 
 .admin-table-card tbody tr:last-child td { border-bottom: none; }
@@ -476,6 +477,102 @@
 .bet-badge--cancelled { background: rgba(245,158,11,.12);  color: #92400e; }
 .bet-badge--borrador  { background: rgba(168,85,247,.12);  color: #7e22ce; }
 .bet-badge--cashed_out { background: rgba(20,184,166,.12); color: #0f766e; }
+
+.admin-bet-kind {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  padding: 4px 9px;
+  border-radius: 999px;
+  font-size: .68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  white-space: nowrap;
+}
+
+.admin-bet-kind--combo {
+  background: rgba(245, 158, 11, .14);
+  color: #92400e;
+}
+
+.admin-bet-kind strong {
+  color: #475569;
+  font-size: .65rem;
+}
+
+.admin-combo-list,
+.admin-combo-picks {
+  display: grid;
+  gap: 7px;
+  min-width: 260px;
+  white-space: normal;
+}
+
+.admin-combo-item {
+  display: grid;
+  grid-template-columns: 22px minmax(0, 1fr);
+  gap: 8px;
+  align-items: start;
+}
+
+.admin-combo-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #3730a3;
+  font-size: .67rem;
+  font-weight: 800;
+}
+
+.admin-combo-item strong {
+  display: block;
+  color: #0f172a;
+  font-size: .8rem;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.admin-combo-item small,
+.admin-combo-note {
+  display: block;
+  margin-top: 3px;
+  color: #64748b;
+  font-size: .69rem;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: normal;
+}
+
+.admin-combo-pick {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 9px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #f8fafc;
+}
+
+.admin-combo-pick span {
+  color: #0f172a;
+  font-size: .75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  white-space: normal;
+}
+
+.admin-combo-pick strong {
+  color: #0f766e;
+  font-size: .75rem;
+  white-space: nowrap;
+}
 
 /* ── Apuestas: action buttons ── */
 .bet-actions { display: flex; gap: 4px; align-items: center; }

@@ -192,13 +192,13 @@
   text-align: right;
 }
 
-.nav-user-role {
-  color: #bfdbfe;
+.nav-user-balance {
+  color: #fff;
   font-size: 0.68rem;
   line-height: 1;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-weight: 900;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .nav-profile-icon {
@@ -406,22 +406,85 @@
   transform: translateY(-1px);
 }
 
-.account-operation-panel {
-  margin-bottom: 14px;
-  padding: 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 14px;
-  background: #fff;
+.account-action-btn-outline.is-active {
+  background: #eef2ff;
+  border-color: #6d5dfc;
+  color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(109, 93, 252, 0.12);
 }
 
-.account-secondary-submit {
-  background: #6d5dfc;
+.account-operation-panel {
+  margin-bottom: 14px;
+  padding: 16px;
+  border: 1px solid #dbe4ef;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+}
+
+.account-withdraw-panel {
+  display: grid;
+  gap: 15px;
+}
+
+.account-withdraw-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #eef2f7;
+}
+
+.account-withdraw-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #eef2ff;
+  color: #6d5dfc;
+  flex-shrink: 0;
+}
+
+.account-withdraw-head strong {
+  display: block;
+  color: #0f172a;
+  font-size: 0.98rem;
+  font-weight: 900;
+}
+
+.account-withdraw-head span {
+  display: block;
+  margin-top: 2px;
+  color: #64748b;
+  font-size: 0.76rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.account-withdraw-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
   color: #fff;
 }
 
-.account-recharge {
-  display: grid;
-  gap: 14px;
+.account-withdraw-summary span {
+  color: #cbd5e1;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.account-withdraw-summary strong {
+  color: #22c55e;
+  font-size: 0.95rem;
+  font-family: var(--font-mono);
+  font-weight: 900;
 }
 
 .account-field {
@@ -447,9 +510,59 @@
   font-weight: 800;
 }
 
+.account-withdraw-panel .account-field input {
+  font-size: 1.05rem;
+}
+
 .account-field input:focus {
   outline: 3px solid rgba(37, 99, 235, 0.14);
   border-color: #2563eb;
+}
+
+.account-phone-field {
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  background: #fff;
+  overflow: hidden;
+}
+
+.account-phone-field span {
+  display: inline-flex;
+  align-items: center;
+  align-self: stretch;
+  padding: 0 12px;
+  border-right: 1px solid #e2e8f0;
+  background: #f8fafc;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.account-phone-field input {
+  flex: 1;
+  min-width: 0;
+  min-height: auto;
+  border: none;
+  border-radius: 0;
+}
+
+.account-phone-field:focus-within {
+  outline: 3px solid rgba(37, 99, 235, 0.14);
+  border-color: #2563eb;
+}
+
+.account-phone-field input:focus {
+  outline: none;
+}
+
+.account-field-help {
+  color: #64748b;
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.35;
 }
 
 .account-quick-amounts {
@@ -494,6 +607,56 @@
   color: #052e16;
 }
 
+.account-withdraw-submit {
+  width: 100%;
+  background: #22c55e;
+  color: #052e16;
+}
+
+.account-withdraw-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 2100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(15, 23, 42, 0.56);
+  backdrop-filter: blur(4px);
+}
+
+.account-withdraw-backdrop.is-open {
+  display: flex;
+}
+
+.account-withdraw-modal {
+  position: relative;
+  width: min(440px, 100%);
+  max-height: min(760px, calc(100vh - 44px));
+  margin: 0;
+  overflow-y: auto;
+}
+
+.account-withdraw-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  border-radius: 999px;
+  background: #e2e8f0;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.account-withdraw-close:hover {
+  background: #cbd5e1;
+}
+
 .account-primary-btn:disabled {
   cursor: wait;
   opacity: 0.68;
@@ -518,7 +681,8 @@
 .account-message.is-success { color: #15803d; }
 .account-message.is-error { color: #b91c1c; }
 
-body.account-drawer-open {
+body.account-drawer-open,
+body.account-withdraw-open {
   overflow: hidden;
 }
 

@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm
 from django.db import transaction
+from config.choices import EstadoCuenta
 
 _TIPO_DOC = [
     ('DNI',  'DNI'),
@@ -219,5 +220,6 @@ class RegistroClienteForm(forms.Form):
                 fecha_nacimiento = cd['fecha_nacimiento'],
                 telefono         = cd.get('telefono') or '',
                 direccion        = full_dir,
+                estado_cuenta    = EstadoCuenta.VERIFICADO,
             )
         return user

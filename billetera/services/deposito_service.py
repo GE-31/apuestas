@@ -11,17 +11,17 @@ class CuentaSistemaNoEncontradaError(Exception):
 
 
 def obtener_cuenta_casa():
-    cuenta = Account.objects.filter(
-        usuario__isnull=True,
+    cuenta, _ = Account.objects.get_or_create(
+        usuario=None,
         tipo=TipoCuentaLedger.CASA,
-        activa=True,
-    ).first()
+        defaults={
+            'nombre': 'Casa',
+            'activa': True,
+        },
+    )
 
-    if not cuenta:
-        raise CuentaSistemaNoEncontradaError(
-            'No existe una cuenta activa de tipo CASA.'
-        )
-
+    if not cuenta.activa:
+        raise CuentaSistemaNoEncontradaError('No existe una cuenta activa de tipo CASA.')
     return cuenta
 
 

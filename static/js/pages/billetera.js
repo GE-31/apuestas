@@ -59,6 +59,23 @@
     }
   }
 
+  function addToDisplayedBalance(amount) {
+    var value = Number.parseFloat(amount);
+    if (!Number.isFinite(value)) return;
+    var balEl = document.querySelector('[data-wallet-balance]');
+    if (!balEl) return;
+    var current = Number.parseFloat(balEl.dataset.walletBalance || '0') || 0;
+    var next = current + value;
+    balEl.dataset.walletBalance = next.toFixed(4);
+    balEl.innerHTML = '<span class="wallet-hero-amount-unit">S/</span> ' + next.toFixed(2);
+    document.querySelectorAll('.wallet-account-value').forEach(function (el) {
+      if (el.textContent.indexOf('S/') !== -1 && el.closest('.wallet-account-green')) {
+        el.textContent = 'S/ ' + next.toFixed(2);
+      }
+    });
+    if (modalSaldo) modalSaldo.textContent = 'S/ ' + next.toFixed(2);
+  }
+
   function setView(name) {
     views.forEach(function (view) {
       view.classList.toggle('is-active', view.dataset.walletView === name);
@@ -260,6 +277,7 @@
         return data;
       });
     }).then(function () {
+      addToDisplayedBalance(selectedAmount);
       setResultState(false, '', selectedMethod, selectedAmount);
       setView('result');
     }).catch(function (err) {

@@ -49,15 +49,17 @@ def obtener_cuenta_apuestas_pendientes():
     Obtiene la cuenta del sistema donde se bloquean los fondos apostados.
     """
 
-    cuenta = Account.objects.select_for_update().filter(
-        usuario__isnull=True,
+    cuenta, _ = Account.objects.select_for_update().get_or_create(
+        usuario=None,
         tipo=TipoCuentaLedger.APUESTAS_PENDIENTES,
-        activa=True,
-    ).first()
+        defaults={
+            'nombre': 'Apuestas pendientes',
+            'activa': True,
+        },
+    )
 
-    if not cuenta:
+    if not cuenta.activa:
         raise ApuestaError("No existe una cuenta activa de apuestas pendientes.")
-
     return cuenta
 
 

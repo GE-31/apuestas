@@ -11,7 +11,7 @@ from apuestas_core.serializers import (
     CrearApuestaSimpleSerializer,
     LiquidarApuestaSerializer,
 )
-from apuestas_core.services.apuesta_service import crear_apuesta_simple
+from apuestas_core.services.apuesta_service import ApuestaError, crear_apuesta_simple
 from apuestas_core.services.liquidacion_service import (
     anular_apuesta,
     liquidar_apuesta_ganada,
@@ -91,15 +91,27 @@ class OperacionesApuestaViewSet(viewsets.ViewSet):
         serializer = CrearApuestaSimpleSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+        try:
+            usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+        except User.DoesNotExist:
+            return Response(
+                {'detail': 'Usuario no encontrado.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
 
-        apuesta = crear_apuesta_simple(
-            usuario=usuario,
-            odd_id=serializer.validated_data['odd_id'],
-            stake=serializer.validated_data['stake'],
-            idempotency_key=serializer.validated_data.get('idempotency_key'),
-            ip_origen=serializer.validated_data.get('ip_origen'),
-        )
+        try:
+            apuesta = crear_apuesta_simple(
+                usuario=usuario,
+                odd_id=serializer.validated_data['odd_id'],
+                stake=serializer.validated_data['stake'],
+                idempotency_key=serializer.validated_data.get('idempotency_key'),
+                ip_origen=serializer.validated_data.get('ip_origen'),
+            )
+        except ApuestaError as exc:
+            return Response(
+                {'detail': str(exc)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         response_serializer = BetSerializer(apuesta)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)

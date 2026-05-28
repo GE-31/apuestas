@@ -40,8 +40,15 @@ class EstadoEvento(models.TextChoices):
 
 class TipoMercado(models.TextChoices):
     UNO_X_DOS = '1x2', '1X2'
+    OVER_UNDER_05 = 'over_under_05', 'Mas/Menos 0.5 goles'
+    OVER_UNDER_15 = 'over_under_15', 'Mas/Menos 1.5 goles'
+    OVER_UNDER_25 = 'over_under_25', 'Mas/Menos 2.5 goles'
+    OVER_UNDER_35 = 'over_under_35', 'Mas/Menos 3.5 goles'
     OVER_UNDER = 'over_under', 'Over/Under'
     BTTS = 'btts', 'Ambos equipos anotan'
+    DOUBLE_CHANCE = 'double_chance', 'Doble oportunidad'
+    DRAW_NO_BET = 'draw_no_bet', 'Apuesta sin empate'
+    EXACT_GOALS = 'exact_goals', 'Cantidad exacta de goles'
     HANDICAP = 'handicap', 'Handicap'
 
 
@@ -49,10 +56,24 @@ class TipoSeleccionMercado(models.TextChoices):
     LOCAL = 'local', 'Gana local'
     EMPATE = 'empate', 'Empate'
     VISITANTE = 'visitante', 'Gana visitante'
+    LOCAL_EMPATE = 'local_empate', 'Local o empate'
+    LOCAL_VISITANTE = 'local_visitante', 'Local o visitante'
+    EMPATE_VISITANTE = 'empate_visitante', 'Empate o visitante'
+    OVER_05 = 'over_05', 'Mas de 0.5 goles'
+    UNDER_05 = 'under_05', 'Menos de 0.5 goles'
+    OVER_15 = 'over_15', 'Mas de 1.5 goles'
+    UNDER_15 = 'under_15', 'Menos de 1.5 goles'
     OVER_25 = 'over_25', 'Más de 2.5 goles'
     UNDER_25 = 'under_25', 'Menos de 2.5 goles'
+    OVER_35 = 'over_35', 'Mas de 3.5 goles'
+    UNDER_35 = 'under_35', 'Menos de 3.5 goles'
     AMBOS_SI = 'ambos_si', 'Ambos anotan'
     AMBOS_NO = 'ambos_no', 'Ambos no anotan'
+    EXACT_0 = 'exact_0', '0 goles'
+    EXACT_1 = 'exact_1', '1 gol'
+    EXACT_2 = 'exact_2', '2 goles'
+    EXACT_3 = 'exact_3', '3 goles'
+    EXACT_4_PLUS = 'exact_4_plus', '4+ goles'
 
 
 class EstadoApuesta(models.TextChoices):

@@ -8,6 +8,7 @@ from config.choices import EstadoEvento, TipoMercado, TipoSeleccionMercado
 from cuotas.models import Odd
 from eventos.models import Deporte, Equipo, Evento, Liga
 from mercados.models import Mercado, SeleccionMercado
+from mercados.services.football_markets_service import ensure_default_football_markets
 
 
 class DeporteAdminForm(forms.Form):
@@ -127,6 +128,7 @@ class EventoAdminForm(forms.Form):
                 actualizada_por=user,
             )
 
+        ensure_default_football_markets(evento, user=user)
         return evento
 
 

@@ -61,7 +61,7 @@ def obtener_total_recargado(usuario, fecha_inicio, fecha_fin):
 
     wallet = obtener_wallet_usuario(usuario)
 
-    total = (
+    total_recargas = (
         LedgerEntry.objects
         .filter(
             account=wallet,
@@ -74,7 +74,20 @@ def obtener_total_recargado(usuario, fecha_inicio, fecha_fin):
         or Decimal("0.0000")
     )
 
-    return normalizar_decimal(total)
+    total_retiros = (
+        LedgerEntry.objects
+        .filter(
+            account=wallet,
+            direction="DEBIT",
+            transaction__tipo=TipoTransaccionLedger.RETIRO,
+            fecha_creacion__gte=fecha_inicio,
+            fecha_creacion__lte=fecha_fin,
+        )
+        .aggregate(total=Sum("amount"))["total"]
+        or Decimal("0.0000")
+    )
+
+    return normalizar_decimal(max(total_recargas - total_retiros, Decimal("0.0000")))
 
 
 def obtener_inicio_dia(ahora=None):

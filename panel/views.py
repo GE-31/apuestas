@@ -13,9 +13,10 @@ from apuestas_core.services.liquidacion_service import (
 )
 from billetera.models import Account
 from billetera.selectors import obtener_saldo_cuenta
-from config.choices import EstadoApuesta, EstadoEvento, TipoCuentaLedger
+from config.choices import EstadoApuesta, EstadoEvento, TipoCuentaLedger, TipoMercado
 from eventos.models import Deporte, Equipo, Evento, Liga
 from juego_responsable.services.limites_service import obtener_resumen_limites_deposito
+from mercados.services.football_markets_service import ordered_selections
 from usuarios.models import PerfilUsuario
 
 from .forms import DeporteAdminForm, EquipoAdminForm, EventoAdminForm, EventoLigaUpdateForm, LigaAdminForm
@@ -115,9 +116,25 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         # Attach primary (first active) market to each event — uses prefetch cache
         for evento in eventos:
             evento.mercado_principal = next(
-                (m for m in evento.mercados.all() if m.activo and not m.suspendido),
+                (
+                    m for m in evento.mercados.all()
+                    if m.activo and not m.suspendido and m.tipo == TipoMercado.UNO_X_DOS
+                ),
                 None,
             )
+            if evento.mercado_principal:
+                evento.mercado_principal.selecciones_ordenadas = ordered_selections(
+                    evento.mercado_principal.selecciones.all()
+                )
+            evento.mercados_extra = []
+            for mercado in evento.mercados.all():
+                if (
+                    mercado.activo
+                    and not mercado.suspendido
+                    and mercado.tipo != TipoMercado.UNO_X_DOS
+                ):
+                    mercado.selecciones_ordenadas = ordered_selections(mercado.selecciones.all())
+                    evento.mercados_extra.append(mercado)
 
         apuestas = list(
             Bet.objects

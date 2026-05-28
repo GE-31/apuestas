@@ -201,13 +201,13 @@
           {% if seleccion.odd %}
           <button class="event-item-odd" type="button"
                   data-odd-id="{{ seleccion.odd.id }}"
-                  data-odd-val="{{ seleccion.odd.valor }}"
+                  data-odd-val="{{ seleccion.odd.valor|floatformat:'4u' }}"
                   data-seleccion="{{ seleccion.nombre }}"
                   data-mercado="{{ mercado.nombre }}"
                   aria-pressed="false"
                   title="Seleccionar: {{ seleccion.nombre }} @ {{ seleccion.odd.valor }}">
             <span class="event-item-odd-label">{{ seleccion.nombre }}</span>
-            <span class="event-item-odd-val">{{ seleccion.odd.valor }}</span>
+            <span class="event-item-odd-val">{{ seleccion.odd.valor|floatformat:"2u" }}</span>
           </button>
           {% else %}
           <div class="event-item-odd event-item-odd-na" aria-disabled="true">
@@ -371,5 +371,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/events.js' %}"></script>
+<script src="{% static 'js/events.js' %}?v=20260528b"></script>
 {% endblock %}

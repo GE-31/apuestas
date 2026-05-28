@@ -129,7 +129,10 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
         serializer = RecargaFichasSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+        try:
+            usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+        except User.DoesNotExist:
+            return Response({'detail': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             transaccion = recargar_fichas_usuario(
@@ -151,7 +154,10 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
         serializer = RetiroFichasSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+        try:
+            usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+        except User.DoesNotExist:
+            return Response({'detail': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
 
         try:
             transaccion = retirar_fichas_usuario(

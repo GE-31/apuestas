@@ -12,6 +12,3 @@ media/
 .claude/
 .CLAUDE.md
 
-# Backups
-backup.sql
-.backups/

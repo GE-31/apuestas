@@ -3,12 +3,13 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect
 
 from django.utils.text import slugify
+from django.utils import timezone
 from django.views.generic import TemplateView
 from datetime import timedelta
 from decimal import Decimal
 
 from apuestas_core.models import Bet
-from apuestas_core.services.cashout_service import cashout_apuesta
+from apuestas_core.services.cashout_service import cashout_apuesta, calcular_oferta_cashout
 from apuestas_core.services.liquidacion_service import (
     anular_apuesta,
     liquidar_apuesta_ganada,
@@ -80,6 +81,7 @@ class MisApuestasView(LoginRequiredMixin, TemplateView):
         ahora = timezone.now()
         for apuesta in apuestas:
             apuesta.cashout_disponible = False
+            apuesta.cashout_amount = None
             if apuesta.estado == EstadoApuesta.ACCEPTED:
                 eventos = [
                     sel.seleccion.mercado.evento
@@ -89,6 +91,11 @@ class MisApuestasView(LoginRequiredMixin, TemplateView):
                     evento.estado == EstadoEvento.PROGRAMADO and evento.fecha_inicio > ahora
                     for evento in eventos
                 )
+                if apuesta.cashout_disponible:
+                    try:
+                        apuesta.cashout_amount = calcular_oferta_cashout(apuesta)
+                    except Exception:
+                        apuesta.cashout_amount = None
 
         count_all       = len(apuestas)
         count_activas   = sum(1 for b in apuestas if b.estado == EstadoApuesta.ACCEPTED)

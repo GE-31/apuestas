@@ -175,7 +175,7 @@ class Evento(models.Model):
         ]
         constraints = [
             models.CheckConstraint(
-                check=~models.Q(equipo_local=models.F('equipo_visitante')),
+                condition=~models.Q(equipo_local=models.F('equipo_visitante')),
                 name='evento_equipos_diferentes'
             )
         ]

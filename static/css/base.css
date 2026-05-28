@@ -3,48 +3,48 @@
    Apuesta24/7
    ============================================================= */
 
-/* ── DESIGN TOKENS ── */
+/* ── DESIGN TOKENS — Dark Gaming Theme ── */
 :root {
   /* Fondos */
-  --bg-deep:    #e8eef6;
-  --bg-base:    #f0f4fa;
-  --bg-card:    #ffffff;
-  --bg-raised:  #f8fafd;
-  --bg-hover:   #f1f5fb;
+  --bg-deep:    #070c14;
+  --bg-base:    #0d1117;
+  --bg-card:    #161b27;
+  --bg-raised:  #1d2535;
+  --bg-hover:   #243047;
 
   /* Bordes */
-  --border:       #e2e8f2;
-  --border-light: #edf2f9;
+  --border:       rgba(255, 255, 255, 0.07);
+  --border-light: rgba(255, 255, 255, 0.04);
 
   /* Texto */
-  --text-primary:   #111827;
-  --text-secondary: #4b5563;
-  --text-muted:     #9ca3af;
+  --text-primary:   #f1f5f9;
+  --text-secondary: #8b9ab3;
+  --text-muted:     #4f6177;
 
   /* Verde */
-  --green:     #16a34a;
-  --green-dim: rgba(22, 163, 74, 0.09);
+  --green:     #10b981;
+  --green-dim: rgba(16, 185, 129, 0.12);
 
   /* Dorado */
-  --gold:     #d97706;
-  --gold-dim: rgba(217, 119, 6, 0.09);
+  --gold:     #f59e0b;
+  --gold-dim: rgba(245, 158, 11, 0.12);
 
   /* Azul */
-  --blue:     #2563eb;
-  --blue-dim: rgba(37, 99, 235, 0.09);
+  --blue:     #3b82f6;
+  --blue-dim: rgba(59, 130, 246, 0.12);
 
   /* Rojo */
-  --red:     #dc2626;
-  --red-dim: rgba(220, 38, 38, 0.09);
+  --red:     #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.12);
 
   /* Índigo */
-  --indigo:     #4f46e5;
-  --indigo-dim: rgba(79, 70, 229, 0.09);
+  --indigo:     #6366f1;
+  --indigo-dim: rgba(99, 102, 241, 0.12);
 
   /* Morado */
-  --purple:     #7c3aed;
-  --purple-dim: rgba(124, 58, 237, 0.09);
-  --purple-mid: rgba(124, 58, 237, 0.18);
+  --purple:     #a855f7;
+  --purple-dim: rgba(168, 85, 247, 0.12);
+  --purple-mid: rgba(168, 85, 247, 0.20);
 
   /* Radios */
   --radius-xs: 4px;
@@ -54,10 +54,10 @@
   --radius-xl: 18px;
 
   /* Sombras */
-  --shadow-xs: 0 1px 3px rgba(15,23,42,0.06), 0 1px 2px rgba(15,23,42,0.04);
-  --shadow-sm: 0 2px 8px rgba(15,23,42,0.08);
-  --shadow-md: 0 4px 20px rgba(15,23,42,0.10);
-  --shadow-lg: 0 8px 32px rgba(15,23,42,0.12);
+  --shadow-xs: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+  --shadow-sm: 0 2px 8px rgba(0,0,0,0.36);
+  --shadow-md: 0 4px 20px rgba(0,0,0,0.44);
+  --shadow-lg: 0 8px 40px rgba(0,0,0,0.52);
 
   /* Timing */
   --ease: cubic-bezier(0.16, 1, 0.3, 1);

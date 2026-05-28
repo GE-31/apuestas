@@ -233,7 +233,7 @@
     var el = document.getElementById('slip-payout-' + eventId);
     if (!el) return;
     var payout = (stake > 0 && oddVal > 0) ? stake * oddVal : 0;
-    el.textContent = fmt(payout) + ' fichas';
+    el.textContent = 'S/ ' + parseFloat(payout).toFixed(2);
     el.style.color = payout > 0 ? 'var(--green)' : 'var(--text-muted)';
   }
 
@@ -384,9 +384,9 @@
         makeRow('Evento',          escHtml(eventName)),
         makeRow('Selección',       escHtml(selName)),
         makeRow('Mercado',         escHtml(mercado)),
-        makeRow('Stake',           escHtml(fmt(stake) + ' fichas')),
+        makeRow('Stake',           escHtml('S/ ' + parseFloat(stake).toFixed(2))),
         makeRow('Cuota',           escHtml(fmt(oddVal))),
-        makeRow('Pago potencial',  escHtml(fmt(payout) + ' fichas'), 'green'),
+        makeRow('Pago potencial',  escHtml('S/ ' + parseFloat(payout).toFixed(2)), 'green'),
         makeRowBadge('Estado', 'Aceptada')
       ].join('');
     }
@@ -435,7 +435,7 @@
 
     /* Limpiar campos */
     if (stakeEl) stakeEl.value       = '';
-    if (payEl)   payEl.textContent   = '0.0000 fichas';
+    if (payEl)   payEl.textContent   = 'S/ 0.00';
     hideMsg(eventId);
 
     /* Mostrar hint, ocultar form y éxito */

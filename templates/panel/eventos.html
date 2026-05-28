@@ -16,7 +16,7 @@
 <!-- Cabecera -->
 <div class="events-page-header">
   <h1 class="events-page-title">Eventos deportivos</h1>
-  <p class="events-page-sub">Mercados abiertos para simular apuestas con fichas virtuales</p>
+  <p class="events-page-sub">Mercados abiertos para simular apuestas con saldo virtual</p>
 </div>
 
 <!-- ── FILTROS ── -->
@@ -267,14 +267,14 @@
                    placeholder="10.0000"
                    autocomplete="off"
                    inputmode="decimal" />
-            <span class="bet-slip-stake-unit">fichas</span>
+            <span class="bet-slip-stake-unit">S/</span>
           </div>
         </div>
 
         {# Preview pago potencial #}
         <div class="bet-slip-payout-row">
           <span class="bet-slip-payout-label">Pago potencial</span>
-          <span class="bet-slip-payout-val" id="slip-payout-{{ evento.id }}">0.0000 fichas</span>
+          <span class="bet-slip-payout-val" id="slip-payout-{{ evento.id }}">S/ 0.00</span>
         </div>
 
         {# Mensaje de error/aviso #}

@@ -38,15 +38,16 @@ def obtener_o_crear_limite_deposito(usuario):
 
 
 def obtener_wallet_usuario(usuario):
-    wallet = Account.objects.filter(
+    wallet, _ = Account.objects.get_or_create(
         usuario=usuario,
         tipo=TipoCuentaLedger.WALLET_USUARIO,
-        activa=True,
-    ).first()
-
-    if not wallet:
+        defaults={
+            'nombre': f'Wallet de {usuario.username}',
+            'activa': True,
+        },
+    )
+    if not wallet.activa:
         raise LimiteDepositoError("El usuario no tiene una wallet activa.")
-
     return wallet
 
 
@@ -136,6 +137,43 @@ def validar_limite_deposito(usuario, amount):
         )
 
     return True
+
+
+def obtener_resumen_limites_deposito(usuario, ahora=None):
+    """
+    Retorna el estado de uso de límites de depósito del usuario.
+    """
+
+    ahora = ahora or timezone.now()
+    limite = obtener_o_crear_limite_deposito(usuario)
+
+    periodos = [
+        ("diario", "Límite diario", limite.limite_diario, obtener_inicio_dia(ahora)),
+        ("semanal", "Límite semanal", limite.limite_semanal, obtener_inicio_semana(ahora)),
+        ("mensual", "Límite mensual", limite.limite_mensual, obtener_inicio_mes(ahora)),
+    ]
+
+    resumen = []
+    for key, label, limit_amount, fecha_inicio in periodos:
+        usado = obtener_total_recargado(usuario, fecha_inicio, ahora)
+        porcentaje = Decimal("0.0000")
+        if limit_amount > 0:
+            porcentaje = min((usado / limit_amount) * Decimal("100"), Decimal("100"))
+
+        limite_alcanzado = limit_amount > 0 and usado >= limit_amount
+
+        resumen.append({
+            "key": key,
+            "label": label,
+            "usado": usado,
+            "limite": limit_amount,
+            "porcentaje": porcentaje.quantize(Decimal("0.01")),
+            "progress_class": "limits-progress-fill-warn" if porcentaje >= Decimal("50") else "",
+            "status": "MAX" if limite_alcanzado else "OK",
+            "status_class": "limits-status-max" if limite_alcanzado else "limits-status-ok",
+        })
+
+    return resumen
 
 
 @transaction.atomic

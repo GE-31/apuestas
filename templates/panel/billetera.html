@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static l10n %}
 
 {% block title %}Billetera virtual - Apuesta24/7{% endblock %}
 {% block nav_billetera %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/billetera.css' %}?v=20260527d" />
+<link rel="stylesheet" href="{% static 'css/pages/billetera.css' %}?v=20260527g" />
 {% endblock %}
 
 {% block content %}
 
 <div class="wallet-page-header">
   <h1 class="wallet-page-title">Billetera virtual</h1>
-  <p class="wallet-page-sub">Administra tus fichas disponibles dentro de Apuesta24/7.</p>
+  <p class="wallet-page-sub">Administra tu saldo disponible en soles peruanos dentro de Apuesta24/7.</p>
 </div>
 
 <div class="wallet-layout">
@@ -21,7 +21,7 @@
       <div class="wallet-hero-top">
         <div>
           <div class="wallet-hero-label">Cuenta principal</div>
-          <h2 class="wallet-hero-name" id="walletHeroTitle">Fichas disponibles</h2>
+          <h2 class="wallet-hero-name" id="walletHeroTitle">Soles disponibles</h2>
         </div>
         <span class="wallet-hero-status">
           <span class="wallet-hero-status-dot"></span>
@@ -31,9 +31,9 @@
 
       <div class="wallet-hero-balance">
         <div class="wallet-hero-balance-label">Saldo actual</div>
-        <div class="wallet-hero-amount" data-wallet-balance="{{ saldo_virtual|default:'0.0000' }}">
-          {{ saldo_virtual|default:"0.0000" }}
-          <span class="wallet-hero-amount-unit">FV</span>
+        <div class="wallet-hero-amount" data-wallet-balance="{{ saldo_virtual|default:'0.0000'|unlocalize }}">
+          <span class="wallet-hero-amount-unit">S/</span>
+          {{ saldo_virtual|default:"0.0000"|floatformat:"2u" }}
         </div>
       </div>
 
@@ -44,12 +44,12 @@
             <line x1="12" y1="5" x2="12" y2="19"/>
             <line x1="5" y1="12" x2="19" y2="12"/>
           </svg>
-          Cargar fichas
+          Cargar soles
         </button>
       </div>
 
       <p class="wallet-hero-note">
-        Las fichas son de uso interno dentro de la plataforma.
+        El saldo se muestra en soles peruanos.
       </p>
     </section>
 
@@ -62,9 +62,9 @@
             <line x1="2" y1="10" x2="22" y2="10"/>
           </svg>
         </div>
-        <div class="wallet-account-label">Wallet usuario</div>
-        <div class="wallet-account-value">{{ saldo_virtual|default:"0.0000" }}</div>
-        <div class="wallet-account-desc">Fichas disponibles</div>
+        <div class="wallet-account-label">Saldo usuario</div>
+        <div class="wallet-account-value">S/ {{ saldo_virtual|default:"0.0000"|floatformat:"2u" }}</div>
+        <div class="wallet-account-desc">Soles disponibles</div>
       </div>
 
       <div class="wallet-account-card wallet-account-blue">
@@ -76,7 +76,7 @@
           </svg>
         </div>
         <div class="wallet-account-label">Cuenta casa</div>
-        <div class="wallet-account-value">0.0000</div>
+        <div class="wallet-account-value">S/ 0.00</div>
         <div class="wallet-account-desc">Reserva de la plataforma</div>
       </div>
 
@@ -88,8 +88,8 @@
             <polyline points="12 6 12 12 16 14"/>
           </svg>
         </div>
-        <div class="wallet-account-label">Fichas bloqueadas</div>
-        <div class="wallet-account-value">{{ saldo_en_juego|default:"0.0000" }}</div>
+        <div class="wallet-account-label">Saldo bloqueado</div>
+        <div class="wallet-account-value">S/ {{ saldo_en_juego|default:"0.0000"|floatformat:"2u" }}</div>
         <div class="wallet-account-desc">En movimientos activos</div>
       </div>
 
@@ -101,7 +101,7 @@
           </svg>
         </div>
         <div class="wallet-account-label">Bonos</div>
-        <div class="wallet-account-value">0.0000</div>
+        <div class="wallet-account-value">S/ 0.00</div>
         <div class="wallet-account-desc">Bonos disponibles</div>
       </div>
     </section>
@@ -121,50 +121,22 @@
       </div>
 
       <div class="limits-rows">
+        {% for limite in limites_deposito %}
         <div class="limits-row">
           <div class="limits-row-left">
-            <span class="limits-row-label">L&iacute;mite diario</span>
-            <span class="limits-row-used">Usado: 31.00 FV</span>
-            <div class="limits-progress" role="progressbar" aria-valuenow="31"
-                 aria-valuemin="0" aria-valuemax="100">
-              <div class="limits-progress-fill" style="width:31%"></div>
+            <span class="limits-row-label">{{ limite.label }}</span>
+            <span class="limits-row-used">Usado: S/ {{ limite.usado|floatformat:"2u" }}</span>
+            <div class="limits-progress" role="progressbar" aria-valuenow="{{ limite.usado|floatformat:'0u' }}"
+                 aria-valuemin="0" aria-valuemax="{{ limite.limite|floatformat:'0u' }}">
+              <div class="limits-progress-fill {{ limite.progress_class }}" style="width:{{ limite.porcentaje|floatformat:'2u' }}%"></div>
             </div>
           </div>
           <div class="limits-row-right">
-            <span class="limits-row-limit">100.00</span>
-            <span class="limits-status limits-status-ok">OK</span>
+            <span class="limits-row-limit">S/ {{ limite.limite|floatformat:"2u" }}</span>
+            <span class="limits-status {{ limite.status_class }}">{{ limite.status }}</span>
           </div>
         </div>
-
-        <div class="limits-row">
-          <div class="limits-row-left">
-            <span class="limits-row-label">L&iacute;mite semanal</span>
-            <span class="limits-row-used">Usado: 101.00 FV</span>
-            <div class="limits-progress" role="progressbar" aria-valuenow="51"
-                 aria-valuemin="0" aria-valuemax="200">
-              <div class="limits-progress-fill limits-progress-fill-warn" style="width:51%"></div>
-            </div>
-          </div>
-          <div class="limits-row-right">
-            <span class="limits-row-limit">200.00</span>
-            <span class="limits-status limits-status-ok">OK</span>
-          </div>
-        </div>
-
-        <div class="limits-row">
-          <div class="limits-row-left">
-            <span class="limits-row-label">L&iacute;mite mensual</span>
-            <span class="limits-row-used">Usado: 101.00 FV</span>
-            <div class="limits-progress" role="progressbar" aria-valuenow="20"
-                 aria-valuemin="0" aria-valuemax="500">
-              <div class="limits-progress-fill" style="width:20%"></div>
-            </div>
-          </div>
-          <div class="limits-row-right">
-            <span class="limits-row-limit">500.00</span>
-            <span class="limits-status limits-status-ok">OK</span>
-          </div>
-        </div>
+        {% endfor %}
       </div>
     </section>
   </aside>
@@ -186,13 +158,13 @@
     <header class="wallet-modal-head">
       <div>
         <p class="wallet-modal-eyebrow">Apuesta24/7</p>
-        <h2 class="wallet-modal-title" id="walletModalTitle">Cargar fichas</h2>
+        <h2 class="wallet-modal-title" id="walletModalTitle">Cargar soles</h2>
       </div>
 
       <div class="wm-stat-bar" aria-label="Resumen de cuenta">
         <div class="wm-stat-item">
           <span class="wm-stat-label">Saldo Actual</span>
-          <strong class="wm-stat-val" id="modalSaldoActual">0.00 <em>FV</em></strong>
+          <strong class="wm-stat-val" id="modalSaldoActual">S/ 0.00</strong>
         </div>
         <div class="wm-stat-sep"></div>
         <div class="wm-stat-item">
@@ -308,23 +280,36 @@
           </div>
         </div>
 
-        <div class="wallet-qr-panel">
-          <div class="wallet-fake-qr" aria-label="C&oacute;digo QR">
-            <span id="walletQrMethodLabel">YAPE</span>
+        <div class="wallet-qr-panel wm-qr-card">
+          <div class="wm-qr-left">
+            <div class="wm-qr-frame" aria-label="C&oacute;digo QR de pago">
+              <div id="walletQrCanvas"></div>
+              <span class="wm-qr-label" id="walletQrMethodLabel">YAPE</span>
+            </div>
+            <p class="wm-qr-scan-hint">Escanea con tu app para pagar</p>
           </div>
 
-          <div class="wallet-qr-details">
-            <div>
-              <span>Monto</span>
+          <div class="wallet-qr-details wm-qr-details-col">
+            <div class="wm-detail-row wm-detail-amount">
+              <span>Monto a pagar</span>
               <strong id="walletQrAmount">S/ 0.00</strong>
             </div>
-            <div>
+            <div class="wm-detail-row">
               <span>M&eacute;todo</span>
               <strong id="walletQrMethod">Yape</strong>
             </div>
-            <div>
+            <div class="wm-detail-row">
               <span>Estado</span>
-              <strong class="wallet-status-pending">Pago pendiente</strong>
+              <strong class="wallet-status-pending wm-status-badge">
+                <svg viewBox="0 0 8 8" fill="currentColor" width="7" height="7" aria-hidden="true">
+                  <circle cx="4" cy="4" r="4"/>
+                </svg>
+                Pago pendiente
+              </strong>
+            </div>
+            <div class="wm-detail-row wm-detail-info">
+              <span>Beneficiario</span>
+              <strong>Apuesta24/7</strong>
             </div>
           </div>
         </div>
@@ -374,5 +359,6 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/pages/billetera.js' %}?v=20260527d"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="{% static 'js/pages/billetera.js' %}?v=20260527g"></script>
 {% endblock %}

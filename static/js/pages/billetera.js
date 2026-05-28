@@ -55,7 +55,7 @@
     var balEl = document.querySelector('[data-wallet-balance]');
     if (balEl) {
       var val = parseFloat(balEl.dataset.walletBalance || '0').toFixed(2);
-      modalSaldo.innerHTML = val + ' <em>FV</em>';
+      modalSaldo.textContent = 'S/ ' + val;
     }
   }
 
@@ -143,6 +143,22 @@
       confirmBtn.disabled = false;
       confirmBtn.textContent = 'Simular recarga exitosa';
     }
+    var qrCanvas = document.getElementById('walletQrCanvas');
+    if (qrCanvas) {
+      qrCanvas.innerHTML = '';
+      var ref = 'AP' + Date.now().toString(36).toUpperCase().slice(-6);
+      var qrText = 'APUESTA247://' + method.toLowerCase() + '?monto=' + amount + '&ref=' + ref;
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(qrCanvas, {
+          text: qrText,
+          width: 180,
+          height: 180,
+          colorDark: '#1e1b4b',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    }
   }
 
   function clearMessage() {
@@ -155,8 +171,8 @@
     if (!messageBox) return;
     messageBox.className = 'wallet-message is-error';
     messageBox.textContent = detail
-      ? 'No se pudo cargar fichas. ' + detail
-      : 'No se pudo cargar fichas.';
+      ? 'No se pudo cargar saldo. ' + detail
+      : 'No se pudo cargar saldo.';
   }
 
   function extractBackendDetail(data) {
@@ -189,7 +205,7 @@
     resultCard.classList.toggle('is-error', isError);
     if (resultTitle) {
       resultTitle.textContent = isError
-        ? 'No se pudo cargar fichas.'
+        ? 'No se pudo cargar saldo.'
         : 'Carga realizada correctamente.';
     }
     if (resultMethod) resultMethod.textContent = method || selectedMethod;

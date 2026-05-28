@@ -9,7 +9,7 @@
 .limits-header {
   padding: 16px 20px;
   border-bottom: 1px solid var(--border);
-  background: #f0fdf4;
+  background: rgba(16, 185, 129, 0.07);
   display: flex;
   align-items: center;
   gap: 10px;
@@ -30,7 +30,7 @@
 .limits-header-title {
   font-size: 0.875rem;
   font-weight: 700;
-  color: #14532d;
+  color: var(--green);
 }
 
 .limits-rows {
@@ -95,6 +95,11 @@
 .limits-status-ok {
   background: var(--green-dim);
   color: var(--green);
+}
+
+.limits-status-max {
+  background: rgba(239, 68, 68, 0.15);
+  color: #f87171;
 }
 
 .limits-progress {

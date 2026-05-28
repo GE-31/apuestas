@@ -1,8 +1,15 @@
 from django.contrib.auth import get_user_model
 
 from billetera.serializers import RecargaFichasSerializer, RetiroFichasSerializer
-from billetera.services.deposito_service import recargar_fichas_usuario
-from billetera.services.retiro_service import retirar_fichas_usuario
+from billetera.services.deposito_service import (
+    CuentaSistemaNoEncontradaError,
+    recargar_fichas_usuario,
+)
+from billetera.services.retiro_service import (
+    CuentaSistemaNoEncontradaError as CuentaRetiroError,
+    retirar_fichas_usuario,
+)
+from juego_responsable.services.limites_service import LimiteDepositoError
 
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -124,12 +131,17 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
 
         usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
 
-        transaccion = recargar_fichas_usuario(
-            usuario=usuario,
-            amount=serializer.validated_data['amount'],
-            idempotency_key=serializer.validated_data.get('idempotency_key'),
-            creado_por=request.user if request.user.is_authenticated else None,
-        )
+        try:
+            transaccion = recargar_fichas_usuario(
+                usuario=usuario,
+                amount=serializer.validated_data['amount'],
+                idempotency_key=serializer.validated_data.get('idempotency_key'),
+                creado_por=request.user if request.user.is_authenticated else None,
+            )
+        except LimiteDepositoError as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except (CuentaSistemaNoEncontradaError, CuentaRetiroError) as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         response_serializer = LedgerTransactionSerializer(transaccion)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)
@@ -141,12 +153,17 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
 
         usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
 
-        transaccion = retirar_fichas_usuario(
-            usuario=usuario,
-            amount=serializer.validated_data['amount'],
-            idempotency_key=serializer.validated_data.get('idempotency_key'),
-            creado_por=request.user if request.user.is_authenticated else None,
-        )
+        try:
+            transaccion = retirar_fichas_usuario(
+                usuario=usuario,
+                amount=serializer.validated_data['amount'],
+                idempotency_key=serializer.validated_data.get('idempotency_key'),
+                creado_por=request.user if request.user.is_authenticated else None,
+            )
+        except LimiteDepositoError as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except (CuentaSistemaNoEncontradaError, CuentaRetiroError) as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         response_serializer = LedgerTransactionSerializer(transaccion)
         return Response(response_serializer.data, status=status.HTTP_201_CREATED)

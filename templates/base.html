@@ -28,7 +28,6 @@
       <nav class="nav" id="mainNav" role="navigation" aria-label="Menu principal">
         <div class="nav-links">
           <a href="/inicio/" class="nav-link {% block nav_inicio %}{% endblock %}">Inicio</a>
-          <a href="/eventos/" class="nav-link {% block nav_eventos %}{% endblock %}">Eventos</a>
           <a href="/mis-apuestas/" class="nav-link {% block nav_apuestas %}{% endblock %}">Mis apuestas</a>
           <a href="/billetera/" class="nav-link {% block nav_billetera %}{% endblock %}">Billetera</a>
           {% if request.user.is_staff or request.user.is_superuser %}
@@ -101,22 +100,22 @@
         <img src="{% static 'img/logo.png' %}" alt="" />
         <span>Apuesta24/7</span>
       </div>
-      <p>Recarga fichas virtuales para continuar usando la plataforma.</p>
+      <p>Recarga saldo en soles peruanos para continuar usando la plataforma.</p>
     </div>
 
     <form class="account-recharge" id="accountRechargeForm">
       <label class="account-field" for="accountRechargeAmount">
-        <span>Cantidad de fichas</span>
-        <input id="accountRechargeAmount" type="number" min="0.0001" step="0.0001" inputmode="decimal" placeholder="100.0000" value="100.0000" />
+        <span>Monto en soles</span>
+        <input id="accountRechargeAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="100.00" value="100.00" />
       </label>
 
       <div class="account-quick-amounts" aria-label="Cantidades rapidas">
-        <button type="button" data-account-amount="10.0000">10 FV</button>
-        <button type="button" data-account-amount="50.0000">50 FV</button>
-        <button type="button" data-account-amount="100.0000">100 FV</button>
+        <button type="button" data-account-amount="10.00">S/ 10</button>
+        <button type="button" data-account-amount="50.00">S/ 50</button>
+        <button type="button" data-account-amount="100.00">S/ 100</button>
       </div>
 
-      <button class="account-primary-btn" type="submit">Recargar fichas</button>
+      <button class="account-primary-btn" type="submit">Recargar soles</button>
       <p class="account-message" id="accountRechargeMessage" aria-live="polite"></p>
     </form>
 
@@ -144,7 +143,7 @@
         <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
           <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
         </svg>
-        <p>Apuesta24/7 es una plataforma con fichas virtuales.</p>
+        <p>Apuesta24/7 usa saldo virtual expresado en soles peruanos.</p>
       </div>
 
       <div class="footer-links">
@@ -157,7 +156,7 @@
     </div>
   </footer>
 
-  <script src="{% static 'js/main.js' %}?v=20260527d"></script>
+  <script src="{% static 'js/main.js' %}?v=20260527g"></script>
   {% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -31,7 +31,7 @@
     });
   }
 
-  /* Cuenta lateral y recarga de fichas */
+  /* Cuenta lateral y recarga de saldo */
   const profileButton = document.getElementById('navProfileButton');
   const rechargeButton = document.getElementById('navRechargeButton');
   const accountDrawer = document.getElementById('accountDrawer');
@@ -76,7 +76,7 @@
     return (tokenInput && tokenInput.value) || getCookie('csrftoken');
   }
 
-  function normalizeFichas(value) {
+  function normalizeAmount(value) {
     const number = Number.parseFloat(String(value || '').replace(',', '.'));
     if (!Number.isFinite(number) || number <= 0) return null;
     return number.toFixed(4);
@@ -93,12 +93,12 @@
     event.preventDefault();
     if (!accountDrawer || !accountAmount) return;
 
-    const amount = normalizeFichas(accountAmount.value);
+    const amount = normalizeAmount(accountAmount.value);
     const userId = accountDrawer.querySelector('.account-card') ? accountDrawer.querySelector('.account-card').dataset.userId : '';
     const submitButton = accountForm ? accountForm.querySelector('button[type="submit"]') : null;
 
     if (!amount) {
-      setAccountMessage('Ingresa una cantidad valida de fichas.', 'error');
+      setAccountMessage('Ingresa un monto valido en soles.', 'error');
       return;
     }
 
@@ -138,13 +138,13 @@
 
       if (!response.ok) throw new Error(detail || 'Respuesta ' + response.status);
 
-      setAccountMessage('Fichas agregadas correctamente. La recarga quedo guardada.', 'success');
+      setAccountMessage('Saldo agregado correctamente. La recarga quedo guardada.', 'success');
     } catch (err) {
-      setAccountMessage('No se pudo recargar fichas. ' + (err.message || ''), 'error');
+      setAccountMessage('No se pudo recargar saldo. ' + (err.message || ''), 'error');
     } finally {
       if (submitButton) {
         submitButton.disabled = false;
-        submitButton.textContent = 'Recargar fichas';
+        submitButton.textContent = 'Recargar soles';
       }
     }
   }
@@ -168,7 +168,7 @@
   if (accountForm) accountForm.addEventListener('submit', submitAccountRecharge);
   accountQuickAmounts.forEach(function (button) {
     button.addEventListener('click', function () {
-      if (accountAmount) accountAmount.value = button.dataset.accountAmount || '100.0000';
+      if (accountAmount) accountAmount.value = button.dataset.accountAmount || '100.00';
     });
   });
 
@@ -187,7 +187,7 @@
   let currentLabel = null;
 
   function fmt(n) {
-    return parseFloat(n).toFixed(2) + ' fic.';
+    return 'S/ ' + parseFloat(n).toFixed(2);
   }
 
   function updatePreview() {
@@ -195,12 +195,12 @@
     const stake = parseFloat(stakeInput ? stakeInput.value : 0) || 0;
 
     previewOdd.textContent   = currentOdd   ? '× ' + currentOdd   : '—';
-    previewStake.textContent = stake > 0    ? fmt(stake)           : '0.00 fic.';
+    previewStake.textContent = stake > 0    ? fmt(stake)           : 'S/ 0.00';
 
     if (currentOdd && stake > 0) {
       previewPayout.textContent = fmt(stake * currentOdd);
     } else {
-      previewPayout.textContent = '0.00 fic.';
+      previewPayout.textContent = 'S/ 0.00';
     }
   }
 

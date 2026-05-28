@@ -498,14 +498,14 @@ body.account-drawer-open {
 
 /* ── FOOTER ── */
 .footer {
-  background: #f8fafc;
-  border-top: 1px solid var(--border);
+  background: #0a0e18;
+  border-top: 1px solid rgba(255,255,255,0.06);
   padding: 20px 0;
   margin-top: auto;
 }
 
 .footer .logo {
-  color: #111827;
+  color: #f1f5f9;
   width: 150px;
   min-width: 150px;
   height: 52px;
@@ -531,11 +531,11 @@ body.account-drawer-open {
   min-width: 200px;
 }
 
-.footer-disclaimer svg { color: #d97706; flex-shrink: 0; }
+.footer-disclaimer svg { color: #f59e0b; flex-shrink: 0; }
 
 .footer-disclaimer p {
   font-size: 0.75rem;
-  color: #92400e;
+  color: #94a3b8;
   font-weight: 500;
   text-align: center;
 }

@@ -182,7 +182,7 @@ class LedgerEntry(models.Model):
         ]
         constraints = [
             models.CheckConstraint(
-                check=models.Q(amount__gt=0),
+                condition=models.Q(amount__gt=0),
                 name='ledger_entry_amount_gt_zero'
             )
         ]

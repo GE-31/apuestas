@@ -130,6 +130,23 @@ class EventoAdminForm(forms.Form):
         return evento
 
 
+class EventoLigaUpdateForm(forms.Form):
+    evento_id = forms.IntegerField(widget=forms.HiddenInput())
+    liga = forms.ModelChoiceField(
+        queryset=Liga.objects.filter(activa=True).select_related('deporte').order_by('deporte__nombre', 'nombre'),
+        required=False,
+        label='Liga',
+        empty_label='— Sin liga —',
+    )
+
+    def save(self):
+        from eventos.models import Evento as _Evento
+        evento = _Evento.objects.get(id=self.cleaned_data['evento_id'])
+        evento.liga = self.cleaned_data.get('liga')
+        evento.save(update_fields=['liga'])
+        return evento
+
+
 class RecargaAdminForm(forms.Form):
     usuario = forms.ModelChoiceField(
         queryset=get_user_model().objects.filter(
@@ -137,7 +154,7 @@ class RecargaAdminForm(forms.Form):
         ).order_by('username'),
         label='Cliente',
     )
-    amount = forms.DecimalField(max_digits=18, decimal_places=4, min_value=0.0001, label='Cantidad FV')
+    amount = forms.DecimalField(max_digits=18, decimal_places=4, min_value=0.0001, label='Monto S/')
 
     def save(self, user):
         return recargar_fichas_usuario(
@@ -157,7 +174,7 @@ class ApuestaAdminForm(forms.Form):
         queryset=Odd.objects.filter(activa=True, suspendida=False).select_related('seleccion__mercado__evento'),
         label='Seleccion',
     )
-    stake = forms.DecimalField(max_digits=18, decimal_places=4, min_value=1.0000, label='Monto FV')
+    stake = forms.DecimalField(max_digits=18, decimal_places=4, min_value=1.0000, label='Monto S/')
 
     def save(self, request):
         return crear_apuesta_simple(

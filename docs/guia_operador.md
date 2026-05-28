@@ -29,3 +29,7 @@ Al liquidar apuestas, confirma el resultado del evento y revisa que la seleccion
 ## Billetera
 
 Las recargas y retiros deben revisarse con el saldo disponible y el historial del usuario para evitar operaciones duplicadas.
+
+## Usuarios
+
+Cuando un usuario reporte problemas, valida primero su perfil, estado KYC y actividad reciente antes de modificar cuentas o datos asociados.

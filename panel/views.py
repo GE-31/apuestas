@@ -1,14 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.shortcuts import redirect
-from django.utils import timezone as tz
-from django.utils.dateparse import parse_date
+
 from django.utils.text import slugify
 from django.views.generic import TemplateView
 from datetime import timedelta
 from decimal import Decimal
 
 from apuestas_core.models import Bet
+from apuestas_core.services.cashout_service import cashout_apuesta
 from apuestas_core.services.liquidacion_service import (
     anular_apuesta,
     liquidar_apuesta_ganada,
@@ -18,9 +18,10 @@ from auditoria.models import AuditIntegrityCheck, AuditLog
 from auditoria.services.audit_service import ejecutar_verificacion_integridad
 from billetera.models import Account
 from billetera.selectors import obtener_saldo_cuenta
-from config.choices import EstadoApuesta, EstadoEvento, TipoCuentaLedger
+from config.choices import EstadoApuesta, EstadoEvento, TipoCuentaLedger, TipoMercado
 from eventos.models import Deporte, Equipo, Evento, Liga
 from juego_responsable.services.limites_service import obtener_resumen_limites_deposito
+from mercados.services.football_markets_service import ordered_selections
 from usuarios.models import PerfilUsuario
 
 from .forms import DeporteAdminForm, EquipoAdminForm, EventoAdminForm, EventoLigaUpdateForm, LigaAdminForm
@@ -33,6 +34,22 @@ class StaffRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 class MisApuestasView(LoginRequiredMixin, TemplateView):
     template_name = 'panel/mis_apuestas.html'
+
+    def post(self, request, *args, **kwargs):
+        if request.POST.get('action') != 'cashout':
+            return redirect('/mis-apuestas/')
+
+        bet_id = request.POST.get('bet_id')
+        try:
+            cashout_apuesta(
+                bet_id=bet_id,
+                idempotency_key=f'cashout-web-{bet_id}-{int(timezone.now().timestamp())}',
+                solicitado_por=request.user,
+            )
+            messages.success(request, f'Cashout aplicado a la apuesta #{bet_id}.')
+        except Exception as exc:
+            messages.error(request, str(exc))
+        return redirect('/mis-apuestas/')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -59,6 +76,19 @@ class MisApuestasView(LoginRequiredMixin, TemplateView):
         apuestas = list(
             apuestas_qs
         )
+
+        ahora = timezone.now()
+        for apuesta in apuestas:
+            apuesta.cashout_disponible = False
+            if apuesta.estado == EstadoApuesta.ACCEPTED:
+                eventos = [
+                    sel.seleccion.mercado.evento
+                    for sel in apuesta.selecciones.all()
+                ]
+                apuesta.cashout_disponible = bool(eventos) and all(
+                    evento.estado == EstadoEvento.PROGRAMADO and evento.fecha_inicio > ahora
+                    for evento in eventos
+                )
 
         count_all       = len(apuestas)
         count_activas   = sum(1 for b in apuestas if b.estado == EstadoApuesta.ACCEPTED)
@@ -118,18 +148,22 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         live_count = sum(1 for e in eventos if e.estado == EstadoEvento.EN_VIVO)
 
         # Attach primary market and sort selections LOCAL → EMPATE → VISITANTE
-        _tipo_order = {'local': 0, 'empate': 1, 'visitante': 2}
         for evento in eventos:
             mp = next(
-                (m for m in evento.mercados.all() if m.activo and not m.suspendido),
+                (
+                    m for m in evento.mercados.all()
+                    if m.activo and not m.suspendido and m.tipo == TipoMercado.UNO_X_DOS
+                ),
                 None,
             )
             evento.mercado_principal = mp
             if mp:
-                mp.selecciones_sorted = sorted(
-                    mp.selecciones.all(),
-                    key=lambda s: _tipo_order.get(s.tipo, 99),
-                )
+                mp.selecciones_ordenadas = ordered_selections(mp.selecciones.all())
+            evento.mercados_extra = []
+            for mercado in evento.mercados.all():
+                if mercado.activo and not mercado.suspendido and mercado.tipo != TipoMercado.UNO_X_DOS:
+                    mercado.selecciones_ordenadas = ordered_selections(mercado.selecciones.all())
+                    evento.mercados_extra.append(mercado)
 
         apuestas = list(
             Bet.objects

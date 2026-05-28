@@ -182,3 +182,5 @@ def verificar_integridad_cadena():
         "total_registros": total,
         "errores": errores,
     }
+
+    

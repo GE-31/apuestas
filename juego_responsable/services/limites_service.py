@@ -15,22 +15,29 @@ class LimiteDepositoError(Exception):
 
 
 COOLDOWN_AUMENTO_LIMITE_HORAS = 24
+LIMITE_DIARIO_DEFAULT = Decimal("1000.0000")
+LIMITE_SEMANAL_DEFAULT = Decimal("3000.0000")
+LIMITE_MENSUAL_DEFAULT = Decimal("10000.0000")
+
+
+def formatear_monto(amount):
+    return f"{normalizar_decimal(amount).quantize(Decimal('0.01')):.2f}"
 
 
 def obtener_o_crear_limite_deposito(usuario):
     """
-    Obtiene o crea los límites de depósito del usuario.
+    Obtiene o crea los limites de deposito del usuario.
 
-    Si los límites están en 0, significa que aún no se configuraron.
-    Para pruebas puedes configurar valores desde el admin.
+    Para pruebas, los defaults permiten una recarga de hasta S/ 500 desde el
+    modal sin chocar inmediatamente contra el limite diario.
     """
 
     limite, _created = LimiteDeposito.objects.get_or_create(
         usuario=usuario,
         defaults={
-            "limite_diario": Decimal("100.0000"),
-            "limite_semanal": Decimal("500.0000"),
-            "limite_mensual": Decimal("1000.0000"),
+            "limite_diario": LIMITE_DIARIO_DEFAULT,
+            "limite_semanal": LIMITE_SEMANAL_DEFAULT,
+            "limite_mensual": LIMITE_MENSUAL_DEFAULT,
         },
     )
 
@@ -42,8 +49,8 @@ def obtener_wallet_usuario(usuario):
         usuario=usuario,
         tipo=TipoCuentaLedger.WALLET_USUARIO,
         defaults={
-            'nombre': f'Wallet de {usuario.username}',
-            'activa': True,
+            "nombre": f"Wallet de {usuario.username}",
+            "activa": True,
         },
     )
     if not wallet.activa:
@@ -53,10 +60,10 @@ def obtener_wallet_usuario(usuario):
 
 def obtener_total_recargado(usuario, fecha_inicio, fecha_fin):
     """
-    Calcula cuánto recargó el usuario en un rango de fechas.
+    Calcula cuanto recargo el usuario en un rango de fechas.
 
-    Se calcula desde LedgerEntry, no desde saldo guardado.
-    Solo cuenta créditos a la wallet por transacciones tipo RECARGA.
+    Se calcula desde LedgerEntry, no desde saldo guardado. Solo cuenta creditos
+    a la wallet por transacciones tipo RECARGA.
     """
 
     wallet = obtener_wallet_usuario(usuario)
@@ -95,7 +102,7 @@ def obtener_inicio_mes(ahora=None):
 
 def validar_limite_deposito(usuario, amount):
     """
-    Valida que una recarga no supere los límites diario, semanal ni mensual.
+    Valida que una recarga no supere los limites diario, semanal ni mensual.
     """
 
     amount = normalizar_decimal(amount)
@@ -123,17 +130,26 @@ def validar_limite_deposito(usuario, amount):
 
     if limite.limite_diario > 0 and total_dia + amount > limite.limite_diario:
         raise LimiteDepositoError(
-            f"Límite diario excedido. Usado: {total_dia}, intento: {amount}, límite: {limite.limite_diario}"
+            "Limite diario excedido. "
+            f"Usado: {formatear_monto(total_dia)}, "
+            f"intento: {formatear_monto(amount)}, "
+            f"limite: {formatear_monto(limite.limite_diario)}"
         )
 
     if limite.limite_semanal > 0 and total_semana + amount > limite.limite_semanal:
         raise LimiteDepositoError(
-            f"Límite semanal excedido. Usado: {total_semana}, intento: {amount}, límite: {limite.limite_semanal}"
+            "Limite semanal excedido. "
+            f"Usado: {formatear_monto(total_semana)}, "
+            f"intento: {formatear_monto(amount)}, "
+            f"limite: {formatear_monto(limite.limite_semanal)}"
         )
 
     if limite.limite_mensual > 0 and total_mes + amount > limite.limite_mensual:
         raise LimiteDepositoError(
-            f"Límite mensual excedido. Usado: {total_mes}, intento: {amount}, límite: {limite.limite_mensual}"
+            "Limite mensual excedido. "
+            f"Usado: {formatear_monto(total_mes)}, "
+            f"intento: {formatear_monto(amount)}, "
+            f"limite: {formatear_monto(limite.limite_mensual)}"
         )
 
     return True
@@ -141,16 +157,16 @@ def validar_limite_deposito(usuario, amount):
 
 def obtener_resumen_limites_deposito(usuario, ahora=None):
     """
-    Retorna el estado de uso de límites de depósito del usuario.
+    Retorna el estado de uso de limites de deposito del usuario.
     """
 
     ahora = ahora or timezone.now()
     limite = obtener_o_crear_limite_deposito(usuario)
 
     periodos = [
-        ("diario", "Límite diario", limite.limite_diario, obtener_inicio_dia(ahora)),
-        ("semanal", "Límite semanal", limite.limite_semanal, obtener_inicio_semana(ahora)),
-        ("mensual", "Límite mensual", limite.limite_mensual, obtener_inicio_mes(ahora)),
+        ("diario", "Limite diario", limite.limite_diario, obtener_inicio_dia(ahora)),
+        ("semanal", "Limite semanal", limite.limite_semanal, obtener_inicio_semana(ahora)),
+        ("mensual", "Limite mensual", limite.limite_mensual, obtener_inicio_mes(ahora)),
     ]
 
     resumen = []
@@ -185,11 +201,10 @@ def solicitar_cambio_limites(
     limite_mensual,
 ):
     """
-    Cambia límites de depósito.
+    Cambia limites de deposito.
 
-    Regla del reto:
-    - Si el usuario baja límites, se aplica inmediatamente.
-    - Si el usuario sube límites, se guarda como pendiente y se aplica después de 24h.
+    Si el usuario baja limites, se aplica inmediatamente. Si los sube, se
+    guarda como pendiente y se aplica despues del cooldown de 24 horas.
     """
 
     limite = obtener_o_crear_limite_deposito(usuario)
@@ -199,12 +214,11 @@ def solicitar_cambio_limites(
     nuevo_mensual = normalizar_decimal(limite_mensual)
 
     if nuevo_diario < 0 or nuevo_semanal < 0 or nuevo_mensual < 0:
-        raise LimiteDepositoError("Los límites no pueden ser negativos.")
+        raise LimiteDepositoError("Los limites no pueden ser negativos.")
 
     ahora = timezone.now()
     requiere_cooldown = False
 
-    # Diario
     if nuevo_diario <= limite.limite_diario:
         limite.limite_diario = nuevo_diario
         limite.cambio_pendiente_diario = None
@@ -212,7 +226,6 @@ def solicitar_cambio_limites(
         limite.cambio_pendiente_diario = nuevo_diario
         requiere_cooldown = True
 
-    # Semanal
     if nuevo_semanal <= limite.limite_semanal:
         limite.limite_semanal = nuevo_semanal
         limite.cambio_pendiente_semanal = None
@@ -220,7 +233,6 @@ def solicitar_cambio_limites(
         limite.cambio_pendiente_semanal = nuevo_semanal
         requiere_cooldown = True
 
-    # Mensual
     if nuevo_mensual <= limite.limite_mensual:
         limite.limite_mensual = nuevo_mensual
         limite.cambio_pendiente_mensual = None
@@ -243,8 +255,7 @@ def solicitar_cambio_limites(
 @transaction.atomic
 def aplicar_cambios_pendientes_limites():
     """
-    Aplica aumentos de límite cuando ya pasó el cooldown de 24h.
-    Esta función luego puede ejecutarse desde Celery.
+    Aplica aumentos de limite cuando ya paso el cooldown de 24 horas.
     """
 
     ahora = timezone.now()

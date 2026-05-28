@@ -25,6 +25,7 @@ class ApuestaError(Exception):
 
 MONTO_MINIMO_APUESTA = Decimal("1.0000")
 MONTO_MAXIMO_APUESTA = Decimal("1000.0000")
+MAX_SELECCIONES_COMBINADA = 12
 
 
 def obtener_wallet_usuario(usuario):
@@ -125,6 +126,38 @@ def validar_odd_apostable(odd):
     return True
 
 
+def _obtener_odds_apostables_bloqueadas(odd_ids):
+    odd_ids_unicos = list(dict.fromkeys(odd_ids))
+
+    if len(odd_ids_unicos) != len(odd_ids):
+        raise ApuestaError("La apuesta combinada no puede repetir cuotas.")
+
+    odds = list(
+        Odd.objects
+        .select_for_update()
+        .select_related(
+            "seleccion",
+            "seleccion__mercado",
+            "seleccion__mercado__evento",
+        )
+        .filter(pk__in=odd_ids_unicos)
+        .order_by("pk")
+    )
+
+    if len(odds) != len(odd_ids_unicos):
+        raise ApuestaError("Una o más cuotas no existen.")
+
+    eventos_usados = set()
+    for odd in odds:
+        validar_odd_apostable(odd)
+        evento_id = odd.seleccion.mercado.evento_id
+        if evento_id in eventos_usados:
+            raise ApuestaError("La combinada no puede incluir más de una selección del mismo evento.")
+        eventos_usados.add(evento_id)
+
+    return odds
+
+
 @transaction.atomic
 def crear_apuesta_simple(
     *,
@@ -222,6 +255,101 @@ def crear_apuesta_simple(
     )
 
     # Análisis antifraude post-commit — nunca bloquea la apuesta
+    _apuesta_id = apuesta.id
+    transaction.on_commit(lambda: _ejecutar_antifraude(_apuesta_id))
+
+    return apuesta
+
+
+@transaction.atomic
+def crear_apuesta_combinada(
+    *,
+    usuario,
+    odd_ids,
+    stake,
+    idempotency_key=None,
+    ip_origen=None,
+):
+    """
+    Crea una apuesta combinada/múltiple.
+
+    La cuota total es el producto de todas las cuotas tomadas. El stake se
+    bloquea una sola vez con partida doble: wallet_usuario -> apuestas_pendientes.
+    """
+
+    if idempotency_key:
+        apuesta_existente = Bet.objects.filter(
+            idempotency_key=idempotency_key
+        ).first()
+
+        if apuesta_existente:
+            return apuesta_existente
+
+    if len(odd_ids) < 2:
+        raise ApuestaError("Una apuesta combinada requiere al menos dos selecciones.")
+
+    if len(odd_ids) > MAX_SELECCIONES_COMBINADA:
+        raise ApuestaError(
+            f"Una apuesta combinada permite máximo {MAX_SELECCIONES_COMBINADA} selecciones."
+        )
+
+    validar_usuario_puede_apostar(usuario)
+
+    stake = validar_monto_apuesta(stake)
+    odds = _obtener_odds_apostables_bloqueadas(odd_ids)
+
+    wallet_usuario = obtener_wallet_usuario(usuario)
+    cuenta_pendientes = obtener_cuenta_apuestas_pendientes()
+
+    validar_saldo_suficiente(wallet_usuario, stake)
+
+    odds_total = Decimal("1.0000")
+    for odd in odds:
+        odds_total *= normalizar_decimal(odd.valor)
+    odds_total = normalizar_decimal(odds_total)
+    payout_potencial = normalizar_decimal(stake * odds_total)
+
+    movimiento = crear_movimiento_simple(
+        cuenta_debito=wallet_usuario,
+        cuenta_credito=cuenta_pendientes,
+        amount=stake,
+        tipo=TipoTransaccionLedger.BLOQUEO_APUESTA,
+        referencia=f"bloqueo_apuesta_combinada_usuario_{usuario.id}",
+        idempotency_key=f"bloqueo-{idempotency_key}" if idempotency_key else None,
+        descripcion="Bloqueo de fondos por apuesta combinada aceptada",
+        creado_por=usuario,
+    )
+
+    apuesta = Bet.objects.create(
+        usuario=usuario,
+        tipo=TipoApuesta.COMBINADA,
+        estado=EstadoApuesta.ACCEPTED,
+        stake=stake,
+        odds_total=odds_total,
+        payout_potencial=payout_potencial,
+        idempotency_key=idempotency_key,
+        ip_origen=ip_origen,
+        aceptada_en=timezone.now(),
+    )
+
+    for odd in odds:
+        BetSelection.objects.create(
+            bet=apuesta,
+            seleccion=odd.seleccion,
+            odd=odd,
+            odd_valor_tomado=normalizar_decimal(odd.valor),
+            resultado="pendiente",
+        )
+
+    movimiento.referencia = f"apuesta_{apuesta.id}"
+    movimiento.save(update_fields=["referencia"])
+
+    auditar_apuesta_creada(
+        bet=apuesta,
+        creado_por=usuario,
+        ip_origen=ip_origen,
+    )
+
     _apuesta_id = apuesta.id
     transaction.on_commit(lambda: _ejecutar_antifraude(_apuesta_id))
 

@@ -82,6 +82,18 @@ class CrearApuestaSimpleSerializer(serializers.Serializer):
     ip_origen = serializers.IPAddressField(required=False, allow_null=True)
 
 
+class CrearApuestaCombinadaSerializer(serializers.Serializer):
+    usuario_id = serializers.IntegerField()
+    odd_ids = serializers.ListField(
+        child=serializers.IntegerField(),
+        min_length=2,
+        allow_empty=False,
+    )
+    stake = serializers.DecimalField(max_digits=18, decimal_places=4)
+    idempotency_key = serializers.CharField(required=False, allow_blank=True)
+    ip_origen = serializers.IPAddressField(required=False, allow_null=True)
+
+
 class LiquidarApuestaSerializer(serializers.Serializer):
     bet_id = serializers.IntegerField()
     idempotency_key = serializers.CharField(required=False, allow_blank=True)

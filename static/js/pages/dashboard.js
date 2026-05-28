@@ -1,76 +1,82 @@
-/* dashboard.js — Sportsbook · Apuesta24/7 */
+/* dashboard.js - Sportsbook Apuesta24/7 */
 (function () {
   'use strict';
 
-  var cfg     = window.APUESTA_CONFIG || {};
-  var userId  = cfg.userId   || 0;
-  var apiBase = cfg.apiBase  || '/api/apuestas/operaciones/';
-  var csrf    = cfg.csrfToken || '';
+  var cfg = window.APUESTA_CONFIG || {};
+  var userId = cfg.userId || 0;
+  var apiBase = cfg.apiBase || '/api/apuestas/operaciones/';
+  var csrf = cfg.csrfToken || '';
 
-  /* ─── State ─── */
-  var selection    = null;
+  var selections = [];
   var activeLeague = null;
 
-  /* ─── Bet slip elements ─── */
-  var betSlip   = document.getElementById('betSlip');
-  var bsEvent   = document.getElementById('bsEvent');
-  var bsMarket  = document.getElementById('bsMarket');
-  var bsSelName = document.getElementById('bsSelName');
-  var bsOdd     = document.getElementById('bsOdd');
-  var bsPayout  = document.getElementById('bsPayout');
-  var bsStake   = document.getElementById('bsStake');
-  var bsSubmit  = document.getElementById('bsSubmit');
-  var bsMsg     = document.getElementById('bsMsg');
-  var bsClose   = document.getElementById('betSlipClose');
-  var bsRemove  = document.getElementById('bsRemove');
+  var betSlip = document.getElementById('betSlip');
+  var comboSummary = betSlip ? betSlip.querySelector('.betslip-combo-summary') : null;
+  if (comboSummary) {
+    comboSummary.innerHTML = [
+      '<div>',
+      '  <span class="betslip-summary-label" id="bsMode">Selecciona una cuota</span>',
+      '  <strong class="betslip-summary-total" id="bsTotalOdd">x 0.0000</strong>',
+      '</div>',
+      '<button class="betslip-clear" id="bsClear" type="button">Limpiar</button>',
+    ].join('');
 
-  /* ─── All league groups in main ─── */
+    if (!document.getElementById('bsSelectionsList')) {
+      var list = document.createElement('div');
+      list.className = 'betslip-selections';
+      list.id = 'bsSelectionsList';
+      comboSummary.insertAdjacentElement('afterend', list);
+    }
+  }
+
+  var bsMode = document.getElementById('bsMode');
+  var bsTotalOdd = document.getElementById('bsTotalOdd');
+  var bsSelectionsList = document.getElementById('bsSelectionsList');
+  var bsPayout = document.getElementById('bsPayout');
+  var bsStake = document.getElementById('bsStake');
+  var bsSubmit = document.getElementById('bsSubmit');
+  var bsMsg = document.getElementById('bsMsg');
+  var bsClose = document.getElementById('betSlipClose');
+  var bsClear = document.getElementById('bsClear');
+  var bsCount = betSlip ? betSlip.querySelector('.betslip-count') : null;
   var allGroups = document.querySelectorAll('.sb-group');
 
-  /* ═══════════════════════════════════════
-     SIDEBAR — Sport collapse toggle
-  ═══════════════════════════════════════ */
   document.querySelectorAll('.sb-sport-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
-      var sport  = btn.closest('.sb-sport');
-      var list   = sport ? sport.querySelector('.sb-league-list') : null;
+      var sport = btn.closest('.sb-sport');
+      var list = sport ? sport.querySelector('.sb-league-list') : null;
       var isOpen = btn.getAttribute('aria-expanded') === 'true';
       btn.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
       if (list) list.hidden = isOpen;
     });
   });
 
-  /* ═══════════════════════════════════════
-     SIDEBAR — League filter (click to filter main)
-  ═══════════════════════════════════════ */
   function filterByLeague(ligaKey) {
     activeLeague = ligaKey;
-    allGroups.forEach(function (g) {
-      g.style.display = (!ligaKey || g.id === 'liga-' + ligaKey) ? '' : 'none';
+    allGroups.forEach(function (group) {
+      group.style.display = (!ligaKey || group.id === 'liga-' + ligaKey) ? '' : 'none';
     });
   }
 
   function clearLeagueFilter() {
     activeLeague = null;
-    allGroups.forEach(function (g) { g.style.display = ''; });
-    document.querySelectorAll('.sb-league-link').forEach(function (l) {
-      l.classList.remove('is-active');
+    allGroups.forEach(function (group) { group.style.display = ''; });
+    document.querySelectorAll('.sb-league-link').forEach(function (link) {
+      link.classList.remove('is-active');
     });
   }
 
   document.querySelectorAll('.sb-league-link').forEach(function (link) {
-    link.addEventListener('click', function (e) {
-      e.preventDefault();
-      var ligaKey  = link.dataset.liga;
+    link.addEventListener('click', function (event) {
+      event.preventDefault();
+      var ligaKey = link.dataset.liga;
       var isActive = link.classList.contains('is-active');
 
-      /* Clear all active states */
-      document.querySelectorAll('.sb-league-link').forEach(function (l) {
-        l.classList.remove('is-active');
+      document.querySelectorAll('.sb-league-link').forEach(function (item) {
+        item.classList.remove('is-active');
       });
 
       if (isActive) {
-        /* Toggle off — show all leagues */
         clearLeagueFilter();
         return;
       }
@@ -78,58 +84,86 @@
       link.classList.add('is-active');
       filterByLeague(ligaKey);
 
-      /* Scroll main to top */
       var main = document.querySelector('.sb-main');
       if (main) main.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
   });
 
-  /* ═══════════════════════════════════════
-     ODDS — Click to open bet slip
-  ═══════════════════════════════════════ */
-  document.addEventListener('click', function (e) {
-    var btn = e.target.closest('.sb-odd');
+  document.addEventListener('click', function (event) {
+    var btn = event.target.closest('.sb-odd');
     if (!btn || btn.disabled) return;
+    toggleSelection(btn);
+  });
 
-    var wasSel = btn.classList.contains('is-selected');
-
-    document.querySelectorAll('.sb-odd.is-selected').forEach(function (b) {
-      b.classList.remove('is-selected');
-      b.setAttribute('aria-pressed', 'false');
+  if (bsSelectionsList) {
+    bsSelectionsList.addEventListener('click', function (event) {
+      var removeBtn = event.target.closest('[data-remove-odd]');
+      if (!removeBtn) return;
+      removeSelection(removeBtn.dataset.removeOdd);
     });
+  }
 
-    if (wasSel) {
-      closeBetSlip();
-      selection = null;
+  function toggleSelection(btn) {
+    var oddId = btn.dataset.oddId;
+    var eventId = btn.dataset.eventoId;
+
+    if (!oddId) {
+      showMsg('Esta cuota no esta disponible.', 'error');
       return;
     }
+
+    if (btn.classList.contains('is-selected')) {
+      removeSelection(oddId);
+      return;
+    }
+
+    selections = selections.filter(function (item) {
+      if (String(item.eventoId) !== String(eventId)) return true;
+      var oldBtn = document.querySelector('.sb-odd[data-odd-id="' + item.oddId + '"]');
+      if (oldBtn) {
+        oldBtn.classList.remove('is-selected');
+        oldBtn.setAttribute('aria-pressed', 'false');
+      }
+      return false;
+    });
 
     btn.classList.add('is-selected');
     btn.setAttribute('aria-pressed', 'true');
 
-    selection = {
-      eventoId:  btn.dataset.eventoId,
-      evento:    btn.dataset.evento,
-      mercado:   btn.dataset.mercado,
-      mercadoId: btn.dataset.mercadoId,
-      selId:     btn.dataset.selId,
-      sel:       btn.dataset.sel,
-      oddId:     btn.dataset.oddId,
-      odd:       parseFloat(btn.dataset.odd) || 0,
-    };
+    selections.push({
+      eventoId: btn.dataset.eventoId,
+      evento: btn.dataset.evento,
+      mercado: btn.dataset.mercado,
+      sel: btn.dataset.sel,
+      oddId: btn.dataset.oddId,
+      odd: parseFloat(btn.dataset.odd) || 0,
+    });
 
     openBetSlip();
     updateBetSlip();
-  });
+  }
 
-  /* ═══════════════════════════════════════
-     BET SLIP — Open / Close
-  ═══════════════════════════════════════ */
+  function removeSelection(oddId) {
+    selections = selections.filter(function (item) {
+      var remove = String(item.oddId) === String(oddId);
+      if (remove) {
+        var btn = document.querySelector('.sb-odd[data-odd-id="' + item.oddId + '"]');
+        if (btn) {
+          btn.classList.remove('is-selected');
+          btn.setAttribute('aria-pressed', 'false');
+        }
+      }
+      return !remove;
+    });
+
+    if (selections.length === 0) closeBetSlip();
+    updateBetSlip();
+  }
+
   function openBetSlip() {
-    if (betSlip) {
-      betSlip.classList.add('is-open');
-      betSlip.setAttribute('aria-hidden', 'false');
-    }
+    if (!betSlip) return;
+    betSlip.classList.add('is-open');
+    betSlip.setAttribute('aria-hidden', 'false');
   }
 
   function closeBetSlip() {
@@ -140,53 +174,97 @@
     clearMsg();
   }
 
-  if (bsClose) {
-    bsClose.addEventListener('click', function (e) {
-      e.stopPropagation();
-      deselectAll();
-      closeBetSlip();
-      selection = null;
-    });
-  }
-
-  if (bsRemove) {
-    bsRemove.addEventListener('click', function () {
-      deselectAll();
-      closeBetSlip();
-      selection = null;
-    });
-  }
-
   function deselectAll() {
-    document.querySelectorAll('.sb-odd.is-selected').forEach(function (b) {
-      b.classList.remove('is-selected');
-      b.setAttribute('aria-pressed', 'false');
+    document.querySelectorAll('.sb-odd.is-selected').forEach(function (btn) {
+      btn.classList.remove('is-selected');
+      btn.setAttribute('aria-pressed', 'false');
+    });
+    selections = [];
+  }
+
+  function clearSlip() {
+    deselectAll();
+    updateBetSlip();
+    closeBetSlip();
+  }
+
+  if (bsClose) {
+    bsClose.addEventListener('click', function (event) {
+      event.stopPropagation();
+      clearSlip();
     });
   }
 
-  /* ═══════════════════════════════════════
-     BET SLIP — Populate & payout
-  ═══════════════════════════════════════ */
+  if (bsClear) bsClear.addEventListener('click', clearSlip);
+
+  function getOddsTotal() {
+    return selections.reduce(function (total, item) {
+      return total * (item.odd || 0);
+    }, 1);
+  }
+
+  function renderSelections() {
+    if (!bsSelectionsList) return;
+
+    if (selections.length === 0) {
+      bsSelectionsList.innerHTML = '<div class="betslip-empty">Selecciona cuotas para armar tu boleto.</div>';
+      return;
+    }
+
+    bsSelectionsList.innerHTML = selections.map(function (item, index) {
+      return [
+        '<div class="betslip-selection">',
+        '  <div class="betslip-selection-main">',
+        '    <div class="betslip-selection-top">',
+        '      <span class="betslip-selection-index">' + (index + 1) + '</span>',
+        '      <span class="betslip-selection-event">' + escapeHtml(item.evento || '') + '</span>',
+        '    </div>',
+        '    <div class="betslip-selection-market">' + escapeHtml(item.mercado || '') + '</div>',
+        '    <div class="betslip-selection-pick">' + escapeHtml(item.sel || '') + '</div>',
+        '  </div>',
+        '  <div class="betslip-selection-side">',
+        '    <strong>x ' + Number(item.odd || 0).toFixed(2) + '</strong>',
+        '    <button class="betslip-selection-remove" type="button" data-remove-odd="' + escapeAttr(item.oddId) + '" aria-label="Quitar seleccion">x</button>',
+        '  </div>',
+        '</div>',
+      ].join('');
+    }).join('');
+  }
+
   function updateBetSlip() {
-    if (!selection) return;
-    if (bsEvent)   bsEvent.textContent   = selection.evento  || '—';
-    if (bsMarket)  bsMarket.textContent  = selection.mercado || '—';
-    if (bsSelName) bsSelName.textContent = selection.sel     || '—';
-    if (bsOdd)     bsOdd.textContent     = '× ' + (selection.odd || '—');
+    var oddsTotal = selections.length ? getOddsTotal() : 0;
+
+    if (bsCount) bsCount.textContent = String(selections.length);
+    if (bsMode) {
+      bsMode.textContent = selections.length === 0
+        ? 'Selecciona una cuota'
+        : selections.length === 1
+          ? 'Apuesta simple'
+          : 'Apuesta multiple';
+    }
+    if (bsTotalOdd) bsTotalOdd.textContent = 'x ' + oddsTotal.toFixed(4);
+
+    renderSelections();
     updatePayout();
   }
 
   function updatePayout() {
-    if (!bsStake || !bsPayout || !selection) return;
-    var stake  = parseFloat(bsStake.value) || 0;
-    var payout = stake > 0 ? (stake * selection.odd).toFixed(2) : '0.00';
+    if (!bsStake || !bsPayout) return;
+
+    var stake = parseFloat(bsStake.value) || 0;
+    var oddsTotal = selections.length ? getOddsTotal() : 0;
+    var payout = stake > 0 && oddsTotal > 0 ? (stake * oddsTotal).toFixed(2) : '0.00';
+
     bsPayout.textContent = 'S/ ' + payout;
-    if (bsSubmit) bsSubmit.disabled = stake <= 0;
+
+    if (bsSubmit) {
+      bsSubmit.disabled = stake <= 0 || selections.length === 0;
+      bsSubmit.textContent = selections.length > 1 ? 'Realizar combinada' : 'Realizar apuesta';
+    }
   }
 
   if (bsStake) bsStake.addEventListener('input', updatePayout);
 
-  /* Quick amounts */
   document.querySelectorAll('.betslip-qa').forEach(function (btn) {
     btn.addEventListener('click', function () {
       if (bsStake && btn.dataset.amount) {
@@ -196,69 +274,97 @@
     });
   });
 
-  /* ═══════════════════════════════════════
-     BET SLIP — Submit
-  ═══════════════════════════════════════ */
   if (bsSubmit) {
     bsSubmit.addEventListener('click', function () {
-      if (!selection) return;
-      var stake = parseFloat(bsStake ? bsStake.value : 0);
-      if (!stake || stake <= 0) { showMsg('Ingresa un monto válido.', 'error'); return; }
-      if (!selection.oddId)     { showMsg('Error: cuota no encontrada.', 'error'); return; }
+      if (selections.length === 0) return;
 
-      bsSubmit.disabled     = true;
-      bsSubmit.textContent  = 'Procesando…';
+      var stake = parseFloat(bsStake ? bsStake.value : 0);
+      if (!stake || stake <= 0) {
+        showMsg('Ingresa un monto valido.', 'error');
+        return;
+      }
+
+      if (selections.some(function (item) { return !item.oddId; })) {
+        showMsg('Error: cuota no encontrada.', 'error');
+        return;
+      }
+
+      bsSubmit.disabled = true;
+      bsSubmit.textContent = 'Procesando...';
       clearMsg();
 
-      var key = 'ap247-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7);
+      var isCombinada = selections.length > 1;
+      var payload = {
+        usuario_id: userId,
+        stake: stake.toFixed(4),
+        idempotency_key: 'ap247-' + Date.now() + '-' + Math.random().toString(36).slice(2, 7),
+      };
 
-      fetch(apiBase + 'crear_simple/', {
+      if (isCombinada) {
+        payload.odd_ids = selections.map(function (item) {
+          return parseInt(item.oddId, 10);
+        });
+      } else {
+        payload.odd_id = parseInt(selections[0].oddId, 10);
+      }
+
+      fetch(apiBase + (isCombinada ? 'crear_combinada/' : 'crear_simple/'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'X-CSRFToken': csrf },
-        body: JSON.stringify({
-          usuario_id:      userId,
-          odd_id:          parseInt(selection.oddId, 10),
-          stake:           stake.toFixed(4),
-          idempotency_key: key,
-        }),
+        body: JSON.stringify(payload),
       })
       .then(function (res) {
-        return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+        return res.json().then(function (data) {
+          return { ok: res.ok, data: data };
+        });
       })
-      .then(function (r) {
-        if (r.ok) {
-          showMsg('¡Apuesta registrada! ID #' + r.data.id, 'success');
-          bsStake.value = '';
-          bsPayout.textContent = 'S/ 0.00';
+      .then(function (result) {
+        if (result.ok) {
+          showMsg((isCombinada ? 'Combinada' : 'Apuesta') + ' registrada. ID #' + result.data.id, 'success');
+          if (bsStake) bsStake.value = '';
+          if (bsPayout) bsPayout.textContent = 'S/ 0.00';
           deselectAll();
-          selection = null;
+          updateBetSlip();
           setTimeout(closeBetSlip, 2200);
         } else {
-          var msg = (r.data && (r.data.detail || r.data.non_field_errors)) || 'Error al registrar la apuesta.';
+          var msg = (result.data && (result.data.detail || result.data.non_field_errors)) || 'Error al registrar la apuesta.';
           if (Array.isArray(msg)) msg = msg.join(' ');
           showMsg(msg, 'error');
         }
       })
-      .catch(function () { showMsg('Error de conexión. Intenta de nuevo.', 'error'); })
+      .catch(function () {
+        showMsg('Error de conexion. Intenta de nuevo.', 'error');
+      })
       .finally(function () {
-        bsSubmit.disabled = false;
-        bsSubmit.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Realizar apuesta';
         updatePayout();
       });
     });
   }
 
-  /* ─── Message helpers ─── */
   function showMsg(text, type) {
     if (!bsMsg) return;
     bsMsg.textContent = text;
-    bsMsg.className   = 'betslip-msg is-' + (type || 'success');
+    bsMsg.className = 'betslip-msg is-' + (type || 'success');
   }
 
   function clearMsg() {
     if (!bsMsg) return;
     bsMsg.textContent = '';
-    bsMsg.className   = 'betslip-msg';
+    bsMsg.className = 'betslip-msg';
   }
 
+  function escapeHtml(value) {
+    return String(value)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function escapeAttr(value) {
+    return escapeHtml(value).replace(/`/g, '&#96;');
+  }
+
+  updateBetSlip();
 })();

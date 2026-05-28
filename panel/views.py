@@ -112,12 +112,19 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         live_count = sum(1 for e in eventos if e.estado == EstadoEvento.EN_VIVO)
 
-        # Attach primary (first active) market to each event — uses prefetch cache
+        # Attach primary market and sort selections LOCAL → EMPATE → VISITANTE
+        _tipo_order = {'local': 0, 'empate': 1, 'visitante': 2}
         for evento in eventos:
-            evento.mercado_principal = next(
+            mp = next(
                 (m for m in evento.mercados.all() if m.activo and not m.suspendido),
                 None,
             )
+            evento.mercado_principal = mp
+            if mp:
+                mp.selecciones_sorted = sorted(
+                    mp.selecciones.all(),
+                    key=lambda s: _tipo_order.get(s.tipo, 99),
+                )
 
         apuestas = list(
             Bet.objects

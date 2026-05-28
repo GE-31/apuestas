@@ -67,9 +67,9 @@ class EventoAdminForm(forms.Form):
         label='Fecha y hora',
         widget=forms.DateTimeInput(attrs={'type': 'datetime-local'}),
     )
-    cuota_local = forms.DecimalField(max_digits=8, decimal_places=4, min_value=1.0001, initial='2.0000', label='Cuota local')
-    cuota_empate = forms.DecimalField(max_digits=8, decimal_places=4, min_value=1.0001, initial='3.2000', label='Cuota empate')
-    cuota_visitante = forms.DecimalField(max_digits=8, decimal_places=4, min_value=1.0001, initial='2.8000', label='Cuota visitante')
+    cuota_local = forms.DecimalField(max_digits=8, decimal_places=4, min_value=1.0001, initial='2.0000', label='Local')
+    cuota_empate = forms.DecimalField(max_digits=8, decimal_places=4, min_value=1.0001, initial='3.2000', label='Empate')
+    cuota_visitante = forms.DecimalField(max_digits=8, decimal_places=4, min_value=1.0001, initial='2.8000', label='Visitante')
 
     def clean(self):
         cleaned = super().clean()

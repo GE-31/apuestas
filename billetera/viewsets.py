@@ -24,7 +24,7 @@ from billetera.serializers import (
     MovimientoSimpleSerializer,
 )
 from billetera.services.ledger_service import crear_movimiento_simple
-from billetera.services.saldo_service import obtener_resumen_saldo
+from billetera.services.saldo_service import SaldoInsuficienteError, obtener_resumen_saldo
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -159,7 +159,16 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
         serializer = RetiroFichasSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+<<<<<<< HEAD
         usuario = self._obtener_usuario_operacion(request, serializer)
+=======
+        usuario, error_response = self._obtener_usuario_operacion(
+            request,
+            serializer.validated_data['usuario_id'],
+        )
+        if error_response:
+            return error_response
+>>>>>>> origin/main
 
         try:
             transaccion = retirar_fichas_usuario(
@@ -169,6 +178,8 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
                 creado_por=request.user if request.user.is_authenticated else None,
             )
         except LimiteDepositoError as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
+        except SaldoInsuficienteError as exc:
             return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
         except (CuentaSistemaNoEncontradaError, CuentaRetiroError) as exc:
             return Response({'detail': str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)

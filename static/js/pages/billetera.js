@@ -47,16 +47,33 @@
 
   function getUserId() {
     var meta = document.getElementById('apuesta247Meta') || document.getElementById('fairbetMeta');
-    return parseInt((meta && meta.dataset.userId) || '0', 10);
+    var accountCard = document.querySelector('.account-card[data-user-id]');
+    return parseInt((meta && meta.dataset.userId) || (accountCard && accountCard.dataset.userId) || '0', 10);
+  }
+
+  function getCurrentBalance() {
+    var balEl = document.querySelector('[data-wallet-balance]');
+    if (balEl) return parseFloat(balEl.dataset.walletBalance || '0') || 0;
+    var accountCard = document.querySelector('.account-card[data-account-balance]');
+    return parseFloat((accountCard && accountCard.dataset.accountBalance) || '0') || 0;
+  }
+
+  function setVisibleBalance(value) {
+    var nextValue = Math.max(0, parseFloat(value) || 0);
+    document.querySelectorAll('[data-wallet-balance]').forEach(function (element) {
+      element.dataset.walletBalance = nextValue.toFixed(4);
+      element.innerHTML = '<span class="wallet-hero-amount-unit">S/</span>\n          ' + nextValue.toFixed(2);
+    });
+    var accountCard = document.querySelector('.account-card[data-account-balance]');
+    if (accountCard) accountCard.dataset.accountBalance = nextValue.toFixed(4);
+    var accountBalance = document.getElementById('accountDrawerBalance');
+    if (accountBalance) accountBalance.textContent = 'S/ ' + nextValue.toFixed(2);
+    if (modalSaldo) modalSaldo.textContent = 'S/ ' + nextValue.toFixed(2);
   }
 
   function syncBalance() {
     if (!modalSaldo) return;
-    var balEl = document.querySelector('[data-wallet-balance]');
-    if (balEl) {
-      var val = parseFloat(balEl.dataset.walletBalance || '0').toFixed(2);
-      modalSaldo.textContent = 'S/ ' + val;
-    }
+    modalSaldo.textContent = 'S/ ' + getCurrentBalance().toFixed(2);
   }
 
   function setView(name) {
@@ -260,6 +277,7 @@
         return data;
       });
     }).then(function () {
+      setVisibleBalance(getCurrentBalance() + parseFloat(selectedAmount || '0'));
       setResultState(false, '', selectedMethod, selectedAmount);
       setView('result');
     }).catch(function (err) {
@@ -353,5 +371,9 @@
   if (window.location.search.indexOf('recargar=1') !== -1) {
     openModal();
   }
+
+  window.apuesta247Wallet = window.apuesta247Wallet || {};
+  window.apuesta247Wallet.openRechargeModal = openModal;
+  window.apuesta247Wallet.closeRechargeModal = closeModal;
 
 })();

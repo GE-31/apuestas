@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 
 from billetera.serializers import RecargaFichasSerializer, RetiroFichasSerializer
 from billetera.services.deposito_service import (
@@ -117,6 +118,8 @@ class MovimientoSimpleViewSet(viewsets.ViewSet):
         )
     
 User = get_user_model()
+
+
 class OperacionesWalletViewSet(viewsets.ViewSet):
     """
     Operaciones de wallet:
@@ -124,32 +127,17 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
     - retiro simulado
     """
 
-    def _obtener_usuario_operacion(self, request, usuario_id):
-        if not request.user.is_authenticated:
-            return None, Response({'detail': 'Autenticacion requerida.'}, status=status.HTTP_401_UNAUTHORIZED)
-
-        try:
-            usuario = User.objects.get(pk=usuario_id)
-        except User.DoesNotExist:
-            return None, Response({'detail': 'Usuario no encontrado.'}, status=status.HTTP_404_NOT_FOUND)
-
-        puede_operar = request.user.is_staff or request.user.is_superuser or request.user.pk == usuario.pk
-        if not puede_operar:
-            return None, Response({'detail': 'No puedes operar la billetera de otro usuario.'}, status=status.HTTP_403_FORBIDDEN)
-
-        return usuario, None
+    def _obtener_usuario_operacion(self, request, serializer):
+        if request.user.is_staff or request.user.is_superuser:
+            return get_object_or_404(User, pk=serializer.validated_data['usuario_id'])
+        return request.user
 
     @action(detail=False, methods=['post'])
     def recargar(self, request):
         serializer = RecargaFichasSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        usuario, error_response = self._obtener_usuario_operacion(
-            request,
-            serializer.validated_data['usuario_id'],
-        )
-        if error_response:
-            return error_response
+        usuario = self._obtener_usuario_operacion(request, serializer)
 
         try:
             transaccion = recargar_fichas_usuario(
@@ -171,12 +159,16 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
         serializer = RetiroFichasSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
+<<<<<<< HEAD
+        usuario = self._obtener_usuario_operacion(request, serializer)
+=======
         usuario, error_response = self._obtener_usuario_operacion(
             request,
             serializer.validated_data['usuario_id'],
         )
         if error_response:
             return error_response
+>>>>>>> origin/main
 
         try:
             transaccion = retirar_fichas_usuario(

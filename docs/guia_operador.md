@@ -1,0 +1,39 @@
+# Guia rapida del operador
+
+Esta guia resume tareas comunes del panel interno para que el equipo pueda operar la plataforma con criterios consistentes.
+
+## Acceso
+
+Usa el ingreso administrativo solo con cuentas del equipo. Si el acceso falla, revisa usuario, contrasena y permisos de staff antes de intentar cambios en datos.
+
+## Eventos
+
+Antes de crear un evento, valida deporte, liga, equipos y fecha de inicio. Un evento incompleto puede confundir las cuotas visibles para el cliente.
+
+## Ligas
+
+Mantener las ligas activas y con nombres claros ayuda a que los filtros del panel cliente sean faciles de explorar.
+
+## Equipos
+
+Registra equipos con nombres consistentes. Evita duplicados con mayusculas, abreviaturas o espacios distintos.
+
+## Cuotas
+
+Antes de publicar cuotas, compara los valores con el margen esperado. Cambios bruscos deben revisarse antes de quedar visibles.
+
+## Apuestas
+
+Al liquidar apuestas, confirma el resultado del evento y revisa que la seleccion corresponda al mercado correcto.
+
+## Billetera
+
+Las recargas y retiros deben revisarse con el saldo disponible y el historial del usuario para evitar operaciones duplicadas.
+
+## Usuarios
+
+Cuando un usuario reporte problemas, valida primero su perfil, estado KYC y actividad reciente antes de modificar cuentas o datos asociados.
+
+## Cierre de turno
+
+Antes de terminar el turno, revisa mensajes pendientes, eventos activos y operaciones recientes para que el siguiente operador tenga contexto.

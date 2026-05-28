@@ -557,6 +557,191 @@
 
   </div><!-- /panel-eventos -->
 
+
+  <div class="admin-panel" id="panel-auditoria">
+
+    <div class="admin-panel-header">
+      <div class="admin-panel-icon admin-panel-icon--teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-5"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="admin-panel-title">Auditoria</h2>
+        <p class="admin-panel-sub">Consulta registros inmutables y verifica la integridad de la cadena</p>
+      </div>
+    </div>
+
+    <div class="apuestas-stats">
+      <span class="apuesta-stat">Registros totales: {{ auditoria_count }}</span>
+      <span class="apuesta-stat">Mostrando: {{ auditoria_filtrados_count }}</span>
+      {% if auditoria_fecha_desde or auditoria_fecha_hasta %}
+        <span class="apuesta-stat">
+          Fechas:
+          {% if auditoria_fecha_desde %}{{ auditoria_fecha_desde }}{% else %}inicio{% endif %}
+          -
+          {% if auditoria_fecha_hasta %}{{ auditoria_fecha_hasta }}{% else %}hoy{% endif %}
+        </span>
+      {% endif %}
+      {% if auditoria_ultimo_check %}
+        {% if auditoria_ultimo_check.es_valida %}
+          <span class="apuesta-stat apuesta-stat--won">Cadena valida</span>
+        {% else %}
+          <span class="apuesta-stat apuesta-stat--lost">Cadena con errores</span>
+        {% endif %}
+        <span class="apuesta-stat">Ultima verificacion: {{ auditoria_ultimo_check.fecha_ejecucion|date:"d/m/Y H:i" }}</span>
+      {% else %}
+        <span class="apuesta-stat apuesta-stat--pending">Sin verificacion</span>
+      {% endif %}
+    </div>
+
+    <div class="admin-grid">
+      <form class="admin-card" method="post">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="auditoria_verificar" />
+        <input type="hidden" name="next" value="/admin-panel/{% if auditoria_querystring %}?{{ auditoria_querystring }}{% endif %}#auditoria" />
+        <div class="admin-card-head">
+          <h2>Integridad</h2>
+          <span>Hash chain</span>
+        </div>
+        <p class="admin-panel-sub">
+          Ejecuta una verificacion completa de los hashes para confirmar que los registros no fueron alterados.
+        </p>
+        <button type="submit">Verificar integridad</button>
+      </form>
+
+      <form class="admin-card" method="get" action="/admin-panel/#auditoria">
+        <div class="admin-card-head">
+          <h2>Filtrar registros</h2>
+          <span>Por fecha</span>
+        </div>
+        <div class="apuestas-stats" style="margin-bottom:14px;">
+          <a class="apuesta-stat {% if auditoria_filtro_rango == 'hoy' %}apuesta-stat--pending{% endif %}" href="/admin-panel/?auditoria_rango=hoy#auditoria">Hoy</a>
+          <a class="apuesta-stat {% if auditoria_filtro_rango == 'ultimos_7' %}apuesta-stat--pending{% endif %}" href="/admin-panel/?auditoria_rango=ultimos_7#auditoria">7 dias</a>
+          <a class="apuesta-stat {% if auditoria_filtro_rango == 'ultimos_30' %}apuesta-stat--pending{% endif %}" href="/admin-panel/?auditoria_rango=ultimos_30#auditoria">30 dias</a>
+          <a class="apuesta-stat {% if auditoria_filtro_rango == 'todos' %}apuesta-stat--pending{% endif %}" href="/admin-panel/?auditoria_rango=todos#auditoria">Todos</a>
+        </div>
+        <div class="admin-form-grid">
+          <label>
+            <span>Desde</span>
+            <input type="date" name="auditoria_desde" value="{{ auditoria_fecha_desde }}" />
+          </label>
+          <label>
+            <span>Hasta</span>
+            <input type="date" name="auditoria_hasta" value="{{ auditoria_fecha_hasta }}" />
+          </label>
+        </div>
+        <div style="display:flex; gap:8px; margin-top:18px;">
+          <button type="submit" style="margin-top:0;">Aplicar fechas</button>
+          <a href="/admin-panel/?auditoria_rango=ultimos_7#auditoria" class="bet-btn bet-btn--void" style="align-self:center; height:44px; padding:0 14px; text-decoration:none;">Limpiar</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="admin-grid">
+      <div class="admin-table-card" style="border-radius:18px;">
+        <div class="admin-card-head">
+          <h2>Verificaciones recientes</h2>
+          <span>{{ auditoria_integrity_checks|length }} ultimas</span>
+        </div>
+        <div class="admin-table-wrap">
+          <table>
+            <thead>
+              <tr><th>Estado</th><th>Registros</th><th>Ejecutado por</th><th>Fecha</th></tr>
+            </thead>
+            <tbody>
+              {% for check in auditoria_integrity_checks %}
+              <tr>
+                <td>
+                  {% if check.es_valida %}
+                    <span class="bet-badge bet-badge--won">Valida</span>
+                  {% else %}
+                    <span class="bet-badge bet-badge--lost">Errores</span>
+                  {% endif %}
+                </td>
+                <td>{{ check.total_registros }}</td>
+                <td>{{ check.ejecutado_por.username|default:"Sistema" }}</td>
+                <td>{{ check.fecha_ejecucion|date:"d/m/Y H:i" }}</td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" class="admin-table-empty">Aun no hay verificaciones.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="admin-table-card" style="border-radius:18px;">
+        <div class="admin-card-head">
+          <h2>Errores de integridad</h2>
+          <span>{% if auditoria_ultimo_check %}Ultimo check{% else %}Sin check{% endif %}</span>
+        </div>
+        <div class="admin-table-wrap">
+          <table>
+            <thead>
+              <tr><th>ID log</th><th>Tipo</th><th>Hash esperado</th><th>Hash actual</th></tr>
+            </thead>
+            <tbody>
+              {% for error in auditoria_ultimo_check_errores %}
+              <tr>
+                <td><strong>#{{ error.id }}</strong></td>
+                <td><span class="bet-badge bet-badge--lost">{{ error.tipo }}</span></td>
+                <td><code>{{ error.esperado|default:"-"|truncatechars:16 }}</code></td>
+                <td><code>{{ error.actual|default:"-"|truncatechars:16 }}</code></td>
+              </tr>
+              {% empty %}
+              <tr><td colspan="4" class="admin-table-empty">No hay errores en la ultima verificacion.</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-table-card" style="border-radius:18px;">
+      <div class="admin-card-head" style="padding:18px 20px 16px; margin-bottom:0;">
+        <h2>Registros de auditoria</h2>
+        <span>Maximo 50</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Evento</th>
+              <th>Entidad</th>
+              <th>Accion</th>
+              <th>Usuario</th>
+              <th>Hash actual</th>
+              <th>Fecha</th>
+              <th>Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in auditoria_logs %}
+            <tr>
+              <td><strong>#{{ log.id }}</strong></td>
+              <td>{{ log.get_tipo_evento_display }}</td>
+              <td>{{ log.entidad }} #{{ log.entidad_id }}</td>
+              <td><span class="bet-badge bet-badge--accepted">{{ log.accion }}</span></td>
+              <td>{{ log.creado_por.username|default:"Sistema" }}</td>
+              <td><code>{{ log.current_hash|truncatechars:18 }}</code></td>
+              <td>{{ log.fecha_creacion|date:"d/m/Y H:i" }}</td>
+              <td>
+                <a href="/admin/auditoria/auditlog/{{ log.id }}/change/" class="bet-btn bet-btn--void" target="_blank" rel="noopener noreferrer">Ver</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="8" class="admin-table-empty">No hay registros de auditoria para el rango seleccionado.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /panel-auditoria -->
+
 {% endblock %}
 
 
@@ -572,7 +757,8 @@
     deportes: 'Deportes',
     ligas:    'Ligas',
     equipos:  'Equipos',
-    eventos:  'Eventos y cuotas'
+    eventos:  'Eventos y cuotas',
+    auditoria: 'Auditoria'
   };
 
   /* ── Referencias ── */

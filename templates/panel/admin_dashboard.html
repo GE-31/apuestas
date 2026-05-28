@@ -557,6 +557,53 @@
 
   </div><!-- /panel-eventos -->
 
+
+  <div class="admin-panel" id="panel-auditoria">
+
+    <div class="admin-panel-header">
+      <div class="admin-panel-icon admin-panel-icon--teal">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="22" height="22">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="M9 12l2 2 4-5"/>
+        </svg>
+      </div>
+      <div>
+        <h2 class="admin-panel-title">Auditoria</h2>
+        <p class="admin-panel-sub">Consulta registros inmutables y verificaciones de integridad</p>
+      </div>
+    </div>
+
+    <div class="admin-metrics audit-metrics">
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon admin-metric-icon--teal">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <path d="M14 2v6h6"/>
+            <path d="M8 13h8"/>
+            <path d="M8 17h5"/>
+          </svg>
+        </div>
+        <div class="admin-metric-body">
+          <div class="admin-metric-value">{{ auditorias_count }}</div>
+          <div class="admin-metric-label">Registros</div>
+        </div>
+      </div>
+
+      <div class="admin-metric-card">
+        <div class="admin-metric-icon admin-metric-icon--green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+            <path d="M20 6L9 17l-5-5"/>
+          </svg>
+        </div>
+        <div class="admin-metric-body">
+          <div class="admin-metric-value">{{ auditorias_integras_count }}</div>
+          <div class="admin-metric-label">Verificaciones validas</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /panel-auditoria -->
+
 {% endblock %}
 
 

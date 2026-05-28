@@ -21,3 +21,7 @@ Registra equipos con nombres consistentes. Evita duplicados con mayusculas, abre
 ## Cuotas
 
 Antes de publicar cuotas, compara los valores con el margen esperado. Cambios bruscos deben revisarse antes de quedar visibles.
+
+## Apuestas
+
+Al liquidar apuestas, confirma el resultado del evento y revisa que la seleccion corresponda al mercado correcto.

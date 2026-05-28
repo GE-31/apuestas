@@ -26,17 +26,16 @@ def obtener_cuenta_casa():
 
 
 def obtener_wallet_usuario(usuario):
-    cuenta = Account.objects.filter(
+    cuenta, _ = Account.objects.get_or_create(
         usuario=usuario,
         tipo=TipoCuentaLedger.WALLET_USUARIO,
-        activa=True,
-    ).first()
-
-    if not cuenta:
-        raise CuentaSistemaNoEncontradaError(
-            'El usuario no tiene una wallet activa.'
-        )
-
+        defaults={
+            'nombre': f'Wallet de {usuario.username}',
+            'activa': True,
+        },
+    )
+    if not cuenta.activa:
+        raise CuentaSistemaNoEncontradaError('El usuario no tiene una wallet activa.')
     return cuenta
 
 

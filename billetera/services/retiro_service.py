@@ -26,17 +26,16 @@ def obtener_cuenta_casa():
 
 
 def obtener_wallet_usuario(usuario):
-    cuenta = Account.objects.filter(
+    cuenta, _ = Account.objects.get_or_create(
         usuario=usuario,
         tipo=TipoCuentaLedger.WALLET_USUARIO,
-        activa=True,
-    ).first()
-
-    if not cuenta:
-        raise CuentaSistemaNoEncontradaError(
-            'El usuario no tiene una wallet activa.'
-        )
-
+        defaults={
+            'nombre': f'Wallet de {usuario.username}',
+            'activa': True,
+        },
+    )
+    if not cuenta.activa:
+        raise CuentaSistemaNoEncontradaError('El usuario no tiene una wallet activa.')
     return cuenta
 
 
@@ -48,11 +47,11 @@ def retirar_fichas_usuario(
     creado_por=None,
 ):
     """
-    Retiro simulado de fichas virtuales.
+    Retiro simulado de saldo virtual en soles.
 
     Importante:
     - No convierte fichas a dinero.
-    - Solo mueve fichas virtuales de wallet hacia casa.
+    - Solo mueve saldo virtual de wallet hacia casa.
     """
 
     wallet_usuario = obtener_wallet_usuario(usuario)
@@ -67,6 +66,6 @@ def retirar_fichas_usuario(
         tipo=TipoTransaccionLedger.RETIRO,
         referencia=f'retiro_usuario_{usuario.id}',
         idempotency_key=idempotency_key,
-        descripcion='Retiro simulado de fichas virtuales',
+        descripcion='Retiro simulado de saldo virtual en soles',
         creado_por=creado_por,
     )

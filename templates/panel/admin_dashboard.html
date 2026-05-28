@@ -191,7 +191,7 @@
               <th>Cliente</th>
               <th>Partido</th>
               <th>Selección</th>
-              <th>Monto FV</th>
+              <th>Monto S/</th>
               <th>Cuota</th>
               <th>Pago pot.</th>
               <th>Estado</th>
@@ -222,9 +222,9 @@
                   </span>
                 {% else %}—{% endif %}
               </td>
-              <td>{{ bet.stake }}</td>
+              <td>S/ {{ bet.stake }}</td>
               <td>{{ bet.odds_total }}</td>
-              <td>{{ bet.payout_potencial }}</td>
+              <td>S/ {{ bet.payout_potencial }}</td>
               <td>
                 <span class="bet-badge bet-badge--{{ bet.estado }}">{{ bet.get_estado_display }}</span>
               </td>
@@ -499,6 +499,61 @@
       </div>
       <button type="submit">Generar evento</button>
     </form>
+
+    <!-- Eventos registrados con edición de liga inline -->
+    <div class="admin-table-card" style="border-radius:18px; margin-top:20px;">
+      <div class="admin-card-head" style="padding:18px 20px 16px; margin-bottom:0;">
+        <h2>Eventos registrados</h2>
+        <span>{{ eventos_count }} total</span>
+      </div>
+      <div class="admin-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Evento</th>
+              <th>Deporte</th>
+              <th>Liga actual</th>
+              <th>Fecha</th>
+              <th>Reasignar liga</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ev in eventos_lista %}
+            <tr>
+              <td><strong>{{ ev.nombre }}</strong></td>
+              <td>{{ ev.deporte.nombre }}</td>
+              <td>
+                {% if ev.liga %}
+                <span style="color:var(--green);font-weight:700;">{{ ev.liga.nombre }}</span>
+                {% else %}
+                <span style="color:var(--text-muted);font-style:italic;">Sin liga</span>
+                {% endif %}
+              </td>
+              <td style="font-size:0.8125rem;color:var(--text-muted);">{{ ev.fecha_inicio|date:"d/m H:i" }}</td>
+              <td>
+                <form method="post" style="display:flex;gap:8px;align-items:center;">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="update_liga" />
+                  <input type="hidden" name="evento_id" value="{{ ev.id }}" />
+                  <select name="liga" style="font-size:0.8125rem;padding:4px 8px;border-radius:6px;background:var(--bg-raised);color:var(--text-primary);border:1px solid var(--border);cursor:pointer;">
+                    <option value="">— Sin liga —</option>
+                    {% for liga in ligas_lista_all %}
+                    <option value="{{ liga.id }}" {% if ev.liga_id == liga.id %}selected{% endif %}>{{ liga.nombre }}</option>
+                    {% endfor %}
+                  </select>
+                  <button type="submit" style="padding:4px 12px;font-size:0.8rem;background:var(--indigo);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap;">
+                    Guardar
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="admin-table-empty">Aún no hay eventos.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
 
   </div><!-- /panel-eventos -->
 

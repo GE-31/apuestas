@@ -47,16 +47,33 @@
 
   function getUserId() {
     var meta = document.getElementById('apuesta247Meta') || document.getElementById('fairbetMeta');
-    return parseInt((meta && meta.dataset.userId) || '0', 10);
+    var accountCard = document.querySelector('.account-card[data-user-id]');
+    return parseInt((meta && meta.dataset.userId) || (accountCard && accountCard.dataset.userId) || '0', 10);
+  }
+
+  function getCurrentBalance() {
+    var balEl = document.querySelector('[data-wallet-balance]');
+    if (balEl) return parseFloat(balEl.dataset.walletBalance || '0') || 0;
+    var accountCard = document.querySelector('.account-card[data-account-balance]');
+    return parseFloat((accountCard && accountCard.dataset.accountBalance) || '0') || 0;
+  }
+
+  function setVisibleBalance(value) {
+    var nextValue = Math.max(0, parseFloat(value) || 0);
+    document.querySelectorAll('[data-wallet-balance]').forEach(function (element) {
+      element.dataset.walletBalance = nextValue.toFixed(4);
+      element.innerHTML = '<span class="wallet-hero-amount-unit">S/</span>\n          ' + nextValue.toFixed(2);
+    });
+    var accountCard = document.querySelector('.account-card[data-account-balance]');
+    if (accountCard) accountCard.dataset.accountBalance = nextValue.toFixed(4);
+    var accountBalance = document.getElementById('accountDrawerBalance');
+    if (accountBalance) accountBalance.textContent = 'S/ ' + nextValue.toFixed(2);
+    if (modalSaldo) modalSaldo.textContent = 'S/ ' + nextValue.toFixed(2);
   }
 
   function syncBalance() {
     if (!modalSaldo) return;
-    var balEl = document.querySelector('[data-wallet-balance]');
-    if (balEl) {
-      var val = parseFloat(balEl.dataset.walletBalance || '0').toFixed(2);
-      modalSaldo.innerHTML = val + ' <em>FV</em>';
-    }
+    modalSaldo.textContent = 'S/ ' + getCurrentBalance().toFixed(2);
   }
 
   function setView(name) {
@@ -143,6 +160,22 @@
       confirmBtn.disabled = false;
       confirmBtn.textContent = 'Simular recarga exitosa';
     }
+    var qrCanvas = document.getElementById('walletQrCanvas');
+    if (qrCanvas) {
+      qrCanvas.innerHTML = '';
+      var ref = 'AP' + Date.now().toString(36).toUpperCase().slice(-6);
+      var qrText = 'APUESTA247://' + method.toLowerCase() + '?monto=' + amount + '&ref=' + ref;
+      if (typeof QRCode !== 'undefined') {
+        new QRCode(qrCanvas, {
+          text: qrText,
+          width: 180,
+          height: 180,
+          colorDark: '#1e1b4b',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }
+    }
   }
 
   function clearMessage() {
@@ -155,8 +188,8 @@
     if (!messageBox) return;
     messageBox.className = 'wallet-message is-error';
     messageBox.textContent = detail
-      ? 'No se pudo cargar fichas. ' + detail
-      : 'No se pudo cargar fichas.';
+      ? 'No se pudo cargar saldo. ' + detail
+      : 'No se pudo cargar saldo.';
   }
 
   function extractBackendDetail(data) {
@@ -189,7 +222,7 @@
     resultCard.classList.toggle('is-error', isError);
     if (resultTitle) {
       resultTitle.textContent = isError
-        ? 'No se pudo cargar fichas.'
+        ? 'No se pudo cargar saldo.'
         : 'Carga realizada correctamente.';
     }
     if (resultMethod) resultMethod.textContent = method || selectedMethod;
@@ -244,6 +277,7 @@
         return data;
       });
     }).then(function () {
+      setVisibleBalance(getCurrentBalance() + parseFloat(selectedAmount || '0'));
       setResultState(false, '', selectedMethod, selectedAmount);
       setView('result');
     }).catch(function (err) {
@@ -337,5 +371,9 @@
   if (window.location.search.indexOf('recargar=1') !== -1) {
     openModal();
   }
+
+  window.apuesta247Wallet = window.apuesta247Wallet || {};
+  window.apuesta247Wallet.openRechargeModal = openModal;
+  window.apuesta247Wallet.closeRechargeModal = closeModal;
 
 })();

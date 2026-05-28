@@ -31,24 +31,29 @@
     });
   }
 
-  /* Cuenta lateral y recarga de fichas */
+  /* Cuenta lateral */
   const profileButton = document.getElementById('navProfileButton');
   const rechargeButton = document.getElementById('navRechargeButton');
   const accountDrawer = document.getElementById('accountDrawer');
   const accountBackdrop = document.getElementById('accountDrawerBackdrop');
   const accountClose = document.getElementById('accountDrawerClose');
-  const accountForm = document.getElementById('accountRechargeForm');
-  const accountAmount = document.getElementById('accountRechargeAmount');
-  const accountMessage = document.getElementById('accountRechargeMessage');
-  const accountQuickAmounts = document.querySelectorAll('[data-account-amount]');
+  const accountWithdrawForm = document.getElementById('accountWithdrawForm');
+  const accountWithdrawAmount = document.getElementById('accountWithdrawAmount');
+  const accountWithdrawMessage = document.getElementById('accountWithdrawMessage');
+  const accountWithdrawQuickAmounts = document.querySelectorAll('[data-withdraw-amount]');
+  const accountShowRecharge = document.getElementById('accountShowRecharge');
+  const accountShowWithdraw = document.getElementById('accountShowWithdraw');
+  const accountBalanceText = document.getElementById('accountDrawerBalance');
 
-  function openAccountDrawer() {
+  function openAccountDrawer(mode) {
     if (!accountDrawer || !accountBackdrop) return;
     accountDrawer.classList.add('is-open');
     accountBackdrop.classList.add('is-open');
     accountDrawer.setAttribute('aria-hidden', 'false');
     accountBackdrop.setAttribute('aria-hidden', 'false');
     document.body.classList.add('account-drawer-open');
+    if (mode === 'withdraw') showAccountPanel('withdraw');
+    else showAccountPanel('');
   }
 
   function closeAccountDrawer() {
@@ -76,44 +81,87 @@
     return (tokenInput && tokenInput.value) || getCookie('csrftoken');
   }
 
-  function normalizeFichas(value) {
+  function normalizeAmount(value) {
     const number = Number.parseFloat(String(value || '').replace(',', '.'));
     if (!Number.isFinite(number) || number <= 0) return null;
     return number.toFixed(4);
   }
 
-  function setAccountMessage(text, type) {
-    if (!accountMessage) return;
-    accountMessage.textContent = text || '';
-    accountMessage.className = 'account-message';
-    if (type) accountMessage.classList.add('is-' + type);
+  function getAccountUserId() {
+    const card = accountDrawer ? accountDrawer.querySelector('.account-card') : null;
+    return card ? card.dataset.userId : '';
   }
 
-  async function submitAccountRecharge(event) {
-    event.preventDefault();
-    if (!accountDrawer || !accountAmount) return;
+  function getAccountBalance() {
+    const card = accountDrawer ? accountDrawer.querySelector('.account-card') : null;
+    const number = Number.parseFloat((card && card.dataset.accountBalance) || '0');
+    return Number.isFinite(number) ? number : 0;
+  }
 
-    const amount = normalizeFichas(accountAmount.value);
-    const userId = accountDrawer.querySelector('.account-card') ? accountDrawer.querySelector('.account-card').dataset.userId : '';
-    const submitButton = accountForm ? accountForm.querySelector('button[type="submit"]') : null;
+  function setAccountBalance(value) {
+    const card = accountDrawer ? accountDrawer.querySelector('.account-card') : null;
+    const nextValue = Math.max(0, Number.parseFloat(value) || 0);
+    if (card) card.dataset.accountBalance = nextValue.toFixed(4);
+    if (accountBalanceText) accountBalanceText.textContent = 'S/ ' + nextValue.toFixed(2);
+    setWalletBalance(nextValue);
+  }
+
+  function setWalletBalance(value) {
+    const nextValue = Math.max(0, Number.parseFloat(value) || 0);
+    document.querySelectorAll('[data-wallet-balance]').forEach(function (element) {
+      element.dataset.walletBalance = nextValue.toFixed(4);
+      element.innerHTML = '<span class="wallet-hero-amount-unit">S/</span>\n          ' + nextValue.toFixed(2);
+    });
+    const modalSaldo = document.getElementById('modalSaldoActual');
+    if (modalSaldo) modalSaldo.textContent = 'S/ ' + nextValue.toFixed(2);
+  }
+
+  function openRechargeModal() {
+    closeAccountDrawer();
+    if (window.apuesta247Wallet && typeof window.apuesta247Wallet.openRechargeModal === 'function') {
+      window.apuesta247Wallet.openRechargeModal();
+      return;
+    }
+    window.location.href = '/billetera/?recargar=1';
+  }
+
+  function setAccountMessage(target, text, type) {
+    if (!target) return;
+    target.textContent = text || '';
+    target.className = 'account-message';
+    if (type) target.classList.add('is-' + type);
+  }
+
+  function showAccountPanel(panel) {
+    if (accountWithdrawForm) accountWithdrawForm.hidden = panel !== 'withdraw';
+    setAccountMessage(accountWithdrawMessage, '', '');
+  }
+
+  async function submitAccountWithdraw(event) {
+    event.preventDefault();
+    if (!accountDrawer || !accountWithdrawAmount) return;
+
+    const amount = normalizeAmount(accountWithdrawAmount.value);
+    const userId = getAccountUserId();
+    const submitButton = accountWithdrawForm ? accountWithdrawForm.querySelector('button[type="submit"]') : null;
 
     if (!amount) {
-      setAccountMessage('Ingresa una cantidad valida de fichas.', 'error');
+      setAccountMessage(accountWithdrawMessage, 'Ingresa un monto valido para retirar.', 'error');
       return;
     }
 
     if (!userId) {
-      setAccountMessage('No se encontro el usuario de la cuenta.', 'error');
+      setAccountMessage(accountWithdrawMessage, 'No se encontro el usuario de la cuenta.', 'error');
       return;
     }
 
     if (submitButton) {
       submitButton.disabled = true;
-      submitButton.textContent = 'Recargando...';
+      submitButton.textContent = 'Retirando...';
     }
 
     try {
-      const response = await fetch('/api/billetera/operaciones/recargar/', {
+      const response = await fetch('/api/billetera/operaciones/retirar/', {
         method: 'POST',
         credentials: 'same-origin',
         headers: {
@@ -123,7 +171,7 @@
         body: JSON.stringify({
           usuario_id: Number(userId),
           amount: amount,
-          idempotency_key: 'recarga-header-' + Date.now()
+          idempotency_key: 'retiro-header-' + Date.now()
         })
       });
 
@@ -138,37 +186,34 @@
 
       if (!response.ok) throw new Error(detail || 'Respuesta ' + response.status);
 
-      setAccountMessage('Fichas agregadas correctamente. La recarga quedo guardada.', 'success');
+      setAccountBalance(getAccountBalance() - Number.parseFloat(amount));
+      setAccountMessage(accountWithdrawMessage, 'Retiro simulado registrado correctamente.', 'success');
     } catch (err) {
-      setAccountMessage('No se pudo recargar fichas. ' + (err.message || ''), 'error');
+      setAccountMessage(accountWithdrawMessage, 'No se pudo retirar dinero. ' + (err.message || ''), 'error');
     } finally {
       if (submitButton) {
         submitButton.disabled = false;
-        submitButton.textContent = 'Recargar fichas';
+        submitButton.textContent = 'Retirar dinero';
       }
     }
   }
 
-  if (profileButton) profileButton.addEventListener('click', openAccountDrawer);
+  if (profileButton) profileButton.addEventListener('click', function () { openAccountDrawer(); });
   if (rechargeButton) {
     rechargeButton.addEventListener('click', function (event) {
       event.preventDefault();
       event.stopPropagation();
-      closeAccountDrawer();
-      const walletOpenButton = document.getElementById('btnRecarga');
-      if (walletOpenButton) {
-        walletOpenButton.click();
-        return;
-      }
-      window.location.href = '/billetera/?recargar=1';
+      openRechargeModal();
     });
   }
+  if (accountShowRecharge) accountShowRecharge.addEventListener('click', openRechargeModal);
+  if (accountShowWithdraw) accountShowWithdraw.addEventListener('click', function () { showAccountPanel('withdraw'); });
   if (accountClose) accountClose.addEventListener('click', closeAccountDrawer);
   if (accountBackdrop) accountBackdrop.addEventListener('click', closeAccountDrawer);
-  if (accountForm) accountForm.addEventListener('submit', submitAccountRecharge);
-  accountQuickAmounts.forEach(function (button) {
+  if (accountWithdrawForm) accountWithdrawForm.addEventListener('submit', submitAccountWithdraw);
+  accountWithdrawQuickAmounts.forEach(function (button) {
     button.addEventListener('click', function () {
-      if (accountAmount) accountAmount.value = button.dataset.accountAmount || '100.0000';
+      if (accountWithdrawAmount) accountWithdrawAmount.value = button.dataset.withdrawAmount || '50.00';
     });
   });
 
@@ -187,7 +232,7 @@
   let currentLabel = null;
 
   function fmt(n) {
-    return parseFloat(n).toFixed(2) + ' fic.';
+    return 'S/ ' + parseFloat(n).toFixed(2);
   }
 
   function updatePreview() {
@@ -195,12 +240,12 @@
     const stake = parseFloat(stakeInput ? stakeInput.value : 0) || 0;
 
     previewOdd.textContent   = currentOdd   ? '× ' + currentOdd   : '—';
-    previewStake.textContent = stake > 0    ? fmt(stake)           : '0.00 fic.';
+    previewStake.textContent = stake > 0    ? fmt(stake)           : 'S/ 0.00';
 
     if (currentOdd && stake > 0) {
       previewPayout.textContent = fmt(stake * currentOdd);
     } else {
-      previewPayout.textContent = '0.00 fic.';
+      previewPayout.textContent = 'S/ 0.00';
     }
   }
 

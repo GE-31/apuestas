@@ -1,618 +1,313 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Dashboard — Apuesta24/7{% endblock %}
+{% block title %}Inicio — Apuesta24/7{% endblock %}
 {% block nav_inicio %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}" />
+<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}?v=20260528b" />
 {% endblock %}
 
 {% block content %}
 
-<!-- ============================================================
-     MÉTRICAS RÁPIDAS
-     ============================================================ -->
-<section class="metrics-grid" aria-label="Métricas del sistema">
+<!-- ── BARRA DE MÉTRICAS ── -->
+<div class="sb-metrics" aria-label="Resumen de cuenta">
 
-  <article class="metric-card metric-green">
-    <div class="metric-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-      </svg>
-    </div>
-    <p class="metric-label">Apuestas activas</p>
-    <p class="metric-value metric-color-green">{{ active_bets_count }}</p>
-    <p class="metric-unit">en curso</p>
-  </article>
-
-  <article class="metric-card metric-blue">
-    <div class="metric-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
-        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-      </svg>
-    </div>
-    <p class="metric-label">Eventos disponibles</p>
-    <p class="metric-value metric-color-blue">{{ total_count }}</p>
-    <p class="metric-unit">programados</p>
-  </article>
-
-  <article class="metric-card metric-gold">
-    <div class="metric-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
+  <div class="sb-metric sb-metric--green">
+    <div class="sb-metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
         <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
       </svg>
     </div>
-    <p class="metric-label">Saldo virtual</p>
-    <p class="metric-value metric-color-gold">{{ saldo_virtual|default:"—" }}</p>
-    <p class="metric-unit">fichas disponibles</p>
-  </article>
+    <div class="sb-metric-body">
+      <span class="sb-metric-label">Saldo disponible</span>
+      <span class="sb-metric-val">S/ {{ saldo_virtual|default:"0.00" }}</span>
+      <span class="sb-metric-unit">disponible</span>
+    </div>
+  </div>
 
-  <article class="metric-card metric-purple">
-    <div class="metric-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20" aria-hidden="true">
-        <polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>
+  <div class="sb-metric sb-metric--blue">
+    <div class="sb-metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
     </div>
-    <p class="metric-label">Pago potencial</p>
-    <p class="metric-value metric-color-purple">{{ ultima_apuesta.payout_potencial|default:"—" }}</p>
-    <p class="metric-unit">fichas estimadas</p>
-  </article>
+    <div class="sb-metric-body">
+      <span class="sb-metric-label">Eventos hoy</span>
+      <span class="sb-metric-val">{{ total_count }}</span>
+      <span class="sb-metric-unit">disponibles</span>
+    </div>
+  </div>
 
-</section>
+  <div class="sb-metric sb-metric--gold">
+    <div class="sb-metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </div>
+    <div class="sb-metric-body">
+      <span class="sb-metric-label">Apuestas activas</span>
+      <span class="sb-metric-val">{{ active_bets_count }}</span>
+      <span class="sb-metric-unit">en curso</span>
+    </div>
+  </div>
+
+  <div class="sb-metric sb-metric--red">
+    <div class="sb-metric-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+    </div>
+    <div class="sb-metric-body">
+      <span class="sb-metric-label">En vivo</span>
+      <span class="sb-metric-val">{{ live_count }}</span>
+      <span class="sb-metric-unit">partidos</span>
+    </div>
+  </div>
+
+</div><!-- /sb-metrics -->
 
 
-<!-- ============================================================
-     GRID PRINCIPAL
-     ============================================================ -->
-<div class="dashboard-grid">
+<!-- ── LAYOUT PRINCIPAL ── -->
+<div class="sb-layout">
 
-  <!-- ── COLUMNA PRINCIPAL ── -->
-  <div class="dashboard-col-main">
+  <!-- ─────────────────── SIDEBAR ─────────────────── -->
+  <aside class="sb-sidebar" aria-label="Ligas disponibles">
 
-    <!-- Bienvenida -->
-    <div class="card welcome-card">
-      <div class="welcome-body">
-        <div>
-          <h1 class="welcome-title">Bienvenido, <span class="welcome-name">{{ request.user.username|default:"usuario" }}</span></h1>
-          <p class="welcome-sub">Panel de simulación de apuestas deportivas</p>
-        </div>
-        <div class="welcome-badges">
-          <span class="badge badge-green"><span class="badge-dot"></span>Verificado</span>
-          <span class="badge badge-blue">Cuenta activa</span>
-        </div>
-      </div>
-      <div class="welcome-glow" aria-hidden="true"></div>
+    <div class="sb-sidebar-head">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true">
+        <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/>
+        <path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/>
+        <path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/>
+        <path d="M18 2H6v7a6 6 0 0 0 12 0V2z"/>
+      </svg>
+      Principales Ligas
     </div>
 
-    <!-- Evento destacado + mercados -->
-    {% if evento_destacado %}
-    <div class="card event-card">
+    {% for deporte in deportes_sidebar %}
+    <div class="sb-sport" data-sport-key="{{ deporte.key }}">
 
-      <div class="card-header">
-        <div>
-          <p class="event-sport-tag">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true">
-              <circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/>
-            </svg>
-            {{ evento_destacado.deporte.nombre }} · Evento destacado
-          </p>
-          <h2 class="card-title">{{ evento_destacado.equipo_local.nombre }} vs {{ evento_destacado.equipo_visitante.nombre }}</h2>
-        </div>
-        <span class="badge
-          {% if evento_destacado.estado == 'en_vivo' %}badge-red
-          {% elif evento_destacado.estado == 'finalizado' %}badge-gray
-          {% elif evento_destacado.estado == 'suspendido' %}badge-gold
-          {% elif evento_destacado.estado == 'anulado' %}badge-red
-          {% else %}badge-blue
-          {% endif %}">
-          {% if evento_destacado.estado == 'programado' or evento_destacado.estado == 'en_vivo' %}
-            <span class="badge-dot"></span>
-          {% endif %}
-          {{ evento_destacado.get_estado_display }}
+      <button class="sb-sport-btn is-open" aria-expanded="true">
+        <span class="sb-sport-icon" aria-hidden="true">
+          {% with s=deporte.nombre|lower %}
+            {% if 'futbol' in s or 'fútbol' in s %}
+            <svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7l1.5 4.5H18l-3.75 2.72 1.43 4.38L12 16.11l-3.68 2.49 1.43-4.38L6 11.5h4.5z" fill="currentColor" opacity=".35"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+            {% elif 'basket' in s or 'básquet' in s %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93 19.07 19.07M19.07 4.93 4.93 19.07M12 2v20M2 12h20"/></svg>
+            {% elif 'tenis' in s %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><path d="M4.93 4.93c3.5 3.5 3.5 9.14 0 12.64M19.07 4.93c-3.5 3.5-3.5 9.14 0 12.64"/></svg>
+            {% else %}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            {% endif %}
+          {% endwith %}
         </span>
-      </div>
+        <span class="sb-sport-name">{{ deporte.nombre }}</span>
+        <svg class="sb-sport-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </button>
 
-      <!-- Equipos -->
-      <div class="teams-row">
-        <div class="team">
-          <div class="team-flag" aria-hidden="true">
-            {% with p=evento_destacado.equipo_local.pais|lower %}
-              {% if 'per' in p %}🇵🇪
-              {% elif 'arg' in p %}🇦🇷
-              {% elif 'bra' in p %}🇧🇷
-              {% elif 'col' in p %}🇨🇴
-              {% elif 'esp' in p or 'spain' in p %}🇪🇸
-              {% elif 'ita' in p or 'italy' in p %}🇮🇹
-              {% elif 'fra' in p or 'fran' in p %}🇫🇷
-              {% elif 'ale' in p or 'germ' in p %}🇩🇪
-              {% elif 'uru' in p %}🇺🇾
-              {% elif 'chi' in p %}🇨🇱
-              {% elif 'bol' in p %}🇧🇴
-              {% elif 'ecu' in p %}🇪🇨
-              {% elif 'par' in p %}🇵🇾
-              {% elif 'ven' in p %}🇻🇪
-              {% else %}🏟️
-              {% endif %}
-            {% endwith %}
-          </div>
-          <span class="team-name">{{ evento_destacado.equipo_local.nombre }}</span>
-          <span class="team-abbr">{{ evento_destacado.equipo_local.abreviatura|default:evento_destacado.equipo_local.nombre }}</span>
-        </div>
-        <div class="vs-block">
-          <span class="vs-text">VS</span>
-          <span class="vs-time">{{ evento_destacado.fecha_inicio|date:"H:i" }} PE</span>
-        </div>
-        <div class="team">
-          <div class="team-flag" aria-hidden="true">
-            {% with p=evento_destacado.equipo_visitante.pais|lower %}
-              {% if 'per' in p %}🇵🇪
-              {% elif 'arg' in p %}🇦🇷
-              {% elif 'bra' in p %}🇧🇷
-              {% elif 'col' in p %}🇨🇴
-              {% elif 'esp' in p or 'spain' in p %}🇪🇸
-              {% elif 'ita' in p or 'italy' in p %}🇮🇹
-              {% elif 'fra' in p or 'fran' in p %}🇫🇷
-              {% elif 'ale' in p or 'germ' in p %}🇩🇪
-              {% elif 'uru' in p %}🇺🇾
-              {% elif 'chi' in p %}🇨🇱
-              {% elif 'bol' in p %}🇧🇴
-              {% elif 'ecu' in p %}🇪🇨
-              {% elif 'par' in p %}🇵🇾
-              {% elif 'ven' in p %}🇻🇪
-              {% else %}🔵
-              {% endif %}
-            {% endwith %}
-          </div>
-          <span class="team-name">{{ evento_destacado.equipo_visitante.nombre }}</span>
-          <span class="team-abbr">{{ evento_destacado.equipo_visitante.abreviatura|default:evento_destacado.equipo_visitante.nombre }}</span>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <!-- Primer mercado activo -->
-      {% for mercado in evento_destacado.mercados.all %}
-        {% if mercado.activo and not mercado.suspendido %}
-        <div class="odds-section">
-          <p class="odds-market-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true">
-              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+      <ul class="sb-league-list">
+        {% for liga in deporte.ligas %}
+        <li>
+          <a href="#liga-{{ liga.key }}" class="sb-league-link" data-liga="{{ liga.key }}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true">
+              <polyline points="9 18 15 12 9 6"/>
             </svg>
-            Mercado: {{ mercado.nombre }}
-          </p>
-          <div class="odds-grid" role="group" aria-label="Selecciona una cuota">
-            {% for seleccion in mercado.selecciones.all %}
-            <button class="odds-btn"
-                    data-odd="{{ seleccion.odd.valor|default:'0' }}"
-                    data-label="{{ seleccion.nombre }}"
+            {{ liga.nombre }}
+          </a>
+        </li>
+        {% endfor %}
+      </ul>
+
+    </div>
+    {% empty %}
+    <p class="sb-sidebar-empty">Sin ligas disponibles</p>
+    {% endfor %}
+
+  </aside><!-- /sb-sidebar -->
+
+
+  <!-- ─────────────────── MAIN ─────────────────── -->
+  <main class="sb-main" aria-label="Partidos disponibles">
+
+    {% if ligas_agrupadas %}
+
+    {% for liga in ligas_agrupadas %}
+    <section class="sb-group" id="liga-{{ liga.key }}">
+
+      <!-- League header -->
+      <div class="sb-group-head">
+        <div class="sb-group-head-left">
+          <span class="sb-group-sport-tag">{{ liga.deporte }}</span>
+          <span class="sb-group-name">{{ liga.nombre }}</span>
+          {% if liga.pais %}
+          <span class="sb-group-country">{{ liga.pais }}</span>
+          {% endif %}
+        </div>
+        <div class="sb-group-cols" aria-hidden="true">
+          <span>Local</span>
+          <span>Empate</span>
+          <span>Visitante</span>
+        </div>
+      </div>
+
+      <!-- Match rows -->
+      {% for evento in liga.eventos %}
+      <div class="sb-match{% if evento.estado == 'en_vivo' %} sb-match--live{% elif evento.estado == 'finalizado' %} sb-match--done{% endif %}"
+           data-evento-id="{{ evento.id }}">
+
+        <!-- Time column -->
+        <div class="sb-match-time">
+          <span class="sb-match-date">{{ evento.fecha_inicio|date:"d.m" }}</span>
+          <span class="sb-match-hour">{{ evento.fecha_inicio|date:"H:i" }}</span>
+        </div>
+
+        <!-- Teams column (stacked) -->
+        <div class="sb-match-teams">
+          <div class="sb-team">
+            <span class="sb-team-name">{{ evento.equipo_local.nombre }}</span>
+          </div>
+          <div class="sb-team">
+            <span class="sb-team-name">{{ evento.equipo_visitante.nombre }}</span>
+          </div>
+        </div>
+
+        <!-- Status / info icons -->
+        <div class="sb-match-info">
+          {% if evento.estado == 'en_vivo' %}
+          <span class="sb-live-pulse" aria-label="En vivo"></span>
+          {% endif %}
+          {% if evento.marcador_local is not None %}
+          <span class="sb-score">{{ evento.marcador_local }} - {{ evento.marcador_visitante }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Odds: 1 X 2 -->
+        <div class="sb-match-odds" role="group" aria-label="Cuotas para {{ evento.equipo_local.nombre }} vs {{ evento.equipo_visitante.nombre }}">
+          {% if evento.mercado_principal %}
+            {% for sel in evento.mercado_principal.selecciones_sorted %}
+            <button class="sb-odd"
+                    data-evento-id="{{ evento.id }}"
+                    data-evento="{{ evento.equipo_local.nombre }} vs {{ evento.equipo_visitante.nombre }}"
+                    data-mercado="{{ evento.mercado_principal.nombre }}"
+                    data-mercado-id="{{ evento.mercado_principal.id }}"
+                    data-sel-id="{{ sel.id }}"
+                    data-sel="{{ sel.nombre }}"
+                    data-odd-id="{{ sel.odd.id|default:'' }}"
+                    data-odd="{{ sel.odd.valor|default:'0' }}"
                     aria-pressed="false"
-                    type="button">
-              <span class="odds-btn-label">{{ seleccion.nombre }}</span>
-              <span class="odds-btn-value">{{ seleccion.odd.valor|default:"—" }}</span>
+                    {% if evento.estado == 'finalizado' or evento.estado == 'anulado' %}disabled{% endif %}>
+              {{ sel.odd.valor|floatformat:2|default:"—" }}
             </button>
             {% empty %}
-            <p class="text-muted" style="font-size:.75rem;grid-column:1/-1">Sin selecciones disponibles</p>
+            <span class="sb-no-odds">Sin cuotas</span>
             {% endfor %}
-          </div>
+          {% else %}
+          <span class="sb-no-odds">Sin mercado</span>
+          {% endif %}
         </div>
-        <div class="divider"></div>
-        {% endif %}
+
+      </div><!-- /sb-match -->
       {% endfor %}
 
-      <!-- Formulario de apuesta (demo) -->
-      <form class="bet-form" id="betForm" aria-label="Formulario de apuesta" onsubmit="return false;">
-
-        <div class="bet-form-header">
-          <div class="bet-selected-display">
-            <span class="bet-selected-icon">→</span>
-            <span id="selectedLabel" class="bet-selected-text">Selecciona una cuota arriba</span>
-          </div>
-          <span class="badge badge-gold badge-hidden" id="selectedOddBadge">
-            × <span id="selectedOddValue">—</span>
-          </span>
-        </div>
-
-        <div class="form-group">
-          <label for="stakeInput" class="form-label">Monto de apuesta (fichas)</label>
-          <div class="input-wrapper">
-            <span class="input-prefix">◈</span>
-            <input
-              type="number"
-              id="stakeInput"
-              class="form-input"
-              placeholder="0.00"
-              min="1"
-              step="0.01"
-              aria-describedby="stakeHint"
-            />
-          </div>
-          <p class="form-hint" id="stakeHint">Saldo disponible: <strong class="hint-green">{{ saldo_virtual|default:"—" }} fichas</strong></p>
-        </div>
-
-        <div class="bet-payout-preview">
-          <div class="payout-row">
-            <span class="payout-label">Cuota seleccionada</span>
-            <span class="payout-value" id="previewOdd">—</span>
-          </div>
-          <div class="payout-row">
-            <span class="payout-label">Stake</span>
-            <span class="payout-value" id="previewStake">0.00 fichas</span>
-          </div>
-          <div class="payout-divider"></div>
-          <div class="payout-row payout-row-total">
-            <span class="payout-label-total">Pago potencial</span>
-            <span class="payout-value-total" id="previewPayout">0.00 fichas</span>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary" id="submitBet" disabled>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true">
-            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
-          </svg>
-          Realizar apuesta
-        </button>
-      </form>
-
-    </div><!-- /event-card -->
+    </section>
+    {% endfor %}
 
     {% else %}
-    <div class="card event-card" style="text-align:center;padding:2rem">
-      <p style="color:var(--text-muted)">No hay eventos disponibles. Crea uno desde el
-        <a href="/admin/" style="color:var(--indigo)">panel de administración</a>.
-      </p>
+    <div class="sb-empty">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+      </svg>
+      <h3>No hay partidos disponibles</h3>
+      <p>Crea eventos desde el <a href="/admin/">panel de administración</a>.</p>
     </div>
     {% endif %}
 
-  </div><!-- /col-main -->
+  </main><!-- /sb-main -->
+
+</div><!-- /sb-layout -->
 
 
-  <!-- ── COLUMNA LATERAL ── -->
-  <div class="dashboard-col-side">
+<!-- ══════════════════════════════════════════════
+     BOLETO DE APUESTA (floating bet slip)
+     ══════════════════════════════════════════════ -->
+<div class="betslip" id="betSlip" aria-hidden="true" role="dialog" aria-label="Boleto de apuesta">
 
-    <!-- Billetera -->
-    <div class="card wallet-card">
-      <div class="card-header">
-        <div>
-          <h2 class="card-title">Billetera</h2>
-          <p class="card-subtitle">Partida doble · fichas virtuales</p>
-        </div>
-        <div class="wallet-header-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18" aria-hidden="true">
-            <path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/>
-            <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
-            <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
-          </svg>
-        </div>
-      </div>
-
-      <div class="wallet-rows">
-        <div class="wallet-row">
-          <div class="wallet-row-left">
-            <div class="wallet-icon wallet-icon-green">
-              <span style="font-size:.5625rem;font-weight:800;letter-spacing:.03em;color:var(--green)" aria-hidden="true">FV</span>
-            </div>
-            <div>
-              <p class="wallet-row-label">Saldo disponible</p>
-              <p class="wallet-row-sub">{{ request.user.username|default:"usuario" }}</p>
-            </div>
-          </div>
-          <span class="wallet-row-value text-green">{{ saldo_virtual|default:"—" }} <small>fic.</small></span>
-        </div>
-
-        <div class="wallet-row">
-          <div class="wallet-row-left">
-            <div class="wallet-icon wallet-icon-gold">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14" aria-hidden="true">
-                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-              </svg>
-            </div>
-            <div>
-              <p class="wallet-row-label">Apuestas pendientes</p>
-              <p class="wallet-row-sub">En juego</p>
-            </div>
-          </div>
-          <span class="wallet-row-value text-gold">{{ saldo_en_juego|default:"—" }} <small>fic.</small></span>
-        </div>
-      </div>
-
-      <div class="wallet-total-row">
-        <span class="wallet-total-label">Total en sistema</span>
-        <span class="wallet-total-value">{{ saldo_total|default:"—" }} fichas</span>
-      </div>
-    </div>
-
-    <!-- Última apuesta -->
-    <div class="card lastbet-card">
-      <div class="card-header">
-        <div>
-          <h2 class="card-title">Última apuesta</h2>
-          {% if ultima_apuesta %}
-          <p class="card-subtitle">Apuesta #{{ ultima_apuesta.id }} · {{ ultima_apuesta.get_tipo_display }}</p>
-          {% else %}
-          <p class="card-subtitle">Sin apuestas registradas</p>
-          {% endif %}
-        </div>
-        {% if ultima_apuesta %}
-        <span class="badge
-          {% if ultima_apuesta.estado == 'accepted' %}badge-green
-          {% elif ultima_apuesta.estado == 'won' %}badge-green
-          {% elif ultima_apuesta.estado == 'lost' %}badge-red
-          {% elif ultima_apuesta.estado == 'cancelled' or ultima_apuesta.estado == 'void' %}badge-gray
-          {% else %}badge-gold
-          {% endif %}">
-          {% if ultima_apuesta.estado == 'accepted' %}<span class="badge-dot"></span>{% endif %}
-          {{ ultima_apuesta.get_estado_display }}
-        </span>
-        {% endif %}
-      </div>
-
-      {% if ultima_apuesta %}
-      <div class="bet-details-list">
-        {% for sel in ultima_apuesta.selecciones.all %}
-        <div class="bet-detail-row">
-          <span class="bet-detail-label">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true">
-              <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-            </svg>
-            Selección
-          </span>
-          <span class="bet-detail-value">{{ sel.seleccion.nombre }}</span>
-        </div>
-        <div class="bet-detail-row">
-          <span class="bet-detail-label">Evento</span>
-          <span class="bet-detail-value bet-detail-muted">
-            {{ sel.seleccion.mercado.evento.equipo_local.nombre }} vs {{ sel.seleccion.mercado.evento.equipo_visitante.nombre }}
-          </span>
-        </div>
-        <div class="bet-detail-row">
-          <span class="bet-detail-label">Cuota tomada</span>
-          <span class="bet-detail-value odd-value">× {{ sel.odd_valor_tomado }}</span>
-        </div>
-        {% endfor %}
-        <div class="bet-detail-row">
-          <span class="bet-detail-label">Stake apostado</span>
-          <span class="bet-detail-value text-gold">{{ ultima_apuesta.stake }} fic.</span>
-        </div>
-        <div class="bet-detail-row bet-detail-highlight">
-          <span class="bet-detail-label">Pago potencial</span>
-          <span class="bet-detail-value text-green">{{ ultima_apuesta.payout_potencial }} fic.</span>
-        </div>
-      </div>
-      {% else %}
-      <p class="text-muted" style="font-size:.85rem;padding:.5rem 0">No hay apuestas registradas aún.</p>
-      {% endif %}
-    </div>
-
-  </div><!-- /col-side -->
-
-</div><!-- /dashboard-grid -->
-
-
-<!-- ============================================================
-     EVENTOS DISPONIBLES
-     ============================================================ -->
-<section class="events-section" aria-label="Eventos deportivos disponibles">
-
-  <div class="section-header">
-    <div>
-      <h2 class="section-title">Eventos disponibles</h2>
-      <p class="section-subtitle">Mercados abiertos para apostar con fichas virtuales</p>
-    </div>
-    <a href="/eventos/" class="btn btn-outline btn-sm">
-      Ver todos
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12" aria-hidden="true">
-        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+  <div class="betslip-header">
+    <div class="betslip-header-left">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true">
+        <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
       </svg>
-    </a>
-  </div>
-
-  {% if eventos %}
-  <div class="events-grid">
-    {% for evento in eventos %}
-    <article class="event-item{% if evento.estado == 'en_vivo' %} live{% elif evento.estado == 'finalizado' %} finished{% endif %}">
-
-      <div class="event-item-header">
-        <div class="event-item-sport">
-          <div class="event-item-sport-icon">
-            {% with s=evento.deporte.nombre|lower %}
-              {% if 'futbol' in s or 'fútbol' in s %}⚽
-              {% elif 'basket' in s or 'básquet' in s or 'basquetbol' in s %}🏀
-              {% elif 'tenis' in s %}🎾
-              {% elif 'beisbol' in s or 'béisbol' in s %}⚾
-              {% elif 'voley' in s or 'volei' in s %}🏐
-              {% else %}🏅
-              {% endif %}
-            {% endwith %}
-          </div>
-          {{ evento.deporte.nombre }}
-        </div>
-        <span class="badge
-          {% if evento.estado == 'en_vivo' %}badge-red
-          {% elif evento.estado == 'finalizado' %}badge-gray
-          {% elif evento.estado == 'suspendido' %}badge-gold
-          {% elif evento.estado == 'anulado' %}badge-red
-          {% else %}badge-blue
-          {% endif %}">
-          {% if evento.estado == 'programado' or evento.estado == 'en_vivo' %}
-            <span class="badge-dot"></span>
-          {% endif %}
-          {{ evento.get_estado_display }}
-        </span>
-      </div>
-
-      <div class="event-item-teams">
-        <div class="event-item-team">
-          <span class="event-item-flag">
-            {% with p=evento.equipo_local.pais|lower %}
-              {% if 'per' in p %}🇵🇪
-              {% elif 'arg' in p %}🇦🇷
-              {% elif 'bra' in p %}🇧🇷
-              {% elif 'col' in p %}🇨🇴
-              {% elif 'esp' in p or 'spain' in p %}🇪🇸
-              {% elif 'ita' in p or 'italy' in p %}🇮🇹
-              {% elif 'fra' in p or 'fran' in p %}🇫🇷
-              {% elif 'ale' in p or 'germ' in p %}🇩🇪
-              {% elif 'uru' in p %}🇺🇾
-              {% elif 'chi' in p %}🇨🇱
-              {% elif 'bol' in p %}🇧🇴
-              {% elif 'ecu' in p %}🇪🇨
-              {% elif 'par' in p %}🇵🇾
-              {% elif 'ven' in p %}🇻🇪
-              {% else %}🏟️
-              {% endif %}
-            {% endwith %}
-          </span>
-          <span class="event-item-name">{{ evento.equipo_local.nombre }}</span>
-        </div>
-        <span class="event-item-vs">VS</span>
-        <div class="event-item-team">
-          <span class="event-item-flag">
-            {% with p=evento.equipo_visitante.pais|lower %}
-              {% if 'per' in p %}🇵🇪
-              {% elif 'arg' in p %}🇦🇷
-              {% elif 'bra' in p %}🇧🇷
-              {% elif 'col' in p %}🇨🇴
-              {% elif 'esp' in p or 'spain' in p %}🇪🇸
-              {% elif 'ita' in p or 'italy' in p %}🇮🇹
-              {% elif 'fra' in p or 'fran' in p %}🇫🇷
-              {% elif 'ale' in p or 'germ' in p %}🇩🇪
-              {% elif 'uru' in p %}🇺🇾
-              {% elif 'chi' in p %}🇨🇱
-              {% elif 'bol' in p %}🇧🇴
-              {% elif 'ecu' in p %}🇪🇨
-              {% elif 'par' in p %}🇵🇾
-              {% elif 'ven' in p %}🇻🇪
-              {% else %}🔵
-              {% endif %}
-            {% endwith %}
-          </span>
-          <span class="event-item-name">{{ evento.equipo_visitante.nombre }}</span>
-        </div>
-      </div>
-
-      <div class="event-item-time">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12" aria-hidden="true">
-          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-        </svg>
-        {{ evento.fecha_inicio|date:"D d M Y · H:i" }} PE
-      </div>
-
-      {% for mercado in evento.mercados.all %}
-        {% if mercado.activo and not mercado.suspendido %}
-        <div class="event-item-odds" role="group" aria-label="{{ mercado.nombre }}">
-          {% for seleccion in mercado.selecciones.all %}
-          <div class="event-item-odd">
-            <span class="event-item-odd-label">{{ seleccion.nombre }}</span>
-            <span class="event-item-odd-val">{{ seleccion.odd.valor|default:"—" }}</span>
-          </div>
-          {% empty %}
-          <p class="text-muted" style="font-size:.75rem;grid-column:1/-1">Sin selecciones</p>
-          {% endfor %}
-        </div>
-        {% endif %}
-      {% endfor %}
-
-      <div class="event-item-footer">
-        <a href="/api/mercados/?evento={{ evento.id }}" class="btn-event">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13" aria-hidden="true">
-            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-          </svg>
-          Ver mercados
-        </a>
-      </div>
-
-    </article>
-    {% endfor %}
-  </div>
-
-  {% else %}
-  <div class="events-empty" role="status">
-    <div class="events-empty-icon">📭</div>
-    <h3>No hay eventos disponibles</h3>
-    <p>Crea eventos desde el <a href="/admin/" style="color:var(--indigo)">panel de administración</a>.</p>
-  </div>
-  {% endif %}
-
-</section>
-
-
-<!-- ============================================================
-     HISTORIAL DE APUESTAS
-     ============================================================ -->
-<div class="card history-card">
-
-  <div class="section-header">
-    <div>
-      <h2 class="section-title">Historial de apuestas</h2>
-      <p class="section-subtitle">Registro de actividad simulada</p>
+      <span>Boleto de apuesta</span>
+      <span class="betslip-count">1</span>
     </div>
-    <a href="/api/apuestas/" class="btn btn-outline btn-sm">
-      Ver todo
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="12" height="12" aria-hidden="true">
-        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+    <button class="betslip-close" id="betSlipClose" aria-label="Cerrar boleto">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+
+  <div class="betslip-body">
+
+    <div class="betslip-combo-summary">
+      <div class="betslip-sel-top">
+        <div>
+          <p class="betslip-sel-event" id="bsEvent">—</p>
+          <p class="betslip-sel-market" id="bsMarket">—</p>
+        </div>
+        <button class="betslip-sel-remove" id="bsRemove" aria-label="Quitar selección">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="betslip-sel-row">
+        <span class="betslip-sel-name" id="bsSelName">—</span>
+        <span class="betslip-sel-odd" id="bsOdd">—</span>
+      </div>
+    </div>
+
+    <div class="betslip-stake-group">
+      <label class="betslip-stake-label" for="bsStake">Monto de apuesta</label>
+      <div class="betslip-stake-wrap">
+        <span class="betslip-stake-prefix">S/</span>
+        <input type="number" id="bsStake" class="betslip-stake-input"
+               min="1" step="0.01" placeholder="0.00" autocomplete="off">
+      </div>
+      <div class="betslip-quick-amounts">
+        <button class="betslip-qa" data-amount="10">10</button>
+        <button class="betslip-qa" data-amount="50">50</button>
+        <button class="betslip-qa" data-amount="100">100</button>
+        <button class="betslip-qa" data-amount="500">500</button>
+      </div>
+      <p class="betslip-balance">Saldo: <strong>S/ {{ saldo_virtual|default:"0.00" }}</strong></p>
+    </div>
+
+    <div class="betslip-payout-row">
+      <span class="betslip-payout-label">Pago potencial</span>
+      <strong class="betslip-payout-val" id="bsPayout">S/ 0.00</strong>
+    </div>
+
+    <p class="betslip-msg" id="bsMsg" aria-live="polite"></p>
+
+    <button class="betslip-submit" id="bsSubmit" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
       </svg>
-    </a>
-  </div>
+      Realizar apuesta
+    </button>
 
-  <div class="table-scroll" role="region" aria-label="Historial de apuestas" tabindex="0">
-    <table class="history-table">
-      <thead>
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Evento</th>
-          <th scope="col">Selección</th>
-          <th scope="col">Cuota</th>
-          <th scope="col">Stake</th>
-          <th scope="col">Pago potencial</th>
-          <th scope="col">Estado</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for apuesta in apuestas_recientes %}
-        {% with primera_sel=apuesta.selecciones.all.0 %}
-        <tr>
-          <td class="col-id">{{ apuesta.id }}</td>
-          <td class="col-event">
-            {% if primera_sel %}
-            <span class="event-name">
-              {{ primera_sel.seleccion.mercado.evento.equipo_local.nombre }}
-              vs
-              {{ primera_sel.seleccion.mercado.evento.equipo_visitante.nombre }}
-            </span>
-            {% else %}
-            <span class="event-name">—</span>
-            {% endif %}
-            <span class="event-date">{{ apuesta.fecha_creacion|date:"d M Y" }}</span>
-          </td>
-          <td><strong>{{ primera_sel.seleccion.nombre|default:"—" }}</strong></td>
-          <td><span class="odd-value">× {{ primera_sel.odd_valor_tomado|default:"—" }}</span></td>
-          <td class="text-gold">{{ apuesta.stake }} fic.</td>
-          <td class="text-green">{{ apuesta.payout_potencial }} fic.</td>
-          <td>
-            <span class="badge
-              {% if apuesta.estado == 'accepted' %}badge-green
-              {% elif apuesta.estado == 'won' %}badge-green
-              {% elif apuesta.estado == 'lost' %}badge-red
-              {% elif apuesta.estado == 'cancelled' or apuesta.estado == 'void' %}badge-gray
-              {% else %}badge-gold
-              {% endif %}">
-              {% if apuesta.estado == 'accepted' %}<span class="badge-dot"></span>{% endif %}
-              {{ apuesta.get_estado_display }}
-            </span>
-          </td>
-        </tr>
-        {% endwith %}
-        {% empty %}
-        <tr>
-          <td class="col-id">—</td>
-          <td colspan="6" class="col-empty">No hay apuestas en el historial.</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+  </div><!-- /betslip-body -->
 
-</div>
+</div><!-- /betslip -->
 
+{% endblock %}
+
+{% block extra_js %}
+<script>
+  window.APUESTA_CONFIG = {
+    userId: {{ request.user.id }},
+    apiBase: '/api/apuestas/operaciones/',
+    csrfToken: '{{ csrf_token }}'
+  };
+</script>
+<script src="{% static 'js/pages/dashboard.js' %}?v=20260528b"></script>
 {% endblock %}

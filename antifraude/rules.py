@@ -10,14 +10,14 @@ LIMITE_APUESTAS_MISMO_EVENTO = 3
 
 
 def detectar_apuesta_alta(bet):
-    """Alerta media si stake >= 100 FV."""
+    """Alerta media si stake >= S/ 100."""
     if bet.stake >= STAKE_UMBRAL_ALTA:
         return {
             'tipo': 'apuesta_alta',
             'severidad': 'media',
             'descripcion': (
-                f'Apuesta de monto alto: {bet.stake} FV '
-                f'(umbral: {STAKE_UMBRAL_ALTA} FV).'
+                f'Apuesta de monto alto: S/ {bet.stake} '
+                f'(umbral: S/ {STAKE_UMBRAL_ALTA}).'
             ),
             'metadata': {
                 'stake':   str(bet.stake),

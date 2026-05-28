@@ -83,15 +83,15 @@ class LimiteDeposito(models.Model):
         ]
         constraints = [
             models.CheckConstraint(
-                check=models.Q(limite_diario__gte=0),
+                condition=models.Q(limite_diario__gte=0),
                 name='limite_diario_no_negativo'
             ),
             models.CheckConstraint(
-                check=models.Q(limite_semanal__gte=0),
+                condition=models.Q(limite_semanal__gte=0),
                 name='limite_semanal_no_negativo'
             ),
             models.CheckConstraint(
-                check=models.Q(limite_mensual__gte=0),
+                condition=models.Q(limite_mensual__gte=0),
                 name='limite_mensual_no_negativo'
             ),
         ]

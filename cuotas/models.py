@@ -65,11 +65,11 @@ class Odd(models.Model):
         ]
         constraints = [
             models.CheckConstraint(
-                check=models.Q(valor__gt=1),
+                condition=models.Q(valor__gt=1),
                 name='odd_valor_mayor_que_uno'
             ),
             models.CheckConstraint(
-                check=models.Q(margen_operador__gte=0),
+                condition=models.Q(margen_operador__gte=0),
                 name='odd_margen_operador_no_negativo'
             ),
         ]
@@ -135,11 +135,11 @@ class OddHistory(models.Model):
         ]
         constraints = [
             models.CheckConstraint(
-                check=models.Q(valor_anterior__gt=1),
+                condition=models.Q(valor_anterior__gt=1),
                 name='odd_history_valor_anterior_mayor_que_uno'
             ),
             models.CheckConstraint(
-                check=models.Q(valor_nuevo__gt=1),
+                condition=models.Q(valor_nuevo__gt=1),
                 name='odd_history_valor_nuevo_mayor_que_uno'
             ),
         ]

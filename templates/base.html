@@ -1,4 +1,4 @@
-{% load static %}
+{% load static l10n %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -9,11 +9,20 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=20260527d" />
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=20260528b" />
   <link rel="stylesheet" href="{% static 'css/components.css' %}" />
   <link rel="stylesheet" href="{% static 'css/events.css' %}" />
+  {% if request.user.is_authenticated and request.path != "/billetera/" %}
+  <link rel="stylesheet" href="{% static 'css/pages/billetera.css' %}?v=20260528d" />
+  {% endif %}
   {% block extra_css %}{% endblock %}
 </head>
+
+<footer style="text-align:center; padding:10px; font-size:14px;">
+  Plataforma educativa con moneda virtual.
+  No constituye una casa de apuestas.
+</footer>
+
 <body>
 
   <header class="header" role="banner">
@@ -28,7 +37,6 @@
       <nav class="nav" id="mainNav" role="navigation" aria-label="Menu principal">
         <div class="nav-links">
           <a href="/inicio/" class="nav-link {% block nav_inicio %}{% endblock %}">Inicio</a>
-          <a href="/eventos/" class="nav-link {% block nav_eventos %}{% endblock %}">Eventos</a>
           <a href="/mis-apuestas/" class="nav-link {% block nav_apuestas %}{% endblock %}">Mis apuestas</a>
           <a href="/billetera/" class="nav-link {% block nav_billetera %}{% endblock %}">Billetera</a>
           {% if request.user.is_staff or request.user.is_superuser %}
@@ -96,28 +104,54 @@
       </button>
     </div>
 
-    <div class="account-card" data-user-id="{{ request.user.id }}">
+    <div class="account-card"
+         data-user-id="{{ request.user.id }}"
+         data-account-balance="{{ cuenta_drawer_saldo|default:'0.0000'|unlocalize }}">
       <div class="account-card-brand">
         <img src="{% static 'img/logo.png' %}" alt="" />
         <span>Apuesta24/7</span>
       </div>
-      <p>Recarga fichas virtuales para continuar usando la plataforma.</p>
+      <div class="account-card-stats" aria-label="Resumen de saldo">
+        <div>
+          <span class="account-stat-label">Saldo:</span>
+          <strong id="accountDrawerBalance">S/ {{ cuenta_drawer_saldo|default:"0.0000"|floatformat:"2u" }}</strong>
+        </div>
+        <div>
+          <span class="account-stat-label">Bono:</span>
+          <strong>S/ {{ cuenta_drawer_bono|default:"0.0000"|floatformat:"2u" }}</strong>
+        </div>
+      </div>
     </div>
 
-    <form class="account-recharge" id="accountRechargeForm">
-      <label class="account-field" for="accountRechargeAmount">
-        <span>Cantidad de fichas</span>
-        <input id="accountRechargeAmount" type="number" min="0.0001" step="0.0001" inputmode="decimal" placeholder="100.0000" value="100.0000" />
+    <div class="account-action-grid">
+      <button class="account-action-btn account-action-btn-green" id="accountShowRecharge" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" width="20" height="20" aria-hidden="true">
+          <path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>
+        </svg>
+        Cargar Saldo
+      </button>
+      <button class="account-action-btn account-action-btn-outline" id="accountShowWithdraw" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" width="20" height="20" aria-hidden="true">
+          <path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/>
+        </svg>
+        Retirar dinero
+      </button>
+    </div>
+
+    <form class="account-recharge account-operation-panel" id="accountWithdrawForm" hidden>
+      <label class="account-field" for="accountWithdrawAmount">
+        <span>Monto a retirar</span>
+        <input id="accountWithdrawAmount" type="number" min="0.01" step="0.01" inputmode="decimal" placeholder="50.00" value="50.00" />
       </label>
 
-      <div class="account-quick-amounts" aria-label="Cantidades rapidas">
-        <button type="button" data-account-amount="10.0000">10 FV</button>
-        <button type="button" data-account-amount="50.0000">50 FV</button>
-        <button type="button" data-account-amount="100.0000">100 FV</button>
+      <div class="account-quick-amounts" aria-label="Montos rapidos de retiro">
+        <button type="button" data-withdraw-amount="10.00">S/ 10</button>
+        <button type="button" data-withdraw-amount="50.00">S/ 50</button>
+        <button type="button" data-withdraw-amount="100.00">S/ 100</button>
       </div>
 
-      <button class="account-primary-btn" type="submit">Recargar fichas</button>
-      <p class="account-message" id="accountRechargeMessage" aria-live="polite"></p>
+      <button class="account-primary-btn account-secondary-submit" type="submit">Retirar dinero</button>
+      <p class="account-message" id="accountWithdrawMessage" aria-live="polite"></p>
     </form>
 
     <a href="/logout/" class="account-logout">
@@ -130,6 +164,11 @@
       Cerrar sesi&oacute;n
     </a>
   </aside>
+
+  {% if request.user.is_authenticated and request.path != "/billetera/" %}
+  <div id="apuesta247Meta" data-user-id="{{ request.user.id }}" hidden></div>
+  {% include "includes/wallet_recharge_modal.html" %}
+  {% endif %}
 
   <footer class="footer" role="contentinfo">
     <div class="container footer-inner">
@@ -144,7 +183,7 @@
         <svg viewBox="0 0 20 20" fill="currentColor" width="14" height="14" aria-hidden="true">
           <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
         </svg>
-        <p>Apuesta24/7 es una plataforma con fichas virtuales.</p>
+        <p>Apuesta24/7 usa saldo virtual expresado en soles peruanos.</p>
       </div>
 
       <div class="footer-links">
@@ -157,7 +196,11 @@
     </div>
   </footer>
 
-  <script src="{% static 'js/main.js' %}?v=20260527d"></script>
+  <script src="{% static 'js/main.js' %}?v=20260528d"></script>
+  {% if request.user.is_authenticated and request.path != "/billetera/" %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="{% static 'js/pages/billetera.js' %}?v=20260528d"></script>
+  {% endif %}
   {% block extra_js %}{% endblock %}
 </body>
 </html>

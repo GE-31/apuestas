@@ -103,15 +103,15 @@ class Bet(models.Model):
         ]
         constraints = [
             models.CheckConstraint(
-                check=models.Q(stake__gt=0),
+                condition=models.Q(stake__gt=0),
                 name='bet_stake_mayor_que_cero'
             ),
             models.CheckConstraint(
-                check=models.Q(odds_total__gt=1),
+                condition=models.Q(odds_total__gt=1),
                 name='bet_odds_total_mayor_que_uno'
             ),
             models.CheckConstraint(
-                check=models.Q(payout_potencial__gte=0),
+                condition=models.Q(payout_potencial__gte=0),
                 name='bet_payout_potencial_no_negativo'
             ),
         ]
@@ -181,7 +181,7 @@ class BetSelection(models.Model):
         ]
         constraints = [
             models.CheckConstraint(
-                check=models.Q(odd_valor_tomado__gt=1),
+                condition=models.Q(odd_valor_tomado__gt=1),
                 name='bet_selection_odd_valor_mayor_que_uno'
             )
         ]

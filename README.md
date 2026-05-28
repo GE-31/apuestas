@@ -87,3 +87,20 @@ Conviene hacer commits pequenos y por tema. Un orden razonable para este reto:
 8. Corregir creacion de KYC cuando no existe verificacion previa.
 9. Agregar pruebas de DNI y mayoria de edad.
 10. Limpiar README y documentar alcance de moneda virtual.
+
+
+
+## Uso de herramientas de IA
+
+Durante el desarrollo del proyecto se utilizaron herramientas de inteligencia artificial como apoyo academico y de aprendizaje.
+
+Usos realizados:
+
+* explicacion de errores de Docker y PostgreSQL,
+* apoyo en configuracion de Django y pytest,
+* sugerencias de estructura para commits y documentacion,
+* apoyo conceptual sobre concurrencia y validaciones financieras.
+
+Toda integracion fue revisada, entendida y adaptada manualmente antes de incorporarse al proyecto.
+
+Los commits con asistencia significativa fueron marcados utilizando el sufijo `[ai-assisted]`.

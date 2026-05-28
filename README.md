@@ -21,6 +21,7 @@ Construir un simulador de apuestas deportivas con enfoque en:
 - Auditoría inmutable.
 - Reglas básicas antifraude.
 - Dashboard del operador.
+- Vista de auditoria en el panel interno para revisar registros y verificaciones.
 
 ---
 

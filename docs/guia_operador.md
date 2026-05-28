@@ -25,3 +25,7 @@ Antes de publicar cuotas, compara los valores con el margen esperado. Cambios br
 ## Apuestas
 
 Al liquidar apuestas, confirma el resultado del evento y revisa que la seleccion corresponda al mercado correcto.
+
+## Billetera
+
+Las recargas y retiros deben revisarse con el saldo disponible y el historial del usuario para evitar operaciones duplicadas.

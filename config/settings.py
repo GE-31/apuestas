@@ -23,7 +23,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config("SECRET_KEY", default="django-insecure-betsync-dev-key")
 
-DEBUG = config("DEBUG", default=True, cast=bool)
+def env_bool(name, default=False):
+    value = str(config(name, default=default)).strip().lower()
+    truthy_values = {"1", "true", "yes", "on", "dev", "development"}
+    falsy_values = {"0", "false", "no", "off", "prod", "production", "release"}
+
+    if value in truthy_values:
+        return True
+    if value in falsy_values:
+        return False
+    return bool(default)
+
+
+DEBUG = env_bool("DEBUG", default=True)
 
 ALLOWED_HOSTS = config("ALLOWED_HOSTS", default="localhost,127.0.0.1").split(",")
 

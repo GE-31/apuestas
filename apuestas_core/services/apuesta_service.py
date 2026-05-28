@@ -147,13 +147,13 @@ def _obtener_odds_apostables_bloqueadas(odd_ids):
     if len(odds) != len(odd_ids_unicos):
         raise ApuestaError("Una o más cuotas no existen.")
 
-    eventos_usados = set()
+    mercados_usados = set()
     for odd in odds:
         validar_odd_apostable(odd)
-        evento_id = odd.seleccion.mercado.evento_id
-        if evento_id in eventos_usados:
-            raise ApuestaError("La combinada no puede incluir más de una selección del mismo evento.")
-        eventos_usados.add(evento_id)
+        mercado_id = odd.seleccion.mercado_id
+        if mercado_id in mercados_usados:
+            raise ApuestaError("La combinada no puede incluir mas de una seleccion del mismo mercado.")
+        mercados_usados.add(mercado_id)
 
     return odds
 

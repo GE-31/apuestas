@@ -5,7 +5,7 @@
 {% block nav_apuestas %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/mis_apuestas.css' %}?v=20260527g" />
+<link rel="stylesheet" href="{% static 'css/pages/mis_apuestas.css' %}?v=20260528b" />
 {% endblock %}
 
 {% block content %}
@@ -127,6 +127,7 @@
               <th scope="col">Cuota</th>
               <th scope="col">Pago pot.</th>
               <th scope="col">Estado</th>
+              <th scope="col">Cashout</th>
               <th scope="col">Fecha</th>
             </tr>
           </thead>
@@ -199,6 +200,19 @@
                 <span class="bet-badge bet-badge-void">Cash-out</span>
                 {% else %}
                 <span class="bet-badge bet-badge-void">{{ apuesta.get_estado_display }}</span>
+                {% endif %}
+              </td>
+
+              <td>
+                {% if apuesta.cashout_disponible %}
+                <form method="post" action="{% url 'panel:mis_apuestas' %}" class="cashout-form">
+                  {% csrf_token %}
+                  <input type="hidden" name="action" value="cashout">
+                  <input type="hidden" name="bet_id" value="{{ apuesta.id }}">
+                  <button type="submit" class="cashout-btn">Cashout S/ {{ apuesta.stake|floatformat:"2" }}</button>
+                </form>
+                {% else %}
+                <span class="bet-date">-</span>
                 {% endif %}
               </td>
 

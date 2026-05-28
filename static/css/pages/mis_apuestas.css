@@ -631,6 +631,30 @@
 /* Pago ganado resaltado */
 .bet-payout-won { color: var(--green); text-shadow: 0 0 10px rgba(16,185,129,0.3); }
 
+.cashout-form {
+  margin: 0;
+}
+
+.cashout-btn {
+  min-height: 30px;
+  padding: 0 10px;
+  border: 1px solid rgba(249, 115, 22, 0.45);
+  border-radius: 7px;
+  background: rgba(249, 115, 22, 0.12);
+  color: #fb923c;
+  font-family: var(--font);
+  font-size: 0.75rem;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cashout-btn:hover {
+  background: rgba(249, 115, 22, 0.2);
+  border-color: #f97316;
+  color: #fdba74;
+}
+
 /* Vacío por filtro (inline dentro de la tabla) */
 .bets-empty-filter {
   display: flex;

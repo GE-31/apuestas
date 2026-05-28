@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_object_or_404
 
 from billetera.serializers import RecargaFichasSerializer, RetiroFichasSerializer
 from billetera.services.deposito_service import (
@@ -117,6 +118,8 @@ class MovimientoSimpleViewSet(viewsets.ViewSet):
         )
     
 User = get_user_model()
+
+
 class OperacionesWalletViewSet(viewsets.ViewSet):
     """
     Operaciones de wallet:
@@ -124,12 +127,17 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
     - retiro simulado
     """
 
+    def _obtener_usuario_operacion(self, request, serializer):
+        if request.user.is_staff or request.user.is_superuser:
+            return get_object_or_404(User, pk=serializer.validated_data['usuario_id'])
+        return request.user
+
     @action(detail=False, methods=['post'])
     def recargar(self, request):
         serializer = RecargaFichasSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+        usuario = self._obtener_usuario_operacion(request, serializer)
 
         try:
             transaccion = recargar_fichas_usuario(
@@ -151,7 +159,7 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
         serializer = RetiroFichasSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-        usuario = User.objects.get(pk=serializer.validated_data['usuario_id'])
+        usuario = self._obtener_usuario_operacion(request, serializer)
 
         try:
             transaccion = retirar_fichas_usuario(

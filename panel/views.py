@@ -11,6 +11,7 @@ from apuestas_core.services.liquidacion_service import (
     liquidar_apuesta_ganada,
     liquidar_apuesta_perdida,
 )
+from auditoria.models import AuditIntegrityCheck, AuditLog
 from billetera.models import Account
 from billetera.selectors import obtener_saldo_cuenta
 from config.choices import EstadoApuesta, EstadoEvento, TipoCuentaLedger
@@ -266,6 +267,8 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             'eventos_count': Evento.objects.count(),
             'apuestas_count': Bet.objects.count(),
             'usuarios_count': PerfilUsuario.objects.count(),
+            'auditorias_count': AuditLog.objects.count(),
+            'auditorias_integras_count': AuditIntegrityCheck.objects.filter(es_valida=True).count(),
             'apuestas_recientes_admin': apuestas,
             'eventos_recientes_admin': eventos,
             'apuestas_todas': apuestas_todas,

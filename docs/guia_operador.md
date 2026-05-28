@@ -17,3 +17,7 @@ Mantener las ligas activas y con nombres claros ayuda a que los filtros del pane
 ## Equipos
 
 Registra equipos con nombres consistentes. Evita duplicados con mayusculas, abreviaturas o espacios distintos.
+
+## Cuotas
+
+Antes de publicar cuotas, compara los valores con el margen esperado. Cambios bruscos deben revisarse antes de quedar visibles.

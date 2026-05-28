@@ -1,11 +1,11 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static number_format %}
 
 {% block title %}Inicio — Apuesta24/7{% endblock %}
 {% block nav_inicio %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}?v=20260528b" />
+<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}?v=20260528d" />
 {% endblock %}
 
 {% block content %}
@@ -21,7 +21,7 @@
     </div>
     <div class="sb-metric-body">
       <span class="sb-metric-label">Saldo disponible</span>
-      <span class="sb-metric-val">S/ {{ saldo_virtual|default:"0.00" }}</span>
+      <span class="sb-metric-val">S/ {{ saldo_virtual|default:"0.00"|odds2 }}</span>
       <span class="sb-metric-unit">disponible</span>
     </div>
   </div>
@@ -186,7 +186,7 @@
         <!-- Odds: 1 X 2 -->
         <div class="sb-match-odds" role="group" aria-label="Cuotas para {{ evento.equipo_local.nombre }} vs {{ evento.equipo_visitante.nombre }}">
           {% if evento.mercado_principal %}
-            {% for sel in evento.mercado_principal.selecciones_sorted %}
+            {% for sel in evento.mercado_principal.selecciones_ordenadas %}
             <button class="sb-odd"
                     data-evento-id="{{ evento.id }}"
                     data-evento="{{ evento.equipo_local.nombre }} vs {{ evento.equipo_visitante.nombre }}"
@@ -195,10 +195,10 @@
                     data-sel-id="{{ sel.id }}"
                     data-sel="{{ sel.nombre }}"
                     data-odd-id="{{ sel.odd.id|default:'' }}"
-                    data-odd="{{ sel.odd.valor|default:'0' }}"
+                    data-odd="{{ sel.odd.valor|decimal4 }}"
                     aria-pressed="false"
                     {% if evento.estado == 'finalizado' or evento.estado == 'anulado' %}disabled{% endif %}>
-              {{ sel.odd.valor|floatformat:2|default:"—" }}
+              {{ sel.odd.valor|odds2 }}
             </button>
             {% empty %}
             <span class="sb-no-odds">Sin cuotas</span>
@@ -207,6 +207,37 @@
           <span class="sb-no-odds">Sin mercado</span>
           {% endif %}
         </div>
+
+        {% if evento.mercados_extra %}
+        <details class="sb-market-drawer">
+          <summary>Más mercados</summary>
+          <div class="sb-market-grid">
+            {% for mercado in evento.mercados_extra %}
+            <section class="sb-market-card" aria-label="{{ mercado.nombre }}">
+              <h3>{{ mercado.nombre }}</h3>
+              <div class="sb-market-options">
+                {% for sel in mercado.selecciones_ordenadas %}
+                <button class="sb-odd sb-odd--market"
+                        data-evento-id="{{ evento.id }}"
+                        data-evento="{{ evento.equipo_local.nombre }} vs {{ evento.equipo_visitante.nombre }}"
+                        data-mercado="{{ mercado.nombre }}"
+                        data-mercado-id="{{ mercado.id }}"
+                        data-sel-id="{{ sel.id }}"
+                        data-sel="{{ sel.nombre }}"
+                        data-odd-id="{{ sel.odd.id|default:'' }}"
+                        data-odd="{{ sel.odd.valor|decimal4 }}"
+                        aria-pressed="false"
+                        {% if evento.estado == 'finalizado' or evento.estado == 'anulado' %}disabled{% endif %}>
+                  <span>{{ sel.nombre }}</span>
+                  <strong>{{ sel.odd.valor|odds2 }}</strong>
+                </button>
+                {% endfor %}
+              </div>
+            </section>
+            {% endfor %}
+          </div>
+        </details>
+        {% endif %}
 
       </div><!-- /sb-match -->
       {% endfor %}
@@ -278,7 +309,7 @@
         <button class="betslip-qa" data-amount="100">100</button>
         <button class="betslip-qa" data-amount="500">500</button>
       </div>
-      <p class="betslip-balance">Saldo: <strong>S/ {{ saldo_virtual|default:"0.00" }}</strong></p>
+      <p class="betslip-balance">Saldo: <strong>S/ {{ saldo_virtual|default:"0.00"|odds2 }}</strong></p>
     </div>
 
     <div class="betslip-payout-row">
@@ -309,5 +340,5 @@
     csrfToken: '{{ csrf_token }}'
   };
 </script>
-<script src="{% static 'js/pages/dashboard.js' %}?v=20260528b"></script>
+<script src="{% static 'js/pages/dashboard.js' %}?v=20260528c"></script>
 {% endblock %}

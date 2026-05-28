@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static number_format %}
 
 {% block title %}Eventos — Apuesta24/7{% endblock %}
 {% block nav_eventos %}active{% endblock %}
@@ -201,13 +201,13 @@
           {% if seleccion.odd %}
           <button class="event-item-odd" type="button"
                   data-odd-id="{{ seleccion.odd.id }}"
-                  data-odd-val="{{ seleccion.odd.valor }}"
+                  data-odd-val="{{ seleccion.odd.valor|decimal4 }}"
                   data-seleccion="{{ seleccion.nombre }}"
                   data-mercado="{{ mercado.nombre }}"
                   aria-pressed="false"
-                  title="Seleccionar: {{ seleccion.nombre }} @ {{ seleccion.odd.valor }}">
+                  title="Seleccionar: {{ seleccion.nombre }} @ {{ seleccion.odd.valor|odds2 }}">
             <span class="event-item-odd-label">{{ seleccion.nombre }}</span>
-            <span class="event-item-odd-val">{{ seleccion.odd.valor }}</span>
+            <span class="event-item-odd-val">{{ seleccion.odd.valor|odds2 }}</span>
           </button>
           {% else %}
           <div class="event-item-odd event-item-odd-na" aria-disabled="true">

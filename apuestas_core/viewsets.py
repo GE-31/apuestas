@@ -13,6 +13,7 @@ from apuestas_core.serializers import (
     LiquidarApuestaSerializer,
 )
 from apuestas_core.services.apuesta_service import crear_apuesta_combinada, crear_apuesta_simple
+from apuestas_core.services.cashout_service import cashout_apuesta
 from apuestas_core.services.liquidacion_service import (
     anular_apuesta,
     liquidar_apuesta_ganada,
@@ -174,6 +175,23 @@ class OperacionesApuestaViewSet(viewsets.ViewSet):
             idempotency_key=serializer.validated_data.get('idempotency_key'),
             anulado_por=request.user if request.user.is_authenticated else None,
         )
+
+        response_serializer = BetSerializer(apuesta)
+        return Response(response_serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'])
+    def cashout(self, request):
+        serializer = LiquidarApuestaSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            apuesta, _movimiento = cashout_apuesta(
+                bet_id=serializer.validated_data['bet_id'],
+                idempotency_key=serializer.validated_data.get('idempotency_key'),
+                solicitado_por=request.user if request.user.is_authenticated else None,
+            )
+        except Exception as exc:
+            return Response({'detail': str(exc)}, status=status.HTTP_400_BAD_REQUEST)
 
         response_serializer = BetSerializer(apuesta)
         return Response(response_serializer.data, status=status.HTTP_200_OK)

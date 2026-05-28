@@ -118,7 +118,12 @@
     }
 
     selections = selections.filter(function (item) {
-      if (String(item.eventoId) !== String(eventId)) return true;
+      if (
+        String(item.eventoId) !== String(eventId) ||
+        String(item.mercadoId) !== String(btn.dataset.mercadoId)
+      ) {
+        return true;
+      }
       var oldBtn = document.querySelector('.sb-odd[data-odd-id="' + item.oddId + '"]');
       if (oldBtn) {
         oldBtn.classList.remove('is-selected');
@@ -134,6 +139,7 @@
       eventoId: btn.dataset.eventoId,
       evento: btn.dataset.evento,
       mercado: btn.dataset.mercado,
+      mercadoId: btn.dataset.mercadoId,
       sel: btn.dataset.sel,
       oddId: btn.dataset.oddId,
       odd: parseFloat(btn.dataset.odd) || 0,

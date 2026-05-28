@@ -9,3 +9,7 @@ Usa el ingreso administrativo solo con cuentas del equipo. Si el acceso falla, r
 ## Eventos
 
 Antes de crear un evento, valida deporte, liga, equipos y fecha de inicio. Un evento incompleto puede confundir las cuotas visibles para el cliente.
+
+## Ligas
+
+Mantener las ligas activas y con nombres claros ayuda a que los filtros del panel cliente sean faciles de explorar.

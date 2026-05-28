@@ -269,6 +269,12 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             'usuarios_count': PerfilUsuario.objects.count(),
             'auditorias_count': AuditLog.objects.count(),
             'auditorias_integras_count': AuditIntegrityCheck.objects.filter(es_valida=True).count(),
+            'auditorias_recientes': AuditLog.objects.select_related('creado_por').order_by('-fecha_creacion')[:10],
+            'verificaciones_auditoria_recientes': (
+                AuditIntegrityCheck.objects
+                .select_related('ejecutado_por')
+                .order_by('-fecha_ejecucion')[:5]
+            ),
             'apuestas_recientes_admin': apuestas,
             'eventos_recientes_admin': eventos,
             'apuestas_todas': apuestas_todas,

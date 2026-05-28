@@ -13,3 +13,7 @@ Antes de crear un evento, valida deporte, liga, equipos y fecha de inicio. Un ev
 ## Ligas
 
 Mantener las ligas activas y con nombres claros ayuda a que los filtros del panel cliente sean faciles de explorar.
+
+## Equipos
+
+Registra equipos con nombres consistentes. Evita duplicados con mayusculas, abreviaturas o espacios distintos.

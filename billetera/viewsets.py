@@ -159,16 +159,7 @@ class OperacionesWalletViewSet(viewsets.ViewSet):
         serializer = RetiroFichasSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
-<<<<<<< HEAD
         usuario = self._obtener_usuario_operacion(request, serializer)
-=======
-        usuario, error_response = self._obtener_usuario_operacion(
-            request,
-            serializer.validated_data['usuario_id'],
-        )
-        if error_response:
-            return error_response
->>>>>>> origin/main
 
         try:
             transaccion = retirar_fichas_usuario(

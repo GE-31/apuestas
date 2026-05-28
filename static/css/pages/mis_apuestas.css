@@ -636,23 +636,49 @@
 }
 
 .cashout-btn {
-  min-height: 30px;
-  padding: 0 10px;
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
   border: 1px solid rgba(249, 115, 22, 0.45);
-  border-radius: 7px;
+  border-radius: 50%;
   background: rgba(249, 115, 22, 0.12);
   color: #fb923c;
   font-family: var(--font);
-  font-size: 0.75rem;
+  font-size: 1rem;
   font-weight: 900;
   cursor: pointer;
-  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cashout-icon {
+  line-height: 1;
 }
 
 .cashout-btn:hover {
   background: rgba(249, 115, 22, 0.2);
   border-color: #f97316;
   color: #fdba74;
+}
+
+.cashout-btn[disabled],
+.cashout-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: rgba(249, 115, 22, 0.08);
+  border-color: rgba(249, 115, 22, 0.2);
+  color: rgba(251, 146, 60, 0.7);
+}
+
+.cashout-btn[disabled],
+.cashout-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  background: rgba(249, 115, 22, 0.08);
+  border-color: rgba(249, 115, 22, 0.2);
+  color: rgba(251, 146, 60, 0.7);
 }
 
 /* Vacío por filtro (inline dentro de la tabla) */

@@ -53,6 +53,21 @@ def validar_cashout_pre_match(bet):
             raise CashoutError("El cashout solo esta disponible antes de que empiece el partido.")
 
 
+def calcular_oferta_cashout(bet):
+    """Calcula la oferta de cashout para mostrar en la UI.
+
+    Actualmente la oferta pre-match devuelve el `stake` normalizado.
+    Esta función puede extenderse para ofrecer mejores cálculos.
+    """
+    # Validar condición mínima para que se muestre oferta
+    try:
+        validar_cashout_pre_match(bet)
+    except CashoutError:
+        return None
+
+    return normalizar_decimal(bet.stake)
+
+
 @transaction.atomic
 def cashout_apuesta(*, bet_id, idempotency_key=None, solicitado_por=None):
     bet = (

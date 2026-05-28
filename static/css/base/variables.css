@@ -81,8 +81,13 @@
   --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 
   /* ── Disclaimer ── */
-  --disclaimer-bg:     #fffbeb;
-  --disclaimer-border: #fde68a;
-  --disclaimer-text:   #92400e;
-  --disclaimer-icon:   #d97706;
+  --disclaimer-bg:     #fff7ed;
+  --disclaimer-border: #fed7aa;
+  --disclaimer-text:   #7c2d12;
+  --disclaimer-icon:   #ea580c;
+
+  /* ── Violeta ── */
+  --violet:     #7c3aed;
+  --violet-dim: rgba(124, 58, 237, 0.09);
+  --violet-mid: rgba(124, 58, 237, 0.18);
 }

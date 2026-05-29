@@ -318,24 +318,155 @@
 .bet-event-cell {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 6px;
 }
 
+/* Una fila por selección dentro de la combinada */
+.bet-sel-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: 5px;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.bet-sel-row:last-child { border-bottom: none; padding-bottom: 0; }
+
 .bet-event-name {
-  font-size: 0.875rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--text-primary);
-  white-space: nowrap;
 }
 
 .bet-event-market {
-  font-size: 0.6875rem;
+  font-size: 0.65rem;
   color: var(--text-muted);
   font-weight: 500;
 }
 
+/* Tag COMBI */
+.bet-combinada-tag {
+  display: inline-block;
+  margin-top: 3px;
+  padding: 2px 7px;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: .06em;
+  border-radius: 5px;
+  background: rgba(99,102,241,.18);
+  color: #818cf8;
+  border: 1px solid rgba(99,102,241,.3);
+}
+
+.combi-summary { color: #a5b4fc !important; }
+.combi-expand-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: #818cf8 !important;
+  font-size: 0.65rem !important;
+  cursor: pointer;
+}
+.combi-chevron { transition: transform .25s; flex-shrink: 0; }
+.bet-row--combinada:hover { background: rgba(99,102,241,.06); }
+
+/* Fila desplegable de combinada */
+.combi-detail td { background: rgba(99,102,241,.05); }
+.combi-detail-inner {
+  padding: 14px 20px 18px;
+  border-top: 1px solid rgba(99,102,241,.2);
+  border-bottom: 1px solid rgba(99,102,241,.15);
+}
+.combi-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #818cf8;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+.combi-legs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.combi-leg {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 10px;
+}
+.combi-leg-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: rgba(99,102,241,.25);
+  color: #a5b4fc;
+  font-size: 0.7rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.combi-leg-body { flex: 1; display: flex; flex-direction: column; gap: 3px; }
+.combi-leg-match {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.combi-leg-liga {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.combi-leg-market { font-size: 0.68rem; color: var(--text-muted); }
+.combi-leg-sel {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+}
+.combi-leg-pick {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f97316;
+}
+.combi-leg-odd {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #94a3b8;
+}
+.combi-leg-result {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 5px;
+  background: rgba(255,255,255,.06);
+  color: #94a3b8;
+}
+.combi-result-won { background: rgba(16,185,129,.15); color: #10b981; }
+.combi-result-lost { background: rgba(239,68,68,.15); color: #f87171; }
+
+/* Cuota individual en columna selección */
+.bet-odd-mini {
+  font-size: 0.65rem;
+  color: #f97316;
+  font-weight: 700;
+}
+
 .bet-selection {
-  font-size: 0.875rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--text-primary);
 }
@@ -665,17 +796,52 @@
 }
 
 .cashout-btn {
-  min-height: 30px;
-  padding: 0 10px;
+  min-height: 38px;
+  padding: 4px 12px;
   border: 1px solid rgba(249, 115, 22, 0.45);
-  border-radius: 7px;
+  border-radius: 9px;
   background: rgba(249, 115, 22, 0.12);
   color: #fb923c;
   font-family: var(--font);
-  font-size: 0.75rem;
-  font-weight: 900;
   cursor: pointer;
   white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.cashout-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  opacity: 0.75;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.cashout-amount {
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+/* Ganando → verde */
+.cashout-btn--up {
+  border-color: rgba(16, 185, 129, 0.5);
+  background: rgba(16, 185, 129, 0.12);
+  color: #10b981;
+}
+.cashout-btn--up:hover {
+  background: rgba(16, 185, 129, 0.22);
+  border-color: #10b981;
+}
+
+/* Perdiendo → rojo */
+.cashout-btn--down {
+  border-color: rgba(239, 68, 68, 0.45);
+  background: rgba(239, 68, 68, 0.10);
+  color: #f87171;
+}
+.cashout-btn--down:hover {
+  background: rgba(239, 68, 68, 0.20);
+  border-color: #ef4444;
 }
 
 .cashout-btn:hover {

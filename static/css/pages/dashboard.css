@@ -29,6 +29,26 @@
   min-width: 0;
 }
 
+.sb-metric--button {
+  width: 100%;
+  border: 1px solid var(--border);
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sb-metric--button:hover {
+  transform: translateY(-1px);
+  border-color: rgba(239, 68, 68, 0.45);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.18);
+}
+
+.sb-metric--button.is-active {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.18), var(--bg-card) 62%);
+  border-color: rgba(239, 68, 68, 0.62);
+}
+
 .sb-metric::before {
   content: '';
   position: absolute;
@@ -264,19 +284,39 @@
 /* Match row */
 .sb-match {
   display: grid;
-  grid-template-columns: 48px minmax(180px, 1fr) 36px auto;
+  grid-template-columns: 48px minmax(160px, 1fr) minmax(100px, 120px) auto;
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
   border-bottom: 1px solid var(--border-light);
   transition: background 0.15s;
+  position: relative;
 }
 
 .sb-match:last-child { border-bottom: none; }
 .sb-match:hover { background: var(--bg-hover); }
-.sb-match--live { background: rgba(239, 68, 68, 0.04); }
-.sb-match--live:hover { background: rgba(239, 68, 68, 0.07); }
-.sb-match--done { opacity: 0.52; }
+
+/* ── EN VIVO row highlight ── */
+.sb-match--live {
+  background: linear-gradient(90deg, rgba(239,68,68,0.08) 0%, rgba(239,68,68,0.02) 55%, transparent 100%);
+}
+.sb-match--live::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, #f87171 0%, #dc2626 100%);
+  border-radius: 0 2px 2px 0;
+  box-shadow: 0 0 12px rgba(239,68,68,0.7);
+  animation: liveBarGlow 1.8s ease-in-out infinite;
+}
+.sb-match--live:hover { background: linear-gradient(90deg, rgba(239,68,68,0.12) 0%, rgba(239,68,68,0.04) 55%, transparent 100%); }
+.sb-match--done { opacity: 0.42; }
+
+@keyframes liveBarGlow {
+  0%, 100% { box-shadow: 0 0 8px rgba(239,68,68,0.5); }
+  50%       { box-shadow: 0 0 18px rgba(239,68,68,0.9); }
+}
 
 /* Time */
 .sb-match-time {
@@ -322,33 +362,101 @@
   text-overflow: ellipsis;
 }
 
-/* Info (live dot, score) */
+.sb-team-meta {
+  color: var(--text-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Info col: EN VIVO centrado ── */
 .sb-match-info {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  min-width: 36px;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
   flex-shrink: 0;
 }
 
+/* Pulse ring */
 .sb-live-pulse {
   display: block;
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: var(--red);
-  animation: pulse-dot 1.2s ease infinite;
+  background: #ef4444;
+  box-shadow: 0 0 0 0 rgba(239,68,68,0.7);
+  animation: liveRing 1.4s ease-out infinite;
+  flex-shrink: 0;
 }
 
+@keyframes liveRing {
+  0%   { box-shadow: 0 0 0 0   rgba(239,68,68,0.8); }
+  70%  { box-shadow: 0 0 0 8px rgba(239,68,68,0);   }
+  100% { box-shadow: 0 0 0 0   rgba(239,68,68,0);   }
+}
+
+/* ── EN VIVO badge — compact pill ── */
+.sb-live-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 5px;
+  background: linear-gradient(135deg, #7f1d1d, #b91c1c);
+  box-shadow: 0 0 12px rgba(239,68,68,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
+  color: #fff;
+  font-size: 0.585rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  white-space: nowrap;
+  animation: liveBadgePulse 2s ease-in-out infinite;
+}
+
+@keyframes liveBadgePulse {
+  0%, 100% { box-shadow: 0 0 8px  rgba(239,68,68,0.4), inset 0 1px 0 rgba(255,255,255,0.1); }
+  50%       { box-shadow: 0 0 20px rgba(239,68,68,0.8), inset 0 1px 0 rgba(255,255,255,0.1); }
+}
+
+/* ── Scoreboard — protagonista ── */
 .sb-score {
-  font-size: 0.6875rem;
-  font-weight: 800;
-  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 900;
+  color: #f1f5f9;
   font-family: var(--font-mono);
-  background: var(--bg-raised);
-  padding: 2px 6px;
-  border-radius: 4px;
+  background: linear-gradient(135deg, #0a0f1e, #161b27);
+  border: 1px solid rgba(239,68,68,0.3);
+  padding: 5px 14px;
+  border-radius: 9px;
+  white-space: nowrap;
+  letter-spacing: 0.08em;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+  text-shadow: 0 0 14px rgba(255,255,255,0.25);
+  min-width: 72px;
+}
+
+.sb-score--done {
+  border-color: rgba(255,255,255,0.1);
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
+
+/* Reloj debajo del marcador */
+.sb-live-clock {
+  color: #fb7185;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  opacity: 0.85;
   white-space: nowrap;
 }
 
@@ -389,6 +497,12 @@
 
 .sb-odd.is-selected:hover { background: linear-gradient(135deg, #c2410c, #ea580c); transform: none; }
 .sb-odd:disabled { opacity: 0.38; cursor: not-allowed; }
+
+/* Cuota sube (verde flash) o baja (rojo flash) en vivo */
+@keyframes oddUp   { 0%,100%{background:inherit} 40%{background:rgba(16,185,129,0.28)} }
+@keyframes oddDown { 0%,100%{background:inherit} 40%{background:rgba(239,68,68,0.28)} }
+.sb-odd--up   { animation: oddUp   1.8s ease; }
+.sb-odd--down { animation: oddDown 1.8s ease; }
 
 .sb-no-odds {
   grid-column: 1 / -1;
@@ -490,6 +604,10 @@
 .sb-empty p  { font-size: 0.875rem; margin: 0; }
 .sb-empty a  { color: var(--indigo); }
 
+.sb-live-empty {
+  margin-top: 16px;
+}
+
 /* ══════════════════════════════════════════════
    FLOATING BET SLIP
    ══════════════════════════════════════════════ */
@@ -509,6 +627,36 @@
 }
 
 .betslip.is-open { transform: translateY(0); }
+
+/* Boleto minimizado — solo se ve el header */
+.betslip.is-minimized .betslip-body {
+  max-height: 0;
+  overflow: hidden;
+  padding-top: 0;
+  padding-bottom: 0;
+  gap: 0;
+  transition: max-height 0.25s ease, padding 0.25s ease;
+}
+.betslip.is-minimized {
+  border-radius: 14px 14px 0 0;
+  cursor: pointer;
+}
+.betslip-body {
+  max-height: 600px;
+  transition: max-height 0.3s ease;
+}
+/* Indicador de "clic para expandir" en header cuando minimizado */
+.betslip.is-minimized .betslip-header {
+  border-radius: 14px 14px 0 0;
+}
+.betslip-mini-hint {
+  display: none;
+  font-size: 0.68rem;
+  color: rgba(255,255,255,.7);
+  font-weight: 600;
+}
+.betslip.is-minimized .betslip-mini-hint { display: inline; }
+.betslip.is-minimized .betslip-header-left > svg { opacity: 0.7; }
 
 .betslip-header {
   display: flex;

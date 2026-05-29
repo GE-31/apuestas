@@ -150,6 +150,12 @@ class RegistroClienteView(FormView):
             return redirect('/eventos/')
         return super().dispatch(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        from django.utils import timezone
+        ctx = super().get_context_data(**kwargs)
+        ctx['hoy_iso'] = timezone.localdate().isoformat()
+        return ctx
+
     def form_valid(self, form):
         user = form.save()
         login(self.request, user)

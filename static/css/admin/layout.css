@@ -12,12 +12,17 @@
 /* ── Main area (right of sidebar) ── */
 .admin-main {
   flex: 1;
-  margin-left: var(--sb-width);
+  margin-left: var(--sb-collapsed);
   display: flex;
   flex-direction: column;
   min-height: 100vh;
   background: var(--ca-bg);
-  transition: margin-left var(--sb-dur);
+  transition: margin-left var(--sb-expand-dur) cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Empuja el contenido cuando el sidebar se expande */
+.admin-app:has(.admin-sidebar:hover) .admin-main {
+  margin-left: var(--sb-width);
 }
 
 /* ── Topbar ── */
@@ -162,7 +167,7 @@
 
 /* ── Responsive ── */
 @media (max-width: 1024px) {
-  .admin-main { margin-left: 0; }
+  .admin-main { margin-left: 0 !important; }
   .admin-sidebar-toggle { display: flex; }
   .admin-topbar { padding-left: 62px; }
   .admin-content { padding: 20px 16px 40px; }

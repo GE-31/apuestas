@@ -147,14 +147,21 @@
           </div>
 
           <div class="reg-row reg-row-2">
-            <div class="form-group{% if form.fecha_nacimiento.errors %} form-group--error{% endif %}">
+            <div class="form-group{% if form.fecha_nacimiento.errors %} form-group--error{% endif %}" id="fgFechaNac">
               <label class="form-label" for="{{ form.fecha_nacimiento.id_for_label }}">Fecha de nacimiento</label>
               <div class="input-wrapper">
                 <input class="form-input" type="date"
                        id="{{ form.fecha_nacimiento.id_for_label }}" name="fecha_nacimiento"
-                       value="{{ form.fecha_nacimiento.value|default:'' }}" />
+                       value="{{ form.fecha_nacimiento.value|default:'' }}"
+                       max="{{ hoy_iso }}" />
               </div>
               {% for e in form.fecha_nacimiento.errors %}<p class="form-hint--error">{{ e }}</p>{% endfor %}
+              <p class="form-hint--error" id="edadError" style="display:none;">
+                ⚠️ Debes tener al menos 18 años para registrarte.
+              </p>
+              <p class="form-hint--success" id="edadOk" style="display:none;">
+                ✓ Edad verificada
+              </p>
             </div>
 
             <div class="form-group{% if form.genero.errors %} form-group--error{% endif %}">
@@ -514,4 +521,55 @@
 {% block page_js %}
 <script src="{% static 'js/ubicacion.js' %}"></script>
 <script src="{% static 'js/pages/registro_cliente.js' %}?v=2"></script>
+<script>
+(function () {
+  var inputFecha  = document.getElementById('{{ form.fecha_nacimiento.id_for_label }}');
+  var errorEl     = document.getElementById('edadError');
+  var okEl        = document.getElementById('edadOk');
+  var submitBtn   = document.getElementById('regSubmitBtn');
+  var fgFechaNac  = document.getElementById('fgFechaNac');
+
+  if (!inputFecha) return;
+
+  function calcularEdad(fechaStr) {
+    if (!fechaStr) return null;
+    var partes = fechaStr.split('-');
+    if (partes.length !== 3) return null;
+    var nacimiento = new Date(Number(partes[0]), Number(partes[1]) - 1, Number(partes[2]));
+    var hoy = new Date();
+    var edad = hoy.getFullYear() - nacimiento.getFullYear();
+    var m = hoy.getMonth() - nacimiento.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nacimiento.getDate())) edad--;
+    return edad;
+  }
+
+  function validarEdad() {
+    var edad = calcularEdad(inputFecha.value);
+    if (edad === null || inputFecha.value === '') {
+      errorEl.style.display = 'none';
+      okEl.style.display = 'none';
+      submitBtn.disabled = false;
+      fgFechaNac.classList.remove('form-group--error');
+      return;
+    }
+    if (edad < 18) {
+      errorEl.style.display = 'block';
+      okEl.style.display = 'none';
+      submitBtn.disabled = true;
+      fgFechaNac.classList.add('form-group--error');
+      inputFecha.style.borderColor = '#ef4444';
+    } else {
+      errorEl.style.display = 'none';
+      okEl.style.display = 'block';
+      submitBtn.disabled = false;
+      fgFechaNac.classList.remove('form-group--error');
+      inputFecha.style.borderColor = '#10b981';
+    }
+  }
+
+  inputFecha.addEventListener('change', validarEdad);
+  inputFecha.addEventListener('input', validarEdad);
+  validarEdad();
+}());
+</script>
 {% endblock %}

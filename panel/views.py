@@ -74,18 +74,18 @@ class MisApuestasView(LoginRequiredMixin, TemplateView):
             apuestas_qs
         )
 
+        from apuestas_core.services.cashout_service import (
+            calcular_valor_cashout,
+            es_cashout_disponible,
+        )
         ahora = timezone.now()
         for apuesta in apuestas:
             apuesta.cashout_disponible = False
+            apuesta.cashout_valor = None
             if apuesta.estado == EstadoApuesta.ACCEPTED:
-                eventos = [
-                    sel.seleccion.mercado.evento
-                    for sel in apuesta.selecciones.all()
-                ]
-                apuesta.cashout_disponible = bool(eventos) and all(
-                    evento.estado == EstadoEvento.PROGRAMADO and evento.fecha_inicio > ahora
-                    for evento in eventos
-                )
+                apuesta.cashout_disponible = es_cashout_disponible(apuesta, ahora)
+                if apuesta.cashout_disponible:
+                    apuesta.cashout_valor = calcular_valor_cashout(apuesta)
 
         count_all       = len(apuestas)
         count_activas   = sum(1 for b in apuestas if b.estado == EstadoApuesta.ACCEPTED)
@@ -141,6 +141,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             .prefetch_related('mercados__selecciones__odd')
             .order_by('liga__nombre', 'fecha_inicio')
         )
+        estado_filtro = self.request.GET.get('estado')
+        solo_en_vivo = estado_filtro in ('en_vivo', 'live')
+        eventos_visibles = [
+            evento for evento in eventos
+            if not solo_en_vivo or evento.estado == EstadoEvento.EN_VIVO
+        ]
 
         hoy = timezone.localdate()
         live_count = sum(1 for e in eventos if e.estado == EstadoEvento.EN_VIVO)
@@ -160,7 +166,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             tipo: index for index, tipo in enumerate(mercados_extra_principales)
         }
 
-        for evento in eventos:
+        for evento in eventos_visibles:
             mp = next(
                 (
                     m for m in evento.mercados.all()
@@ -203,23 +209,35 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         ).count()
         ultima_apuesta = apuestas[0] if apuestas else None
 
-        # Group events by liga for main content
-        ligas_map = {}
-        for evento in eventos:
-            liga_key  = slugify(evento.liga.nombre) if evento.liga else 'sin-liga'
-            liga_nombre = evento.liga.nombre if evento.liga else 'Sin liga asignada'
-            dep_nombre = evento.deporte.nombre
-            dep_key   = slugify(dep_nombre)
-            if liga_key not in ligas_map:
-                ligas_map[liga_key] = {
-                    'key': liga_key,
-                    'nombre': liga_nombre,
-                    'deporte': dep_nombre,
-                    'deporte_key': dep_key,
-                    'pais': evento.liga.pais if evento.liga else '',
-                    'eventos': [],
-                }
-            ligas_map[liga_key]['eventos'].append(evento)
+        # Group events for main content. In live mode, show every live match together,
+        # regardless of its league, so the "En vivo" card behaves like a global filter.
+        if solo_en_vivo:
+            ligas_agrupadas = [{
+                'key': 'en-vivo',
+                'nombre': 'Partidos en vivo',
+                'deporte': 'En vivo',
+                'deporte_key': 'en-vivo',
+                'pais': 'Todas las ligas',
+                'eventos': eventos_visibles,
+            }] if eventos_visibles else []
+        else:
+            ligas_map = {}
+            for evento in eventos_visibles:
+                liga_key  = slugify(evento.liga.nombre) if evento.liga else 'sin-liga'
+                liga_nombre = evento.liga.nombre if evento.liga else 'Sin liga asignada'
+                dep_nombre = evento.deporte.nombre
+                dep_key   = slugify(dep_nombre)
+                if liga_key not in ligas_map:
+                    ligas_map[liga_key] = {
+                        'key': liga_key,
+                        'nombre': liga_nombre,
+                        'deporte': dep_nombre,
+                        'deporte_key': dep_key,
+                        'pais': evento.liga.pais if evento.liga else '',
+                        'eventos': [],
+                    }
+                ligas_map[liga_key]['eventos'].append(evento)
+            ligas_agrupadas = list(ligas_map.values())
 
         # Sidebar built from ALL active ligas (so they always appear even without events)
         all_ligas = Liga.objects.filter(activa=True).select_related('deporte').order_by('deporte__nombre', 'nombre')
@@ -232,11 +250,12 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 deportes_map[dep_key] = {'nombre': dep_nombre, 'key': dep_key, 'ligas': []}
             deportes_map[dep_key]['ligas'].append({'key': liga_key, 'nombre': liga.nombre})
 
-        context['ligas_agrupadas'] = list(ligas_map.values())
+        context['ligas_agrupadas'] = ligas_agrupadas
         context['deportes_sidebar'] = list(deportes_map.values())
-        context['total_count'] = len(eventos)
+        context['total_count'] = len(eventos_visibles)
         context['eventos_hoy_count'] = eventos_hoy_count
         context['live_count'] = live_count
+        context['live_filter_active'] = solo_en_vivo
         context['active_bets_count'] = active_bets
         context['apuestas_recientes'] = apuestas
         context['ultima_apuesta'] = ultima_apuesta
@@ -369,7 +388,7 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
         if action == 'liquidar':
             return self._handle_liquidar(request)
 
-        if action in ('iniciar_en_vivo', 'actualizar_marcador', 'finalizar_evento', 'suspender_evento'):
+        if action in ('iniciar_en_vivo', 'iniciar_segundo_tiempo', 'actualizar_marcador', 'finalizar_evento', 'suspender_evento'):
             return self._handle_live(request, action)
 
         if action == 'update_liga':
@@ -458,11 +477,52 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             messages.error(request, 'Evento no encontrado.')
             return redirect('/admin-panel/#envivo')
 
+        if evento.estado == EE.FINALIZADO or not evento.activo:
+            messages.error(request, 'Este evento ya está finalizado y no puede modificarse.')
+            return redirect('/admin-panel/#envivo')
+
         if action == 'iniciar_en_vivo':
             evento.estado = EE.EN_VIVO
-            evento.save(update_fields=['estado'])
-            broadcast_evento_update(evento.id, EE.EN_VIVO, evento.marcador_local, evento.marcador_visitante)
+            evento.periodo_en_vivo = 1
+            evento.periodo_inicio = timezone.now()
+            update_fields = ['estado', 'periodo_en_vivo', 'periodo_inicio']
+            if evento.marcador_local is None:
+                evento.marcador_local = 0
+                update_fields.append('marcador_local')
+            if evento.marcador_visitante is None:
+                evento.marcador_visitante = 0
+                update_fields.append('marcador_visitante')
+            evento.save(update_fields=update_fields)
+            from cuotas.services.live_odds_service import actualizar_cuotas_vivo
+            cuotas_vivo = actualizar_cuotas_vivo(evento)
+            broadcast_evento_update(
+                evento.id,
+                EE.EN_VIVO,
+                evento.marcador_local,
+                evento.marcador_visitante,
+                evento.periodo_inicio.isoformat(),
+                evento.periodo_en_vivo,
+                cuotas_vivo=cuotas_vivo,
+            )
             messages.success(request, f'"{evento.nombre}" ahora está EN VIVO.')
+
+        elif action == 'iniciar_segundo_tiempo':
+            evento.estado = EE.EN_VIVO
+            evento.periodo_en_vivo = 2
+            evento.periodo_inicio = timezone.now()
+            evento.save(update_fields=['estado', 'periodo_en_vivo', 'periodo_inicio'])
+            from cuotas.services.live_odds_service import actualizar_cuotas_vivo
+            cuotas_vivo = actualizar_cuotas_vivo(evento)
+            broadcast_evento_update(
+                evento.id,
+                EE.EN_VIVO,
+                evento.marcador_local,
+                evento.marcador_visitante,
+                evento.periodo_inicio.isoformat(),
+                evento.periodo_en_vivo,
+                cuotas_vivo=cuotas_vivo,
+            )
+            messages.success(request, f'Segundo tiempo iniciado para "{evento.nombre}".')
 
         elif action == 'actualizar_marcador':
             try:
@@ -471,17 +531,57 @@ class AdminPanelView(StaffRequiredMixin, TemplateView):
             except (TypeError, ValueError):
                 messages.error(request, 'Marcador inválido.')
                 return redirect('/admin-panel/#envivo')
+            marcador_actual_local = evento.marcador_local or 0
+            marcador_actual_visitante = evento.marcador_visitante or 0
+            if ml < marcador_actual_local or mv < marcador_actual_visitante:
+                messages.error(request, 'El marcador no puede bajar — los goles no se pueden quitar.')
+                return redirect('/admin-panel/#envivo')
             evento.marcador_local = ml
             evento.marcador_visitante = mv
             evento.save(update_fields=['marcador_local', 'marcador_visitante'])
-            broadcast_evento_update(evento.id, evento.estado, ml, mv)
+            from cuotas.services.live_odds_service import actualizar_cuotas_vivo
+            cuotas_vivo = actualizar_cuotas_vivo(evento)
+            broadcast_evento_update(
+                evento.id,
+                evento.estado,
+                ml,
+                mv,
+                evento.periodo_inicio.isoformat() if evento.periodo_inicio else None,
+                evento.periodo_en_vivo,
+                cuotas_vivo=cuotas_vivo,
+            )
             messages.success(request, f'Marcador actualizado: {ml} - {mv}.')
 
         elif action == 'finalizar_evento':
             evento.estado = EE.FINALIZADO
-            evento.save(update_fields=['estado'])
+            evento.activo = False
+            evento.save(update_fields=['estado', 'activo'])
             broadcast_evento_update(evento.id, EE.FINALIZADO, evento.marcador_local, evento.marcador_visitante)
-            messages.success(request, f'"{evento.nombre}" finalizado.')
+
+            # Auto-liquidar todas las apuestas del evento y notificar saldos
+            from apuestas_core.services.autoliquidacion_service import autoliquidar_evento
+            from apuestas_core.models import Bet, BetSelection
+            from config.choices import EstadoApuesta as EA
+
+            ganadas, perdidas, resultado_1x2 = autoliquidar_evento(evento, liquidado_por=request.user)
+
+            # Notificar por WebSocket a cada usuario cuya apuesta fue liquidada
+            bets_liquidadas = Bet.objects.filter(
+                selecciones__seleccion__mercado__evento=evento,
+                estado__in=[EA.WON, EA.LOST],
+            ).select_related('usuario').distinct()
+            for bet in bets_liquidadas:
+                self._notificar_saldo_ws(
+                    bet,
+                    'won' if bet.estado == EA.WON else 'lost',
+                )
+
+            res_label = {'local': 'Gana local', 'visitante': 'Gana visitante', 'empate': 'Empate'}.get(resultado_1x2, resultado_1x2)
+            messages.success(
+                request,
+                f'"{evento.nombre}" finalizado — {res_label} ({evento.marcador_local}-{evento.marcador_visitante}). '
+                f'{ganadas} apuesta(s) pagadas, {perdidas} perdida(s).'
+            )
 
         elif action == 'suspender_evento':
             evento.estado = EE.SUSPENDIDO

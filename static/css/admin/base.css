@@ -15,8 +15,10 @@
   --sb-border:     rgba(255,255,255,.07);
   --sb-muted:      rgba(255,255,255,.35);
   --sb-hover:      rgba(255,255,255,.055);
-  --sb-width:      256px;
+  --sb-width:      240px;
+  --sb-collapsed:  64px;
   --sb-dur:        180ms;
+  --sb-expand-dur: 220ms;
 
   /* Content area */
   --ca-bg:         #f1f5f9;

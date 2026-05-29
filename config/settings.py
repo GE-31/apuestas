@@ -203,6 +203,13 @@ CHANNEL_LAYERS = {
 # Celery
 CELERY_BROKER_URL = "redis://redis:6379/0"
 CELERY_RESULT_BACKEND = "redis://redis:6379/1"
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_BEAT_SCHEDULE = {
+    'auto-activar-eventos-en-vivo': {
+        'task': 'eventos.auto_activar_programados',
+        'schedule': 30.0,  # cada 30 segundos
+    },
+}
 
 # API Peru — consulta DNI
 APISPERU_TOKEN = config("APISPERU_TOKEN", default="")

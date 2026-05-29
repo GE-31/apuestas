@@ -633,7 +633,11 @@
           </thead>
           <tbody>
             {% for ev in eventos_envivo %}
-            <tr>
+            <tr data-ev-id="{{ ev.id }}"
+                data-ev-nombre="{{ ev.nombre }}"
+                data-ev-estado="{{ ev.estado }}"
+                data-ev-periodo="{{ ev.periodo_en_vivo|default:1 }}"
+                data-ev-periodo-inicio="{% if ev.periodo_inicio %}{{ ev.periodo_inicio|date:'c' }}{% endif %}">
               <td><strong>{{ ev.nombre }}</strong></td>
               <td style="font-size:.8125rem;color:var(--ca-muted);">
                 {{ ev.deporte.nombre }}{% if ev.liga %} / {{ ev.liga.nombre }}{% endif %}
@@ -643,7 +647,7 @@
                 {% if ev.estado == 'en_vivo' %}
                 <span class="bet-badge" style="background:rgba(239,68,68,.15);color:#ef4444;display:inline-flex;align-items:center;gap:5px;">
                   <span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;animation:livePulse 1.2s infinite;"></span>
-                  En vivo
+                  {% if ev.periodo_en_vivo == 2 %}Segundo tiempo{% else %}Primer tiempo{% endif %}
                 </span>
                 {% elif ev.estado == 'programado' %}
                 <span class="bet-badge" style="background:rgba(99,102,241,.12);color:#818cf8;">Programado</span>
@@ -653,18 +657,19 @@
               </td>
               <td>
                 {% if ev.estado == 'en_vivo' or ev.estado == 'suspendido' %}
-                <form method="post" style="display:flex;align-items:center;gap:6px;">
+                <form method="post" class="live-score-form">
                   {% csrf_token %}
                   <input type="hidden" name="action" value="actualizar_marcador">
                   <input type="hidden" name="evento_id" value="{{ ev.id }}">
-                  <input type="number" name="marcador_local" value="{{ ev.marcador_local|default:0 }}" min="0"
-                         style="width:48px;padding:4px 6px;border-radius:6px;background:var(--bg-raised);color:var(--text-primary);border:1px solid var(--border);text-align:center;font-weight:700;">
-                  <span style="color:var(--ca-muted);font-weight:700;">-</span>
-                  <input type="number" name="marcador_visitante" value="{{ ev.marcador_visitante|default:0 }}" min="0"
-                         style="width:48px;padding:4px 6px;border-radius:6px;background:var(--bg-raised);color:var(--text-primary);border:1px solid var(--border);text-align:center;font-weight:700;">
-                  <button type="submit"
-                          style="padding:4px 10px;font-size:.75rem;background:var(--indigo);color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;white-space:nowrap;">
-                    Actualizar
+                  <input class="live-score-input" type="number" name="marcador_local"
+                         value="{{ ev.marcador_local|default:0 }}" min="{{ ev.marcador_local|default:0 }}" step="1" inputmode="numeric"
+                         aria-label="Goles local">
+                  <span class="live-score-sep">-</span>
+                  <input class="live-score-input" type="number" name="marcador_visitante"
+                         value="{{ ev.marcador_visitante|default:0 }}" min="{{ ev.marcador_visitante|default:0 }}" step="1" inputmode="numeric"
+                         aria-label="Goles visitante">
+                  <button type="submit" class="live-score-save">
+                    Guardar goles
                   </button>
                 </form>
                 {% else %}
@@ -687,6 +692,18 @@
                   {% endif %}
 
                   {% if ev.estado == 'en_vivo' %}
+                  {% if ev.periodo_en_vivo != 2 %}
+                  <form method="post" style="display:contents;" data-form-2t="{{ ev.id }}">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="iniciar_segundo_tiempo">
+                    <input type="hidden" name="evento_id" value="{{ ev.id }}">
+                    <button type="submit"
+                            data-btn-2t="{{ ev.id }}"
+                            style="padding:5px 12px;font-size:.8rem;background:rgba(59,130,246,.15);color:#2563eb;border:1px solid rgba(59,130,246,.28);border-radius:8px;cursor:pointer;font-weight:700;display:none;">
+                      2do tiempo
+                    </button>
+                  </form>
+                  {% endif %}
                   <form method="post" style="display:contents;">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="suspender_evento">
@@ -696,13 +713,15 @@
                       Suspender
                     </button>
                   </form>
-                  <form method="post" style="display:contents;">
+                  <form method="post" style="display:contents;"
+                        onsubmit="return confirm('¿Finalizar partido y liquidar todas las apuestas automáticamente?')">
                     {% csrf_token %}
                     <input type="hidden" name="action" value="finalizar_evento">
                     <input type="hidden" name="evento_id" value="{{ ev.id }}">
                     <button type="submit"
-                            style="padding:5px 12px;font-size:.8rem;background:rgba(16,185,129,.15);color:#10b981;border:1px solid rgba(16,185,129,.25);border-radius:8px;cursor:pointer;font-weight:700;">
-                      Finalizar
+                            style="padding:7px 16px;font-size:.85rem;font-weight:800;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(16,185,129,.35);">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>
+                      Finalizar partido
                     </button>
                   </form>
                   {% endif %}
@@ -718,6 +737,54 @@
     </div>
 
     <style>
+      .live-score-form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+      }
+
+      .live-score-input {
+        width: 54px;
+        height: 36px;
+        padding: 6px 8px;
+        border-radius: 10px;
+        background: #fff;
+        color: #0f172a;
+        border: 1px solid #cbd5e1;
+        text-align: center;
+        font-weight: 800;
+        font-size: .95rem;
+        outline: none;
+      }
+
+      .live-score-input:focus {
+        border-color: #f97316;
+        box-shadow: 0 0 0 3px rgba(249, 115, 22, .16);
+      }
+
+      .live-score-sep {
+        color: #64748b;
+        font-weight: 900;
+      }
+
+      .live-score-save {
+        min-height: 36px;
+        padding: 0 12px;
+        border: 0;
+        border-radius: 10px;
+        background: #2563eb;
+        color: #fff;
+        cursor: pointer;
+        font-size: .78rem;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .live-score-save:hover {
+        background: #1d4ed8;
+      }
+
       @keyframes livePulse {
         0%,100% { opacity:1; transform:scale(1); }
         50%      { opacity:.4; transform:scale(1.4); }
@@ -809,5 +876,300 @@
   }
 
 })();
+</script>
+
+<!-- ── Alertas de fin de tiempo ── -->
+<script>
+(function () {
+  'use strict';
+
+  var MEDIO_TIEMPO_SEG = 45 * 60;   // 45 minutos en segundos
+  var alertasMostradas = {};         // { "evId-periodo": true }
+
+  /* ── Contenedor de alertas de tiempo ── */
+  function getAlertContainer() {
+    var c = document.getElementById('liveTimeAlerts');
+    if (!c) {
+      c = document.createElement('div');
+      c.id = 'liveTimeAlerts';
+      c.style.cssText = [
+        'position:fixed', 'bottom:24px', 'right:24px', 'z-index:99999',
+        'display:flex', 'flex-direction:column-reverse', 'gap:10px',
+        'max-width:380px', 'pointer-events:none'
+      ].join(';');
+      document.body.appendChild(c);
+    }
+    return c;
+  }
+
+  function mostrarAlerta(nombre, periodo) {
+    var key = nombre + '-' + periodo;
+    if (alertasMostradas[key]) return;
+    alertasMostradas[key] = true;
+
+    var esPrimero = (periodo === 1);
+    var titulo    = esPrimero ? '⏱ Primer tiempo terminado' : '🏁 Segundo tiempo terminado';
+    var sub       = esPrimero
+      ? 'Pulsa "2do tiempo" para continuar el partido.'
+      : 'Pulsa "Finalizar" para cerrar el partido.';
+    var color     = esPrimero ? '#2563eb' : '#10b981';
+    var borde     = esPrimero ? '#3b82f6' : '#34d399';
+
+    /* Toast */
+    var toast = document.createElement('div');
+    toast.style.cssText = [
+      'background:#1e293b',
+      'color:#f1f5f9',
+      'padding:14px 16px',
+      'border-radius:14px',
+      'font-size:.875rem',
+      'line-height:1.45',
+      'box-shadow:0 8px 32px rgba(0,0,0,.55)',
+      'border-left:4px solid ' + borde,
+      'pointer-events:auto',
+      'opacity:0',
+      'transform:translateX(40px)',
+      'transition:opacity .35s ease,transform .35s ease',
+      'min-width:260px'
+    ].join(';');
+
+    toast.innerHTML =
+      '<div style="font-weight:800;font-size:.9rem;color:' + color + ';margin-bottom:3px;">' + titulo + '</div>' +
+      '<div style="font-weight:600;color:#94a3b8;font-size:.8rem;margin-bottom:6px;">' + nombre + '</div>' +
+      '<div>' + sub + '</div>';
+
+    getAlertContainer().appendChild(toast);
+
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+      });
+    });
+
+    /* Auto-cierre a los 30 segundos */
+    setTimeout(function () {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(40px)';
+      setTimeout(function () { toast.remove(); }, 400);
+    }, 30000);
+
+    /* Marcar fila visualmente */
+    var rows = document.querySelectorAll('[data-ev-nombre]');
+    rows.forEach(function (row) {
+      if (row.dataset.evNombre === nombre && Number(row.dataset.evPeriodo) === periodo) {
+        row.style.outline = '2px solid ' + borde;
+        row.style.outlineOffset = '-2px';
+        var badge = document.createElement('span');
+        badge.textContent = esPrimero ? '⏱ FIN 1T' : '🏁 FIN 2T';
+        badge.style.cssText = [
+          'display:inline-block', 'margin-left:8px',
+          'padding:2px 7px', 'border-radius:6px',
+          'font-size:.7rem', 'font-weight:800',
+          'background:' + color, 'color:#fff',
+          'animation:halfEndPulse 1s infinite'
+        ].join(';');
+        badge.className = 'badge-fin-tiempo';
+        var tdNombre = row.querySelector('td:first-child strong');
+        if (tdNombre && !tdNombre.querySelector('.badge-fin-tiempo')) {
+          tdNombre.appendChild(badge);
+        }
+      }
+    });
+
+    /* Sonido de notificación via Web Audio API */
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [0, 120, 240].forEach(function (delay) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = esPrimero ? 880 : 1046;
+        gain.gain.setValueAtTime(0.18, ctx.currentTime + delay / 1000);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay / 1000 + 0.3);
+        osc.start(ctx.currentTime + delay / 1000);
+        osc.stop(ctx.currentTime + delay / 1000 + 0.35);
+      });
+    } catch (e) {}
+  }
+
+  /* ── Loop de revisión cada segundo ── */
+  function revisarTiempos() {
+    var rows = document.querySelectorAll('[data-ev-estado="en_vivo"]');
+    rows.forEach(function (row) {
+      var inicio = row.dataset.evPeriodoInicio;
+      var periodo = Number(row.dataset.evPeriodo) || 1;
+      var nombre  = row.dataset.evNombre || '';
+      var evId    = row.dataset.evId || '';
+      if (!inicio) return;
+
+      var startMs      = new Date(inicio).getTime();
+      var transcurrido = (Date.now() - startMs) / 1000;
+      var tiempoCompleto = transcurrido >= MEDIO_TIEMPO_SEG;
+
+      /* Mostrar/ocultar botón "2do tiempo" según si ya pasaron 45 min */
+      if (periodo === 1) {
+        var btn2t = document.querySelector('[data-btn-2t="' + evId + '"]');
+        if (btn2t) btn2t.style.display = tiempoCompleto ? '' : 'none';
+      }
+
+      /* Alerta de fin de tiempo */
+      if (tiempoCompleto) {
+        mostrarAlerta(nombre, periodo);
+      }
+    });
+  }
+
+  setInterval(revisarTiempos, 1000);
+  revisarTiempos();
+
+  /* CSS para la animación del badge */
+  var st = document.createElement('style');
+  st.textContent = '@keyframes halfEndPulse{0%,100%{opacity:1}50%{opacity:.45}}';
+  document.head.appendChild(st);
+
+}());
+</script>
+
+<!-- ── WebSocket: actualizar panel en vivo sin recargar ── -->
+<script>
+(function () {
+  'use strict';
+
+  var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]')
+    ? document.querySelector('[name=csrfmiddlewaretoken]').value
+    : '';
+
+  var ESTADO_LABELS = {
+    'en_vivo': 'EN VIVO',
+    'programado': 'PROGRAMADO',
+    'suspendido': 'SUSPENDIDO',
+    'finalizado': 'FINALIZADO',
+  };
+
+  function badgeHtml(estado, periodo) {
+    if (estado === 'en_vivo') {
+      var label = periodo === 2 ? 'SEGUNDO TIEMPO' : 'PRIMER TIEMPO';
+      return '<span class="bet-badge" style="background:rgba(239,68,68,.15);color:#ef4444;display:inline-flex;align-items:center;gap:5px;">'
+        + '<span style="width:6px;height:6px;border-radius:50%;background:#ef4444;display:inline-block;animation:livePulse 1.2s infinite;"></span>'
+        + label + '</span>';
+    }
+    if (estado === 'suspendido') return '<span class="bet-badge" style="background:rgba(234,179,8,.12);color:#eab308;">Suspendido</span>';
+    if (estado === 'programado') return '<span class="bet-badge" style="background:rgba(99,102,241,.12);color:#818cf8;">Programado</span>';
+    return '';
+  }
+
+  function accionesHtml(evId, estado, periodo, ml, mv) {
+    if (estado !== 'en_vivo') return '';
+    var html = '<div style="display:flex;gap:6px;flex-wrap:wrap;">';
+
+    // Botón 2do tiempo (oculto hasta 45 min, controlado por el timer JS)
+    if (periodo !== 2) {
+      html += '<form method="post" style="display:contents;" data-form-2t="' + evId + '">'
+        + '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrfToken + '">'
+        + '<input type="hidden" name="action" value="iniciar_segundo_tiempo">'
+        + '<input type="hidden" name="evento_id" value="' + evId + '">'
+        + '<button type="submit" data-btn-2t="' + evId + '" style="padding:5px 12px;font-size:.8rem;background:rgba(59,130,246,.15);color:#2563eb;border:1px solid rgba(59,130,246,.28);border-radius:8px;cursor:pointer;font-weight:700;display:none;">2do tiempo</button>'
+        + '</form>';
+    }
+
+    // Suspender
+    html += '<form method="post" style="display:contents;">'
+      + '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrfToken + '">'
+      + '<input type="hidden" name="action" value="suspender_evento">'
+      + '<input type="hidden" name="evento_id" value="' + evId + '">'
+      + '<button type="submit" style="padding:5px 12px;font-size:.8rem;background:rgba(234,179,8,.2);color:#eab308;border:1px solid rgba(234,179,8,.3);border-radius:8px;cursor:pointer;font-weight:700;">Suspender</button>'
+      + '</form>';
+
+    // Finalizar
+    html += '<form method="post" style="display:contents;" onsubmit="return confirm(\'¿Finalizar y liquidar apuestas automáticamente?\')">'
+      + '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrfToken + '">'
+      + '<input type="hidden" name="action" value="finalizar_evento">'
+      + '<input type="hidden" name="evento_id" value="' + evId + '">'
+      + '<button type="submit" style="padding:7px 16px;font-size:.85rem;font-weight:800;background:linear-gradient(135deg,#059669,#10b981);color:#fff;border:none;border-radius:9px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 2px 8px rgba(16,185,129,.35);">'
+      + '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="13" height="13"><polyline points="20 6 9 17 4 12"/></svg>'
+      + 'Finalizar partido</button>'
+      + '</form>';
+
+    html += '</div>';
+    return html;
+  }
+
+  function marcadorHtml(evId, estado, ml, mv) {
+    if (estado !== 'en_vivo' && estado !== 'suspendido') {
+      return '<span style="color:var(--ca-muted);font-size:.8125rem;">— aún no —</span>';
+    }
+    return '<form method="post" class="live-score-form">'
+      + '<input type="hidden" name="csrfmiddlewaretoken" value="' + csrfToken + '">'
+      + '<input type="hidden" name="action" value="actualizar_marcador">'
+      + '<input type="hidden" name="evento_id" value="' + evId + '">'
+      + '<input class="live-score-input" type="number" name="marcador_local" value="' + (ml || 0) + '" min="' + (ml || 0) + '" step="1" inputmode="numeric" aria-label="Goles local">'
+      + '<span class="live-score-sep">-</span>'
+      + '<input class="live-score-input" type="number" name="marcador_visitante" value="' + (mv || 0) + '" min="' + (mv || 0) + '" step="1" inputmode="numeric" aria-label="Goles visitante">'
+      + '<button type="submit" class="live-score-save">Guardar goles</button>'
+      + '</form>';
+  }
+
+  /* ── Conectar WebSocket ── */
+  var wsProto = location.protocol === 'https:' ? 'wss' : 'ws';
+  function conectarWs() {
+    var ws = new WebSocket(wsProto + '://' + location.host + '/ws/saldo/');
+
+    ws.onmessage = function (evt) {
+      try {
+        var data = JSON.parse(evt.data);
+        if (data.type !== 'evento_update') return;
+
+        var evId    = String(data.evento_id);
+        var estado  = data.estado;
+        var ml      = data.marcador_local != null ? data.marcador_local : 0;
+        var mv      = data.marcador_visitante != null ? data.marcador_visitante : 0;
+        var periodo = data.live_period || 1;
+        var inicio  = data.live_started_at || '';
+
+        var row = document.querySelector('tr[data-ev-id="' + evId + '"]');
+        if (!row) return;
+
+        /* Actualizar data attributes del row */
+        row.dataset.evEstado  = estado;
+        row.dataset.evPeriodo = String(periodo);
+        if (inicio) row.dataset.evPeriodoInicio = inicio;
+
+        /* Celda ESTADO */
+        var tdEstado = row.querySelector('td:nth-child(4)');
+        if (tdEstado) tdEstado.innerHTML = badgeHtml(estado, periodo);
+
+        /* Celda MARCADOR */
+        var tdMarcador = row.querySelector('td:nth-child(5)');
+        if (tdMarcador) tdMarcador.innerHTML = marcadorHtml(evId, estado, ml, mv);
+
+        /* Celda ACCIONES */
+        var tdAcciones = row.querySelector('td:last-child');
+        if (tdAcciones) tdAcciones.innerHTML = accionesHtml(evId, estado, periodo, ml, mv);
+
+        /* Toast informativo */
+        if (estado === 'en_vivo') {
+          var nombre = row.dataset.evNombre || ('Partido #' + evId);
+          mostrarToastAdmin('⚽ ' + nombre + ' — EN VIVO');
+        }
+
+      } catch (e) {}
+    };
+
+    ws.onclose = function () { setTimeout(conectarWs, 3000); };
+  }
+  conectarWs();
+
+  /* Toast simple para admin */
+  function mostrarToastAdmin(msg) {
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#065f46;color:#fff;padding:10px 20px;border-radius:10px;font-size:.85rem;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);transition:opacity .4s';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function(){t.style.opacity='0';setTimeout(function(){t.remove()},400);}, 3500);
+  }
+
+}());
 </script>
 {% endblock %}

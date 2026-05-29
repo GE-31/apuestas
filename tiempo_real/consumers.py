@@ -40,4 +40,7 @@ class SaldoConsumer(AsyncWebsocketConsumer):
             'estado': event['estado'],
             'marcador_local': event.get('marcador_local'),
             'marcador_visitante': event.get('marcador_visitante'),
+            'live_started_at': event.get('live_started_at'),
+            'live_period': event.get('live_period'),
+            'cuotas_vivo': event.get('cuotas_vivo', {}),
         }))

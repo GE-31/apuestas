@@ -16,7 +16,7 @@
       ].join(';');
       document.body.appendChild(container);
     }
-
+ 
     var toast = document.createElement('div');
     var isSuccess = type !== 'error';
     toast.style.cssText = [
@@ -475,10 +475,20 @@
     var estado  = data.estado;
     var ml      = data.marcador_local;
     var mv      = data.marcador_visitante;
+    var liveStartedAt = data.live_started_at || null;
+    var livePeriod = (data.live_period !== null && data.live_period !== undefined)
+      ? (Number(data.live_period) === 2 ? 2 : 1)
+      : null;
+    var cuotasVivo = data.cuotas_vivo || {};
 
     /* ── Actualizar tarjeta del partido en el dashboard ── */
     var matchEl = document.querySelector('.sb-match[data-evento-id="' + id + '"]');
     if (matchEl) {
+      matchEl.dataset.status = estado || '';
+      if (estado === 'en_vivo') {
+        matchEl.dataset.liveStart = liveStartedAt || matchEl.dataset.liveStart || new Date().toISOString();
+        matchEl.dataset.livePeriod = String(livePeriod || Number(matchEl.dataset.livePeriod) || 1);
+      }
       matchEl.classList.remove('sb-match--live', 'sb-match--done');
       if (estado === 'en_vivo')    matchEl.classList.add('sb-match--live');
       if (estado === 'finalizado') matchEl.classList.add('sb-match--done');
@@ -494,6 +504,40 @@
           infoEl.insertBefore(pulse, infoEl.firstChild);
         } else if (estado !== 'en_vivo' && pulse) {
           pulse.remove();
+        }
+
+        var liveBadge = infoEl.querySelector('.sb-live-badge');
+        if (estado === 'en_vivo' && !liveBadge) {
+          liveBadge = document.createElement('span');
+          liveBadge.className = 'sb-live-badge';
+          var liveClock = document.createElement('span');
+          liveClock.className = 'sb-live-clock';
+          liveClock.dataset.livePeriod = String(livePeriod || Number(matchEl.dataset.livePeriod) || 1);
+          liveClock.dataset.liveStart = matchEl.dataset.liveStart || liveStartedAt || new Date().toISOString();
+          liveClock.textContent = Number(liveClock.dataset.livePeriod) === 2 ? 'Segundo tiempo 45:00' : 'Primer tiempo 45:00';
+          liveBadge.appendChild(document.createTextNode('EN VIVO '));
+          liveBadge.appendChild(liveClock);
+          infoEl.appendChild(liveBadge);
+        } else if (estado === 'en_vivo' && liveBadge) {
+          var existingClock = infoEl.querySelector('.sb-live-clock');
+          if (existingClock) {
+            var oldPeriod = Number(existingClock.dataset.livePeriod) || 1;
+            var newPeriod = livePeriod || oldPeriod;
+            var periodoCambio = livePeriod && (newPeriod !== oldPeriod);
+            /* Solo actualizar el inicio si el período cambió — no en updates de marcador */
+            if (liveStartedAt && periodoCambio) {
+              existingClock.dataset.liveStart = liveStartedAt;
+            }
+            if (livePeriod) {
+              existingClock.dataset.livePeriod = String(newPeriod);
+              /* Solo resetear el texto visible si el período realmente cambió */
+              if (periodoCambio) {
+                existingClock.textContent = newPeriod === 2 ? 'Segundo tiempo 45:00' : 'Primer tiempo 45:00';
+              }
+            }
+          }
+        } else if (estado !== 'en_vivo' && liveBadge) {
+          liveBadge.remove();
         }
 
         /* Marcador */
@@ -513,6 +557,38 @@
         matchEl.querySelectorAll('.sb-odd').forEach(function (btn) { btn.disabled = true; });
       } else if (estado === 'en_vivo') {
         matchEl.querySelectorAll('.sb-odd').forEach(function (btn) { btn.disabled = false; });
+      }
+
+      /* Actualizar cuotas dinámicas en vivo */
+      if (estado === 'en_vivo' && Object.keys(cuotasVivo).length > 0) {
+        matchEl.querySelectorAll('.sb-odd:not(.sb-odd--market)').forEach(function (btn) {
+          var tipo = btn.dataset.selTipo || '';           // 'local' | 'empate' | 'visitante'
+          var nuevaVal = cuotasVivo[tipo];
+          if (nuevaVal === null || nuevaVal === undefined) return;
+
+          var valorNuevo  = parseFloat(nuevaVal);
+          var valorActual = parseFloat(btn.dataset.odd || '0');
+          btn.dataset.odd = valorNuevo.toFixed(4);
+          btn.textContent = valorNuevo.toFixed(2);
+
+          /* Flash verde = sube, rojo = baja */
+          var clsUp = 'sb-odd--up', clsDn = 'sb-odd--down';
+          btn.classList.remove(clsUp, clsDn);
+          if (valorNuevo > valorActual)      btn.classList.add(clsUp);
+          else if (valorNuevo < valorActual) btn.classList.add(clsDn);
+          setTimeout(function (b) { b.classList.remove('sb-odd--up', 'sb-odd--down'); }.bind(null, btn), 1800);
+        });
+      }
+
+      /* En vivo: ocultar mercados extra, solo 1X2 */
+      var drawer = matchEl.querySelector('.sb-market-drawer');
+      if (drawer) {
+        if (estado === 'en_vivo') drawer.style.display = 'none';
+        else drawer.style.display = '';
+      }
+
+      if (typeof window.applyDashboardFilters === 'function') {
+        window.applyDashboardFilters();
       }
     }
 

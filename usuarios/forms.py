@@ -163,6 +163,21 @@ class RegistroClienteForm(forms.Form):
             self.add_error('confirm_password', 'Las contraseñas no coinciden.')
         return cd
 
+    def clean_fecha_nacimiento(self):
+        from django.utils import timezone
+        fecha = self.cleaned_data.get('fecha_nacimiento')
+        if not fecha:
+            return fecha
+        hoy = timezone.localdate()
+        edad = hoy.year - fecha.year - ((hoy.month, hoy.day) < (fecha.month, fecha.day))
+        if edad < 18:
+            raise forms.ValidationError(
+                'Debes tener al menos 18 años para registrarte en Apuesta24/7.'
+            )
+        if edad > 100:
+            raise forms.ValidationError('Fecha de nacimiento no válida.')
+        return fecha
+
     def clean_dni(self):
         from usuarios.models import PerfilUsuario
         tipo = self.data.get('tipo_documento', 'DNI')

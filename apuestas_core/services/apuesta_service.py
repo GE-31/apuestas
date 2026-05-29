@@ -120,8 +120,15 @@ def validar_odd_apostable(odd):
     if not mercado.activo or mercado.suspendido:
         raise ApuestaError("El mercado no está disponible.")
 
-    if evento.estado != EstadoEvento.PROGRAMADO:
-        raise ApuestaError("El evento ya inició o no está disponible para apuesta pre-match.")
+    if not evento.activo:
+        raise ApuestaError("Este evento ya no está disponible para apuestas.")
+
+    if evento.estado == EstadoEvento.EN_VIVO:
+        from config.choices import TipoMercado
+        if mercado.tipo != TipoMercado.UNO_X_DOS:
+            raise ApuestaError("En vivo solo se permite apostar al mercado 1X2.")
+    elif evento.estado != EstadoEvento.PROGRAMADO:
+        raise ApuestaError("El evento no está disponible para apuesta.")
 
     return True
 

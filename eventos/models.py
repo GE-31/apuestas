@@ -157,6 +157,9 @@ class Evento(models.Model):
     marcador_local = models.PositiveIntegerField(blank=True, null=True)
     marcador_visitante = models.PositiveIntegerField(blank=True, null=True)
 
+    periodo_en_vivo = models.PositiveSmallIntegerField(default=1)
+    periodo_inicio = models.DateTimeField(blank=True, null=True)
+
     activo = models.BooleanField(default=True)
 
     fecha_creacion = models.DateTimeField(auto_now_add=True)

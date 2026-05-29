@@ -40,6 +40,11 @@
   var bsClear = document.getElementById('bsClear');
   var bsCount = betSlip ? betSlip.querySelector('.betslip-count') : null;
   var allGroups = document.querySelectorAll('.sb-group');
+  var liveFilterButton = document.querySelector('[data-live-filter]');
+  var liveEmpty = document.getElementById('sbLiveEmpty');
+  var liveFilterActive = liveFilterButton
+    ? liveFilterButton.getAttribute('aria-pressed') === 'true'
+    : false;
 
   document.querySelectorAll('.sb-sport-btn').forEach(function (btn) {
     btn.addEventListener('click', function () {
@@ -51,11 +56,39 @@
     });
   });
 
+  function isLiveMatch(match) {
+    return match.classList.contains('sb-match--live') || match.dataset.status === 'en_vivo';
+  }
+
+  function applyDashboardFilters() {
+    var visibleMatches = 0;
+
+    allGroups.forEach(function (group) {
+      var leagueVisible = !activeLeague || group.id === 'liga-' + activeLeague;
+      var groupHasVisibleMatch = false;
+
+      group.querySelectorAll('.sb-match').forEach(function (match) {
+        var matchVisible = leagueVisible && (!liveFilterActive || isLiveMatch(match));
+        match.hidden = !matchVisible;
+        if (matchVisible) {
+          groupHasVisibleMatch = true;
+          visibleMatches += 1;
+        }
+      });
+
+      group.style.display = groupHasVisibleMatch ? '' : 'none';
+    });
+
+    if (liveEmpty) {
+      liveEmpty.hidden = !(liveFilterActive && visibleMatches === 0);
+    }
+  }
+
+  window.applyDashboardFilters = applyDashboardFilters;
+
   function filterByLeague(ligaKey) {
     activeLeague = ligaKey;
-    allGroups.forEach(function (group) {
-      group.style.display = (!ligaKey || group.id === 'liga-' + ligaKey) ? '' : 'none';
-    });
+    applyDashboardFilters();
   }
 
   function clearLeagueFilter() {
@@ -63,6 +96,25 @@
     allGroups.forEach(function (group) { group.style.display = ''; });
     document.querySelectorAll('.sb-league-link').forEach(function (link) {
       link.classList.remove('is-active');
+    });
+    applyDashboardFilters();
+  }
+
+  if (liveFilterButton) {
+    liveFilterButton.addEventListener('click', function () {
+      liveFilterActive = !liveFilterActive;
+      liveFilterButton.classList.toggle('is-active', liveFilterActive);
+      liveFilterButton.setAttribute('aria-pressed', liveFilterActive ? 'true' : 'false');
+
+      if (liveFilterActive) {
+        activeLeague = null;
+        document.querySelectorAll('.sb-league-link').forEach(function (item) {
+          item.classList.remove('is-active');
+        });
+      }
+
+      applyDashboardFilters();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     });
   }
 
@@ -167,16 +219,50 @@
   function openBetSlip() {
     if (!betSlip) return;
     betSlip.classList.add('is-open');
+    betSlip.classList.remove('is-minimized');
     betSlip.setAttribute('aria-hidden', 'false');
+  }
+
+  function minimizeBetSlip() {
+    if (!betSlip || !betSlip.classList.contains('is-open')) return;
+    betSlip.classList.add('is-minimized');
+  }
+
+  function expandBetSlip() {
+    if (!betSlip) return;
+    betSlip.classList.remove('is-minimized');
   }
 
   function closeBetSlip() {
     if (betSlip) {
-      betSlip.classList.remove('is-open');
+      betSlip.classList.remove('is-open', 'is-minimized');
       betSlip.setAttribute('aria-hidden', 'true');
     }
     clearMsg();
   }
+
+  /* Clic en el header cuando está minimizado → expandir */
+  if (betSlip) {
+    betSlip.querySelector('.betslip-header') &&
+    betSlip.querySelector('.betslip-header').addEventListener('click', function (e) {
+      if (e.target.closest('#betSlipClose')) return;
+      if (betSlip.classList.contains('is-minimized')) expandBetSlip();
+    });
+  }
+
+  /* Scroll: minimizar al bajar, expandir al subir */
+  var lastScrollY = 0;
+  window.addEventListener('scroll', function () {
+    var currentY = window.scrollY || window.pageYOffset;
+    var scrollingDown = currentY > lastScrollY;
+    lastScrollY = currentY;
+    if (!betSlip || !betSlip.classList.contains('is-open')) return;
+    if (scrollingDown && currentY > 120) {
+      minimizeBetSlip();
+    } else if (!scrollingDown && currentY < 80) {
+      expandBetSlip();
+    }
+  }, { passive: true });
 
   function deselectAll() {
     document.querySelectorAll('.sb-odd.is-selected').forEach(function (btn) {
@@ -383,6 +469,30 @@
   function escapeAttr(value) {
     return escapeHtml(value).replace(/`/g, '&#96;');
   }
+
+  function formatLiveCountdown(startValue, periodValue) {
+    var start = Date.parse(startValue || '');
+    if (!Number.isFinite(start)) return 'Primer tiempo 45:00';
+
+    var elapsedSeconds = Math.max(0, Math.floor((Date.now() - start) / 1000));
+    var halfSeconds = 45 * 60;
+    var period = Number(periodValue) === 2 ? 2 : 1;
+    var label = period === 2 ? 'Segundo tiempo' : 'Primer tiempo';
+    var remaining = Math.max(0, halfSeconds - elapsedSeconds);
+
+    var minutes = Math.floor(remaining / 60);
+    var seconds = remaining % 60;
+    return label + ' ' + String(minutes).padStart(2, '0') + ':' + String(seconds).padStart(2, '0');
+  }
+
+  function updateLiveClocks() {
+    document.querySelectorAll('.sb-live-clock').forEach(function (clock) {
+      clock.textContent = formatLiveCountdown(clock.dataset.liveStart, clock.dataset.livePeriod);
+    });
+  }
+
+  updateLiveClocks();
+  setInterval(updateLiveClocks, 1000);
 
   updateBetSlip();
 })();

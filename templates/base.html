@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=20260528d" />
+  <link rel="stylesheet" href="{% static 'css/layout.css' %}?v=20260528e" />
   <link rel="stylesheet" href="{% static 'css/components.css' %}" />
   <link rel="stylesheet" href="{% static 'css/events.css' %}" />
   {% if request.user.is_authenticated and request.path != "/billetera/" %}
@@ -85,79 +85,81 @@
   <div class="account-drawer-backdrop" id="accountDrawerBackdrop" aria-hidden="true"></div>
   <aside class="account-drawer" id="accountDrawer" aria-hidden="true" aria-labelledby="accountDrawerTitle">
     {% csrf_token %}
+
+    <!-- Header -->
     <div class="account-drawer-head">
       <div>
-        <p class="account-drawer-kicker">Cuenta</p>
-        <h2 id="accountDrawerTitle">Hola {{ request.user.first_name|default:request.user.username|default:"Usuario" }}</h2>
+        <p class="account-drawer-kicker">Mi cuenta</p>
+        <h2 id="accountDrawerTitle">{{ request.user.first_name|default:request.user.username|default:"Usuario" }}</h2>
       </div>
       <button class="account-drawer-close" id="accountDrawerClose" type="button" aria-label="Cerrar cuenta">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-             width="19" height="19" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="17" height="17" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"/>
           <line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
       </button>
     </div>
 
+    <!-- Balance Card -->
     <div class="account-card"
          data-user-id="{{ request.user.id }}"
          data-account-balance="{{ cuenta_drawer_saldo|default:'0.0000'|unlocalize }}">
       <div class="account-card-brand">
-        <img src="{% static 'img/logo.png' %}" alt="" />
-        <span>Apuesta24/7</span>
+        <img src="{% static 'img/logo.png' %}" alt="Apuesta24/7" />
       </div>
       <div class="account-card-stats" aria-label="Resumen de saldo">
         <div>
-          <span class="account-stat-label">Saldo:</span>
+          <span class="account-stat-label">Saldo disponible</span>
           <strong id="accountDrawerBalance">S/ {{ cuenta_drawer_saldo|default:"0.0000"|floatformat:"2u" }}</strong>
         </div>
         <div>
-          <span class="account-stat-label">Bono:</span>
+          <span class="account-stat-label">Bonos</span>
           <strong>S/ {{ cuenta_drawer_bono|default:"0.0000"|floatformat:"2u" }}</strong>
         </div>
       </div>
     </div>
 
+    <!-- Action Buttons -->
     <div class="account-action-grid">
       <button class="account-action-btn account-action-btn-green" id="accountShowRecharge" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" width="20" height="20" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" width="18" height="18" aria-hidden="true">
           <path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>
         </svg>
-        Cargar Saldo
+        Recargar
       </button>
       <button class="account-action-btn account-action-btn-outline" id="accountShowWithdraw" type="button">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" width="20" height="20" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" width="18" height="18" aria-hidden="true">
           <path d="M12 21V9"/><path d="m7 14 5-5 5 5"/><path d="M5 3h14"/>
         </svg>
-        Retirar dinero
+        Retirar
       </button>
     </div>
 
+    <!-- Logout -->
     <a href="/logout/" class="account-logout">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
-           width="17" height="17" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="16" height="16" aria-hidden="true">
         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
         <polyline points="16 17 21 12 16 7"/>
         <line x1="21" y1="12" x2="9" y2="12"/>
       </svg>
       Cerrar sesi&oacute;n
     </a>
+
   </aside>
 
   <div class="account-withdraw-backdrop" id="accountWithdrawModal" aria-hidden="true">
     <form class="account-withdraw-modal account-withdraw-panel account-operation-panel" id="accountWithdrawForm"
-          role="dialog" aria-modal="true" aria-labelledby="accountWithdrawTitle">
+          role="dialog" aria-modal="true" aria-labelledby="accountWithdrawTitle" style="padding:24px;">
       {% csrf_token %}
       <button class="account-withdraw-close" id="accountWithdrawClose" type="button" aria-label="Cerrar retiro">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"
-             width="18" height="18" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" width="16" height="16" aria-hidden="true">
           <line x1="18" y1="6" x2="6" y2="18"/>
           <line x1="6" y1="6" x2="18" y2="18"/>
         </svg>
       </button>
       <div class="account-withdraw-head">
         <div class="account-withdraw-icon" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="20" height="20">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18">
             <path d="M12 21V9"/>
             <path d="m7 14 5-5 5 5"/>
             <path d="M5 3h14"/>
@@ -239,7 +241,7 @@
     </div>
   </footer>
 
-  <script src="{% static 'js/main.js' %}?v=20260528h"></script>
+  <script src="{% static 'js/main.js' %}?v=20260528n"></script>
   {% if request.user.is_authenticated and request.path != "/billetera/" %}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="{% static 'js/pages/billetera.js' %}?v=20260528d"></script>

@@ -5,7 +5,7 @@
 {% block nav_inicio %}active{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}?v=20260528g" />
+<link rel="stylesheet" href="{% static 'css/pages/dashboard.css' %}?v=20260528n" />
 {% endblock %}
 
 {% block content %}
@@ -54,7 +54,10 @@
     </div>
   </div>
 
-  <div class="sb-metric sb-metric--red">
+  <a class="sb-metric sb-metric--red sb-metric--button{% if live_filter_active %} is-active{% endif %}"
+     href="{% if live_filter_active %}{% url 'panel:dashboard' %}{% else %}?estado=en_vivo{% endif %}"
+     data-live-filter
+     aria-pressed="{% if live_filter_active %}true{% else %}false{% endif %}">
     <div class="sb-metric-icon">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="18" height="18" aria-hidden="true">
         <circle cx="12" cy="12" r="9"/>
@@ -66,7 +69,7 @@
       <span class="sb-metric-val">{{ live_count }}</span>
       <span class="sb-metric-unit">partidos</span>
     </div>
-  </div>
+  </a>
 
 </div><!-- /sb-metrics -->
 
@@ -155,7 +158,10 @@
       <!-- Match rows -->
       {% for evento in liga.eventos %}
       <div class="sb-match{% if evento.estado == 'en_vivo' %} sb-match--live{% elif evento.estado == 'finalizado' %} sb-match--done{% endif %}"
-           data-evento-id="{{ evento.id }}">
+           data-evento-id="{{ evento.id }}"
+           data-status="{{ evento.estado }}"
+           data-live-period="{{ evento.periodo_en_vivo|default:1 }}"
+           data-live-start="{% if evento.estado == 'en_vivo' %}{% if evento.periodo_inicio %}{{ evento.periodo_inicio|date:'c' }}{% else %}{{ evento.fecha_actualizacion|date:'c' }}{% endif %}{% else %}{{ evento.fecha_inicio|date:'c' }}{% endif %}">
 
         <!-- Time column -->
         <div class="sb-match-time">
@@ -171,15 +177,32 @@
           <div class="sb-team">
             <span class="sb-team-name">{{ evento.equipo_visitante.nombre }}</span>
           </div>
+          {% if live_filter_active %}
+          <span class="sb-team-meta">
+            {{ evento.deporte.nombre }}{% if evento.liga %} / {{ evento.liga.nombre }}{% endif %}
+          </span>
+          {% endif %}
         </div>
 
         <!-- Status / info icons -->
         <div class="sb-match-info">
           {% if evento.estado == 'en_vivo' %}
-          <span class="sb-live-pulse" aria-label="En vivo"></span>
-          {% endif %}
+          <span class="sb-live-badge" aria-label="En vivo">
+            <span class="sb-live-pulse"></span>
+            EN VIVO
+          </span>
           {% if evento.marcador_local is not None %}
-          <span class="sb-score">{{ evento.marcador_local }} - {{ evento.marcador_visitante }}</span>
+          <span class="sb-score">{{ evento.marcador_local }} — {{ evento.marcador_visitante }}</span>
+          {% else %}
+          <span class="sb-score">0 — 0</span>
+          {% endif %}
+          <span class="sb-live-clock"
+                data-live-period="{{ evento.periodo_en_vivo|default:1 }}"
+                data-live-start="{% if evento.periodo_inicio %}{{ evento.periodo_inicio|date:'c' }}{% else %}{{ evento.fecha_actualizacion|date:'c' }}{% endif %}">
+            {% if evento.periodo_en_vivo == 2 %}Segundo tiempo 45:00{% else %}Primer tiempo 45:00{% endif %}
+          </span>
+          {% elif evento.marcador_local is not None %}
+          <span class="sb-score sb-score--done">{{ evento.marcador_local }} — {{ evento.marcador_visitante }}</span>
           {% endif %}
         </div>
 
@@ -194,6 +217,7 @@
                     data-mercado-id="{{ evento.mercado_principal.id }}"
                     data-sel-id="{{ sel.id }}"
                     data-sel="{{ sel.nombre }}"
+                    data-sel-tipo="{{ sel.tipo }}"
                     data-odd-id="{{ sel.odd.id|default:'' }}"
                     data-odd="{{ sel.odd.valor|decimal4 }}"
                     aria-pressed="false"
@@ -208,7 +232,7 @@
           {% endif %}
         </div>
 
-        {% if evento.mercados_extra %}
+        {% if evento.mercados_extra and evento.estado != 'en_vivo' %}
         <details class="sb-market-drawer">
           <summary>Más mercados</summary>
           <div class="sb-market-grid">
@@ -245,13 +269,23 @@
     </section>
     {% endfor %}
 
+    <div class="sb-empty sb-live-empty" id="sbLiveEmpty" hidden>
+      <h3>No hay partidos en vivo</h3>
+      <p>Apuesta 24/7</p>
+    </div>
+
     {% else %}
     <div class="sb-empty">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="48" height="48" aria-hidden="true">
         <rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
       </svg>
+      {% if live_filter_active %}
+      <h3>No hay partidos en vivo</h3>
+      <p>Activa un partido desde el panel admin para verlo aqu&iacute;.</p>
+      {% else %}
       <h3>No hay partidos disponibles</h3>
       <p>Crea eventos desde el <a href="/admin-panel/#eventos">panel interno</a>.</p>
+      {% endif %}
     </div>
     {% endif %}
 
@@ -272,6 +306,7 @@
       </svg>
       <span>Boleto de apuesta</span>
       <span class="betslip-count">1</span>
+      <span class="betslip-mini-hint">· Toca para ver</span>
     </div>
     <button class="betslip-close" id="betSlipClose" aria-label="Cerrar boleto">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -340,5 +375,5 @@
     csrfToken: '{{ csrf_token }}'
   };
 </script>
-<script src="{% static 'js/pages/dashboard.js' %}?v=20260528d"></script>
+<script src="{% static 'js/pages/dashboard.js' %}?v=20260528j"></script>
 {% endblock %}

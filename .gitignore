@@ -9,5 +9,5 @@ staticfiles/
 media/
 # Claude / IA local
 .claude/
-.CLAUDE.md
 .backups/
+celerybeat-schedule

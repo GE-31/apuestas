@@ -136,54 +136,63 @@
           </thead>
           <tbody id="betsTableBody">
             {% for apuesta in apuestas %}
-            {% with primera=apuesta.selecciones.all.0 %}
-            <tr class="bet-row" data-status="{{ apuesta.estado }}">
+            {% with sels=apuesta.selecciones.all primera=apuesta.selecciones.all.0 %}
+
+            <!-- Fila principal -->
+            <tr class="bet-row{% if apuesta.tipo == 'combinada' %} bet-row--combinada{% endif %}"
+                data-status="{{ apuesta.estado }}"
+                {% if apuesta.tipo == 'combinada' %}
+                data-toggle="combi-{{ apuesta.id }}"
+                style="cursor:pointer;"
+                title="Clic para ver los partidos de la combinada"
+                {% endif %}>
 
               <td>
                 <span class="bet-id">#BET-{{ apuesta.id|stringformat:"04d" }}</span>
+                {% if apuesta.tipo == 'combinada' %}
+                <span class="bet-combinada-tag">COMBI × {{ sels|length }}</span>
+                {% endif %}
               </td>
 
               {% if mostrar_todos_clientes %}
-              <td>
-                <span class="bet-selection">{{ apuesta.usuario.username }}</span>
-              </td>
+              <td><span class="bet-selection">{{ apuesta.usuario.username }}</span></td>
               {% endif %}
 
               <td>
                 <div class="bet-event-cell">
-                  {% if primera %}
-                  <span class="bet-event-name">
-                    {% with dep=primera.seleccion.mercado.evento.deporte.nombre|lower %}
-                      {% if 'futbol' in dep or 'fútbol' in dep %}⚽
-                      {% elif 'basket' in dep %}🏀
-                      {% elif 'tenis' in dep %}🎾
-                      {% elif 'beisbol' in dep %}⚾
-                      {% else %}🏅
-                      {% endif %}
-                    {% endwith %}
-                    {{ primera.seleccion.mercado.evento.equipo_local.nombre }}
-                    vs
-                    {{ primera.seleccion.mercado.evento.equipo_visitante.nombre }}
-                  </span>
-                  <span class="bet-event-market">{{ primera.seleccion.mercado.nombre }}</span>
+                  {% if apuesta.tipo == 'combinada' %}
+                    <!-- Resumen combinada -->
+                    <span class="bet-event-name combi-summary">
+                      🎯 Combinada de {{ sels|length }} partido{{ sels|length|pluralize:"s" }}
+                    </span>
+                    <span class="bet-event-market combi-expand-hint">
+                      <svg class="combi-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="11" height="11"><polyline points="6 9 12 15 18 9"/></svg>
+                      Ver partidos seleccionados
+                    </span>
                   {% else %}
-                  <span class="bet-event-name">—</span>
+                    <span class="bet-event-name">
+                      {% if primera %}
+                      {% with dep=primera.seleccion.mercado.evento.deporte.nombre|lower %}
+                        {% if 'futbol' in dep or 'fútbol' in dep %}⚽{% elif 'basket' in dep %}🏀{% else %}🏅{% endif %}
+                      {% endwith %}
+                      {{ primera.seleccion.mercado.evento.equipo_local.nombre }} vs {{ primera.seleccion.mercado.evento.equipo_visitante.nombre }}
+                      {% endif %}
+                    </span>
+                    {% if primera %}<span class="bet-event-market">{{ primera.seleccion.mercado.nombre }}</span>{% endif %}
                   {% endif %}
                 </div>
               </td>
 
               <td>
-                <span class="bet-selection">{{ primera.seleccion.nombre|default:"—" }}</span>
+                {% if apuesta.tipo == 'combinada' %}
+                  <span class="bet-selection" style="color:#818cf8;">Múltiple</span>
+                {% else %}
+                  <span class="bet-selection">{{ primera.seleccion.nombre|default:"—" }}</span>
+                {% endif %}
               </td>
 
-              <td>
-                <span class="bet-stake">S/ {{ apuesta.stake|floatformat:"2" }}</span>
-              </td>
-
-              <td>
-                <span class="bet-odd">{{ apuesta.odds_total|floatformat:"4" }}</span>
-              </td>
-
+              <td><span class="bet-stake">S/ {{ apuesta.stake|floatformat:"2" }}</span></td>
+              <td><span class="bet-odd">{{ apuesta.odds_total|floatformat:"4" }}</span></td>
               <td>
                 <span class="bet-payout{% if apuesta.estado == 'won' %} bet-payout-won{% endif %}">
                   S/ {{ apuesta.payout_potencial|floatformat:"2" }}
@@ -191,39 +200,78 @@
               </td>
 
               <td>
-                {% if apuesta.estado == 'accepted' %}
-                <span class="bet-badge bet-badge-accepted"><span class="bet-badge-dot"></span>Activa</span>
-                {% elif apuesta.estado == 'won' %}
-                <span class="bet-badge bet-badge-won"><span class="bet-badge-dot"></span>Ganada</span>
-                {% elif apuesta.estado == 'lost' %}
-                <span class="bet-badge bet-badge-lost"><span class="bet-badge-dot"></span>Perdida</span>
-                {% elif apuesta.estado == 'void' or apuesta.estado == 'cancelled' %}
-                <span class="bet-badge bet-badge-void">Anulada</span>
-                {% elif apuesta.estado == 'cashed_out' %}
-                <span class="bet-badge bet-badge-void">Cash-out</span>
-                {% else %}
-                <span class="bet-badge bet-badge-void">{{ apuesta.get_estado_display }}</span>
+                {% if apuesta.estado == 'accepted' %}<span class="bet-badge bet-badge-accepted"><span class="bet-badge-dot"></span>Activa</span>
+                {% elif apuesta.estado == 'won' %}<span class="bet-badge bet-badge-won"><span class="bet-badge-dot"></span>Ganada</span>
+                {% elif apuesta.estado == 'lost' %}<span class="bet-badge bet-badge-lost"><span class="bet-badge-dot"></span>Perdida</span>
+                {% elif apuesta.estado == 'void' or apuesta.estado == 'cancelled' %}<span class="bet-badge bet-badge-void">Anulada</span>
+                {% elif apuesta.estado == 'cashed_out' %}<span class="bet-badge bet-badge-void">Cash-out</span>
+                {% else %}<span class="bet-badge bet-badge-void">{{ apuesta.get_estado_display }}</span>
                 {% endif %}
               </td>
 
               <td>
                 {% if apuesta.cashout_disponible %}
-                <form method="post" action="{% url 'panel:mis_apuestas' %}" class="cashout-form">
+                <form method="post" action="{% url 'panel:mis_apuestas' %}" class="cashout-form"
+                      onsubmit="return confirm('¿Confirmar cashout por S/ {{ apuesta.cashout_valor|floatformat:2 }}?')">
                   {% csrf_token %}
                   <input type="hidden" name="action" value="cashout">
                   <input type="hidden" name="bet_id" value="{{ apuesta.id }}">
-                  <button type="submit" class="cashout-btn">Cashout S/ {{ apuesta.stake|floatformat:"2" }}</button>
+                  <button type="submit" class="cashout-btn {% if apuesta.cashout_valor > apuesta.stake %}cashout-btn--up{% else %}cashout-btn--down{% endif %}">
+                    <span class="cashout-label">Cash-out</span>
+                    <span class="cashout-amount">S/ {{ apuesta.cashout_valor|floatformat:"2" }}</span>
+                  </button>
                 </form>
-                {% else %}
-                <span class="bet-date">-</span>
+                {% else %}<span class="bet-date">-</span>
                 {% endif %}
               </td>
 
-              <td>
-                <span class="bet-date">{{ apuesta.fecha_creacion|date:"d M · H:i" }}</span>
-              </td>
-
+              <td><span class="bet-date">{{ apuesta.fecha_creacion|date:"d M · H:i" }}</span></td>
             </tr>
+
+            <!-- Fila desplegable de combinada -->
+            {% if apuesta.tipo == 'combinada' %}
+            <tr class="combi-detail" id="combi-{{ apuesta.id }}" style="display:none;">
+              <td colspan="{% if mostrar_todos_clientes %}10{% else %}9{% endif %}" style="padding:0;">
+                <div class="combi-detail-inner">
+                  <div class="combi-detail-title">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+                    Partidos de la combinada
+                  </div>
+                  <div class="combi-legs">
+                    {% for bs in sels %}
+                    <div class="combi-leg">
+                      <div class="combi-leg-num">{{ forloop.counter }}</div>
+                      <div class="combi-leg-body">
+                        <div class="combi-leg-match">
+                          {% with dep=bs.seleccion.mercado.evento.deporte.nombre|lower %}
+                            {% if 'futbol' in dep or 'fútbol' in dep %}⚽{% elif 'basket' in dep %}🏀{% else %}🏅{% endif %}
+                          {% endwith %}
+                          <strong>{{ bs.seleccion.mercado.evento.equipo_local.nombre }} vs {{ bs.seleccion.mercado.evento.equipo_visitante.nombre }}</strong>
+                          <span class="combi-leg-liga">{{ bs.seleccion.mercado.evento.liga.nombre|default:"" }}</span>
+                        </div>
+                        <div class="combi-leg-market">{{ bs.seleccion.mercado.nombre }}</div>
+                        <div class="combi-leg-sel">
+                          <span class="combi-leg-pick">{{ bs.seleccion.nombre }}</span>
+                          <span class="combi-leg-odd">@ {{ bs.odd_valor_tomado|floatformat:"2" }}</span>
+                          <span class="combi-leg-result
+                            {% if bs.resultado == 'ganada' %} combi-result-won
+                            {% elif bs.resultado == 'perdida' %} combi-result-lost
+                            {% endif %}">
+                            {% if bs.resultado == 'ganada' %}✓ Ganada
+                            {% elif bs.resultado == 'perdida' %}✗ Perdida
+                            {% elif bs.resultado == 'pendiente' %}⏳ Pendiente
+                            {% else %}{{ bs.resultado }}{% endif %}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </td>
+            </tr>
+            {% endif %}
+
             {% endwith %}
             {% endfor %}
           </tbody>
@@ -319,4 +367,19 @@
 
 {% block extra_js %}
 <script src="{% static 'js/pages/mis_apuestas.js' %}?v=20260527g"></script>
+<script>
+/* Acordeón combinadas */
+document.querySelectorAll('[data-toggle]').forEach(function (row) {
+  row.addEventListener('click', function (e) {
+    if (e.target.closest('form') || e.target.closest('button')) return;
+    var id = row.dataset.toggle;
+    var detail = document.getElementById(id);
+    if (!detail) return;
+    var open = detail.style.display !== 'none';
+    detail.style.display = open ? 'none' : 'table-row';
+    var chevron = row.querySelector('.combi-chevron');
+    if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+  });
+});
+</script>
 {% endblock %}
